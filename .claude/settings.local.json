@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:www.ole.com.ar)",
+      "WebSearch",
+      "WebFetch(domain:en.wikipedia.org)",
+      "WebFetch(domain:www.fifa.com)",
+      "WebFetch(domain:www.nbcsports.com)",
+      "WebFetch(domain:punchng.com)"
+    ]
+  }
+}

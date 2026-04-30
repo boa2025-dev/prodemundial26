@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Empezar · Prode Mundial 2026</title>
+  <link rel="icon" href="favicon.ico"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1544307278201390" crossorigin="anonymous"></script>
+  <style>
+    :root{
+      --bg:#08090f; --gold:#c9a84c; --gold-l:#f0c040; --glow:rgba(201,168,76,.35);
+      --red:#e63946; --white:#f0f4f8; --muted:#7a8898;
+      --border:rgba(201,168,76,.2); --bi:rgba(255,255,255,.1); --green:#4cc94c;
+      --fh:'Montserrat',sans-serif; --fb:'Inter',sans-serif;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--white);font-family:var(--fb);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1rem;-webkit-font-smoothing:antialiased}
+
+    /* Background glow */
+    body::before{content:'';position:fixed;top:-30%;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(201,168,76,.08) 0%,transparent 70%);pointer-events:none}
+
+    .card{width:100%;max-width:520px}
+
+    /* Header */
+    .ob-logo{display:flex;align-items:center;gap:.6rem;font-family:var(--fh);font-weight:900;font-size:1rem;margin-bottom:2.5rem;justify-content:center}
+    .logo-b{width:30px;height:30px;background:linear-gradient(135deg,var(--gold),#6b4a10);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.9rem;box-shadow:0 0 14px var(--glow)}
+    .gold{color:var(--gold)}
+
+    .ob-title{font-family:var(--fh);font-size:clamp(1.6rem,5vw,2.2rem);font-weight:900;letter-spacing:-.02em;text-align:center;margin-bottom:.6rem}
+    .ob-sub{text-align:center;color:var(--muted);font-size:.95rem;line-height:1.6;margin-bottom:2.5rem}
+    .ob-sub strong{color:var(--white)}
+    .ob-name{color:var(--white);font-weight:600}
+
+    /* Options */
+    .ob-options{display:flex;flex-direction:column;gap:.9rem;margin-bottom:1.8rem}
+
+    .ob-option{display:flex;align-items:center;gap:1.2rem;padding:1.4rem 1.5rem;background:rgba(255,255,255,.03);border:1.5px solid rgba(255,255,255,.08);border-radius:20px;cursor:pointer;transition:border-color .2s,background .2s,transform .2s;text-align:left;width:100%}
+    .ob-option:hover{border-color:var(--gold);background:rgba(201,168,76,.06);transform:translateY(-2px)}
+    .ob-option.selected{border-color:var(--gold);background:rgba(201,168,76,.08)}
+
+    .ob-option-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0}
+    .ob-option.create .ob-option-icon{background:linear-gradient(135deg,rgba(201,168,76,.2),rgba(201,168,76,.08));border:1px solid var(--border)}
+    .ob-option.join .ob-option-icon{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1)}
+
+    .ob-option-text h3{font-family:var(--fh);font-size:.95rem;font-weight:800;margin-bottom:.25rem;color:var(--white)}
+    .ob-option-text p{font-size:.82rem;color:var(--muted);line-height:1.5}
+
+    /* Forms */
+    .ob-form{background:rgba(12,18,32,.6);border:1px solid var(--border);border-radius:20px;padding:1.6rem;margin-bottom:1.2rem;display:none}
+    .ob-form.show{display:block}
+
+    .form-label{display:block;font-size:.72rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem}
+    .form-input{width:100%;padding:.85rem 1rem;background:rgba(255,255,255,.04);border:1px solid var(--bi);border-radius:12px;color:var(--white);font-family:var(--fb);font-size:.95rem;outline:none;transition:border-color .2s,box-shadow .2s;margin-bottom:1rem}
+    .form-input::placeholder{color:rgba(122,136,152,.45)}
+    .form-input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.12)}
+
+    .code-display{display:flex;align-items:center;justify-content:space-between;padding:.85rem 1rem;background:rgba(201,168,76,.06);border:1px solid var(--border);border-radius:12px;margin-bottom:1.2rem}
+    .code-val{font-family:'Courier New',monospace;font-size:1.6rem;font-weight:900;letter-spacing:.22em;color:var(--gold-l)}
+    .btn-copy{background:none;border:1px solid var(--border);color:var(--muted);font-size:.75rem;padding:.3rem .7rem;border-radius:50px;cursor:pointer;transition:border-color .2s,color .2s;font-family:var(--fb)}
+    .btn-copy:hover{border-color:var(--gold);color:var(--gold)}
+    .btn-copy.copied{border-color:var(--green);color:var(--green)}
+
+    .form-error{background:rgba(230,57,70,.1);border:1px solid rgba(230,57,70,.3);border-radius:10px;padding:.7rem 1rem;font-size:.82rem;color:#ff6b75;margin-bottom:.8rem;display:none;line-height:1.5}
+    .form-error.show{display:block}
+
+    /* Buttons */
+    .btn-primary{display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;padding:.9rem;border-radius:50px;font-family:var(--fh);font-weight:800;font-size:.9rem;letter-spacing:.05em;cursor:pointer;border:none;background:linear-gradient(135deg,var(--gold),#a07830);color:#1a1000;box-shadow:0 4px 24px rgba(201,168,76,.35);transition:transform .15s,box-shadow .15s,opacity .2s}
+    .btn-primary:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 32px rgba(201,168,76,.5)}
+    .btn-primary:disabled{opacity:.45;cursor:not-allowed;transform:none}
+    .btn-spinner{display:none;width:16px;height:16px;border:2px solid rgba(0,0,0,.25);border-top-color:#1a1000;border-radius:50%;animation:spin .7s linear infinite}
+    .btn-primary.loading .btn-label{display:none}
+    .btn-primary.loading .btn-spinner{display:block}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    .btn-skip{display:none}
+
+    /* Success state */
+    .ob-success{text-align:center;padding:1.5rem;display:none}
+    .ob-success.show{display:block}
+    .success-icon{font-size:3rem;margin-bottom:.8rem}
+    .success-title{font-family:var(--fh);font-size:1.1rem;font-weight:800;margin-bottom:.4rem}
+    .success-title{color:var(--white)}
+    .success-sub{font-size:.85rem;color:var(--muted)}
+
+    @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+    .card{animation:fadeIn .4s ease}
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <div class="ob-logo">
+    <img src="logo.png" alt="Logo" style="width:30px;height:30px;border-radius:50%;object-fit:cover;box-shadow:0 0 14px var(--glow)"/>
+    <span>PRODE <span class="gold">2026</span></span>
+  </div>
+
+  <h1 class="ob-title">¡Bienvenido<span id="nameDisplay"></span>!</h1>
+  <p class="ob-sub">Para empezar, <strong>creá tu propio grupo</strong> de amigos o <strong>unite al de alguien</strong> con un código.</p>
+
+  <div class="ob-options">
+    <button class="ob-option create" id="optCreate">
+      <div class="ob-option-icon">🏆</div>
+      <div class="ob-option-text">
+        <h3>Crear un grupo nuevo</h3>
+        <p>Generá un código y compartilo con tus amigos para que se unan.</p>
+      </div>
+    </button>
+    <button class="ob-option join" id="optJoin">
+      <div class="ob-option-icon">🔑</div>
+      <div class="ob-option-text">
+        <h3>Unirme a un grupo existente</h3>
+        <p>Ingresá el código de 6 letras que te compartieron.</p>
+      </div>
+    </button>
+  </div>
+
+  <!-- Create form -->
+  <div class="ob-form" id="formCreate">
+    <div class="form-error" id="createError"></div>
+    <label class="form-label">Nombre del grupo</label>
+    <input class="form-input" type="text" id="groupName" placeholder="Ej: Los Cracks del Barrio" maxlength="40"/>
+    <label class="form-label">Código de invitación</label>
+    <div class="code-display">
+      <span class="code-val" id="generatedCode">------</span>
+      <button class="btn-copy" id="btnCopyCode">Copiar</button>
+    </div>
+    <button class="btn-primary" id="btnConfirmCreate">
+      <span class="btn-label">Crear grupo e ir al dashboard</span>
+      <div class="btn-spinner"></div>
+    </button>
+  </div>
+
+  <!-- Join form -->
+  <div class="ob-form" id="formJoin">
+    <div class="form-error" id="joinError"></div>
+    <label class="form-label">Código del grupo</label>
+    <input class="form-input" type="text" id="joinCode" placeholder="XXXXXX" maxlength="6"
+      style="text-transform:uppercase;letter-spacing:.22em;font-size:1.1rem;font-family:'Courier New',monospace"/>
+    <button class="btn-primary" id="btnConfirmJoin">
+      <span class="btn-label">Unirme e ir al dashboard</span>
+      <div class="btn-spinner"></div>
+    </button>
+  </div>
+
+  <!-- Success -->
+  <div class="ob-success" id="successPanel">
+    <div class="success-icon" id="successIcon">🎉</div>
+    <div class="success-title" id="successTitle">¡Todo listo!</div>
+    <div class="success-sub" id="successSub">Redirigiendo al dashboard...</div>
+  </div>
+
+</div>
+
+<script type="module">
+  import { initializeApp, getApps, getApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, serverTimestamp }
+    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBJeBpq7_9R23rtr_fGoUQf8fXKgcBib-E",
+    authDomain: "prode-mundial-2026-4b023.firebaseapp.com",
+    projectId: "prode-mundial-2026-4b023",
+    storageBucket: "prode-mundial-2026-4b023.firebasestorage.app",
+    messagingSenderId: "503197700056",
+    appId: "1:503197700056:web:e13e6e00445b059c716cad",
+  };
+
+  const app  = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  let currentUser = null;
+  let pendingCode = '';
+
+  const authTimeout = setTimeout(() => { window.location.href = 'login.html'; }, 8000);
+
+  onAuthStateChanged(auth, user => {
+    clearTimeout(authTimeout);
+    if (!user) { window.location.href = 'login.html'; return; }
+    currentUser = user;
+    // Show first name if available
+    const name = user.displayName?.split(' ')[0];
+    if (name) document.getElementById('nameDisplay').textContent = `, ${name}`;
+  });
+
+  // ── Option selection ──
+  document.getElementById('optCreate').addEventListener('click', () => {
+    document.getElementById('optCreate').classList.add('selected');
+    document.getElementById('optJoin').classList.remove('selected');
+    document.getElementById('formJoin').classList.remove('show');
+    pendingCode = genCode();
+    document.getElementById('generatedCode').textContent = pendingCode;
+    document.getElementById('groupName').value = '';
+    document.getElementById('createError').classList.remove('show');
+    document.getElementById('formCreate').classList.add('show');
+  });
+
+  document.getElementById('optJoin').addEventListener('click', () => {
+    document.getElementById('optJoin').classList.add('selected');
+    document.getElementById('optCreate').classList.remove('selected');
+    document.getElementById('formCreate').classList.remove('show');
+    document.getElementById('joinCode').value = '';
+    document.getElementById('joinError').classList.remove('show');
+    document.getElementById('formJoin').classList.add('show');
+  });
+
+  // ── Copy code ──
+  document.getElementById('btnCopyCode').addEventListener('click', () => {
+    navigator.clipboard.writeText(pendingCode);
+    const btn = document.getElementById('btnCopyCode');
+    btn.textContent = '✓ Copiado'; btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('copied'); }, 2000);
+  });
+
+  // ── Create group ──
+  document.getElementById('btnConfirmCreate').addEventListener('click', async () => {
+    const name  = document.getElementById('groupName').value.trim();
+    const errEl = document.getElementById('createError');
+    errEl.classList.remove('show');
+    if (!name) { errEl.textContent = 'Poné un nombre al grupo.'; errEl.classList.add('show'); return; }
+
+    const btn = document.getElementById('btnConfirmCreate');
+    btn.classList.add('loading'); btn.disabled = true;
+    try {
+      const existing = await getDoc(doc(db, 'groups', pendingCode));
+      if (existing.exists()) { pendingCode = genCode(); document.getElementById('generatedCode').textContent = pendingCode; }
+
+      await setDoc(doc(db, 'groups', pendingCode), {
+        name, code: pendingCode,
+        createdBy: currentUser.uid,
+        members: [{ uid: currentUser.uid, displayName: currentUser.displayName || currentUser.email }],
+        memberUids: [currentUser.uid],
+        createdAt: serverTimestamp(),
+      });
+      showSuccess('🏆', `¡Grupo "${name}" creado!`, `Código: ${pendingCode} · Redirigiendo...`);
+      setTimeout(() => { window.location.href = 'dashboard.html'; }, 1800);
+    } catch(err) {
+      errEl.textContent = 'Error al crear el grupo. Intentá de nuevo.';
+      errEl.classList.add('show');
+      btn.classList.remove('loading'); btn.disabled = false;
+    }
+  });
+
+  // ── Join group ──
+  document.getElementById('joinCode').addEventListener('input', e => {
+    e.target.value = e.target.value.toUpperCase().replace(/[^A-Z]/g, '');
+  });
+
+  document.getElementById('btnConfirmJoin').addEventListener('click', async () => {
+    const code  = document.getElementById('joinCode').value.trim().toUpperCase();
+    const errEl = document.getElementById('joinError');
+    errEl.classList.remove('show');
+    if (code.length !== 6) { errEl.textContent = 'El código debe tener exactamente 6 letras.'; errEl.classList.add('show'); return; }
+
+    const btn = document.getElementById('btnConfirmJoin');
+    btn.classList.add('loading'); btn.disabled = true;
+    try {
+      const groupDoc = await getDoc(doc(db, 'groups', code));
+      if (!groupDoc.exists()) { errEl.textContent = 'No existe ningún grupo con ese código.'; errEl.classList.add('show'); btn.classList.remove('loading'); btn.disabled = false; return; }
+
+      const data = groupDoc.data();
+      if (!data.memberUids?.includes(currentUser.uid)) {
+        await updateDoc(doc(db, 'groups', code), {
+          memberUids: arrayUnion(currentUser.uid),
+          members: arrayUnion({ uid: currentUser.uid, displayName: currentUser.displayName || currentUser.email }),
+        });
+      }
+      showSuccess('🙌', `¡Te uniste a "${data.name}"!`, 'Redirigiendo al dashboard...');
+      setTimeout(() => { window.location.href = 'dashboard.html'; }, 1800);
+    } catch(err) {
+      errEl.textContent = 'Error al unirse. Intentá de nuevo.';
+      errEl.classList.add('show');
+      btn.classList.remove('loading'); btn.disabled = false;
+    }
+  });
+
+  // ── Helpers ──
+  function genCode() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+    let c = '';
+    for (let i = 0; i < 6; i++) c += chars[Math.floor(Math.random() * chars.length)];
+    return c;
+  }
+
+  function showSuccess(icon, title, sub) {
+    document.querySelector('.ob-options').style.display = 'none';
+    document.getElementById('formCreate').classList.remove('show');
+    document.getElementById('formJoin').classList.remove('show');
+    document.getElementById('successIcon').textContent = icon;
+    document.getElementById('successTitle').textContent = title;
+    document.getElementById('successSub').textContent = sub;
+    document.getElementById('successPanel').classList.add('show');
+  }
+</script>
+</body>
+</html>

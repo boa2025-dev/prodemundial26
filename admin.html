@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Panel Admin · Prode Mundial 2026</title>
+  <link rel="icon" href="favicon.ico"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --bg:#08090f; --navy:#0c1220;
+      --gold:#c9a84c; --gold-l:#f0c040; --glow:rgba(201,168,76,.35);
+      --red:#e63946; --white:#f0f4f8; --muted:#7a8898;
+      --border:rgba(201,168,76,.2); --bi:rgba(255,255,255,.1);
+      --green:#4cc94c;
+      --fh:'Montserrat',sans-serif; --fb:'Inter',sans-serif;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--white);font-family:var(--fb);min-height:100vh;-webkit-font-smoothing:antialiased;padding-bottom:110px}
+    a{color:inherit;text-decoration:none}
+
+    /* NAV */
+    nav{background:rgba(8,9,15,.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:.9rem 0;position:sticky;top:0;z-index:50}
+    .nav-in{width:90%;max-width:1200px;margin:auto;display:flex;align-items:center;gap:1rem}
+    .back-btn{display:flex;align-items:center;gap:.4rem;font-size:.85rem;color:var(--muted);transition:color .2s;flex-shrink:0}
+    .back-btn:hover{color:var(--gold)}
+    .nav-center{flex:1;text-align:center}
+    .nav-title{font-family:var(--fh);font-weight:900;font-size:1rem;letter-spacing:.05em}
+    .gold{color:var(--gold)}
+    .admin-badge{font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:rgba(230,57,70,.15);border:1px solid rgba(230,57,70,.35);color:#ff6b75;padding:.14rem .5rem;border-radius:50px;margin-left:.4rem;vertical-align:middle}
+    .btn-logout{background:none;border:1px solid var(--border);color:var(--muted);font-size:.78rem;padding:.35rem .8rem;border-radius:50px;cursor:pointer;transition:border-color .2s,color .2s;font-family:var(--fb);flex-shrink:0}
+    .btn-logout:hover{border-color:var(--red);color:var(--red)}
+
+    /* PHASE SWITCHER */
+    .phase-switcher{background:rgba(8,9,15,.95);border-bottom:1px solid rgba(255,255,255,.06);position:sticky;top:57px;z-index:40;padding:0 5%}
+    .phase-tabs{display:flex;gap:0}
+    .phase-tab{padding:.8rem 1.4rem;font-family:var(--fh);font-weight:700;font-size:.82rem;letter-spacing:.05em;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:color .2s,border-color .2s;white-space:nowrap}
+    .phase-tab:hover{color:var(--white)}
+    .phase-tab.active{color:var(--gold-l);border-color:var(--gold)}
+
+    /* GROUP TABS (inside group phase) */
+    .group-tabs-wrap{background:rgba(10,14,24,.8);border-bottom:1px solid rgba(255,255,255,.04);overflow-x:auto;scrollbar-width:none}
+    .group-tabs-wrap::-webkit-scrollbar{display:none}
+    .group-tabs{display:flex;width:max-content;min-width:100%;padding:0 5%}
+    .g-tab{flex-shrink:0;padding:.6rem 1rem;font-family:var(--fh);font-weight:700;font-size:.78rem;letter-spacing:.06em;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:color .2s,border-color .2s}
+    .g-tab:hover{color:var(--white)}
+    .g-tab.active{color:var(--gold-l);border-color:var(--gold)}
+    .g-tab.done{color:var(--green)}
+    .g-tab.done.active{border-color:var(--green)}
+
+    /* MAIN */
+    main{width:90%;max-width:960px;margin:0 auto;padding:2rem 0}
+
+    /* SECTION HEADERS */
+    .section-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.8rem;gap:.8rem;flex-wrap:wrap}
+    .section-hdr-left h2{font-family:var(--fh);font-size:1.4rem;font-weight:800}
+    .section-hdr-left p{font-size:.83rem;color:var(--muted);margin-top:.3rem}
+
+    /* MATCHDAY */
+    .matchday{margin-bottom:2rem}
+    .matchday-label{font-family:var(--fh);font-size:.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:.8rem;display:flex;align-items:center;gap:.6rem}
+    .matchday-label::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.06)}
+
+    /* GROUP MATCH ROW */
+    .match-row{background:rgba(12,18,32,.8);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:1rem 1.2rem;margin-bottom:.7rem;transition:border-color .2s}
+    .match-row.has-result{border-color:rgba(76,201,76,.2)}
+    .match-teams{display:flex;align-items:center;gap:.6rem}
+    .team{display:flex;align-items:center;gap:.5rem;flex:1;min-width:0}
+    .team.away{flex-direction:row-reverse}
+    .team-flag{font-size:1.3rem;line-height:1;flex-shrink:0}
+    .team-name{font-family:var(--fh);font-size:.87rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .team.away .team-name{text-align:right}
+    .score-inputs{display:flex;align-items:center;gap:.4rem;flex-shrink:0}
+    .score-in{width:44px;height:44px;background:rgba(255,255,255,.06);border:1px solid var(--bi);border-radius:10px;color:var(--green);font-family:var(--fh);font-weight:800;font-size:1rem;text-align:center;outline:none;transition:border-color .2s,background .2s,box-shadow .2s;-moz-appearance:textfield}
+    .score-in::-webkit-outer-spin-button,.score-in::-webkit-inner-spin-button{-webkit-appearance:none}
+    .score-in:focus{border-color:var(--green);background:rgba(76,201,76,.08);box-shadow:0 0 0 3px rgba(76,201,76,.12)}
+    .score-in:hover{border-color:rgba(255,255,255,.25)}
+    .score-sep{color:var(--muted);font-size:.8rem;flex-shrink:0}
+    .match-meta{display:flex;align-items:center;justify-content:space-between;margin-top:.55rem;font-size:.7rem;color:var(--muted)}
+    .result-badge{display:inline-flex;align-items:center;gap:.3rem;font-size:.68rem;background:rgba(76,201,76,.1);border:1px solid rgba(76,201,76,.3);color:var(--green);padding:.12rem .5rem;border-radius:50px}
+
+    /* ── KNOCKOUT SECTION ── */
+    .ko-round{margin-bottom:2.5rem}
+    .ko-round-hdr{display:flex;align-items:center;gap:.8rem;margin-bottom:1.2rem}
+    .ko-round-title{font-family:var(--fh);font-size:.72rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+    .ko-round-line{flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent)}
+
+    /* Phase toggle switch */
+    .phase-toggle-wrap{display:flex;align-items:center;gap:.5rem;flex-shrink:0}
+    .phase-toggle-label{font-size:.68rem;font-weight:600;color:var(--muted);white-space:nowrap;transition:color .2s}
+    .phase-toggle-label.on{color:var(--green)}
+    .toggle-switch{position:relative;width:36px;height:20px;flex-shrink:0}
+    .toggle-switch input{opacity:0;width:0;height:0;position:absolute}
+    .toggle-track{position:absolute;inset:0;background:rgba(255,255,255,.1);border-radius:20px;cursor:pointer;transition:background .25s;border:1px solid rgba(255,255,255,.12)}
+    .toggle-track::after{content:'';position:absolute;top:3px;left:3px;width:12px;height:12px;background:#fff;border-radius:50%;transition:transform .25s,background .25s;box-shadow:0 1px 3px rgba(0,0,0,.4)}
+    .toggle-switch input:checked + .toggle-track{background:var(--green);border-color:var(--green)}
+    .toggle-switch input:checked + .toggle-track::after{transform:translateX(16px)}
+
+    .ko-match{background:rgba(12,18,32,.8);border:1px solid rgba(255,255,255,.07);border-radius:18px;padding:1.2rem 1.4rem;margin-bottom:.9rem;transition:border-color .2s}
+    .ko-match.configured{border-color:rgba(201,168,76,.2)}
+    .ko-match.has-result{border-color:rgba(76,201,76,.2)}
+
+    .ko-match-num{font-family:var(--fh);font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.9rem}
+
+    .ko-teams-row{display:flex;align-items:center;gap:.8rem;margin-bottom:.9rem}
+    .ko-team-inputs{display:flex;align-items:center;gap:.4rem;flex:1}
+    .ko-flag-in{width:44px;height:40px;background:rgba(255,255,255,.04);border:1px solid var(--bi);border-radius:10px;color:var(--white);font-size:1.2rem;text-align:center;outline:none;transition:border-color .2s;font-family:var(--fb)}
+    .ko-flag-in:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.12)}
+    .ko-name-in{flex:1;height:40px;background:rgba(255,255,255,.04);border:1px solid var(--bi);border-radius:10px;color:var(--white);font-family:var(--fh);font-weight:700;font-size:.85rem;padding:0 .75rem;outline:none;transition:border-color .2s}
+    .ko-name-in:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.12)}
+    .ko-name-in::placeholder{color:rgba(122,136,152,.4);font-weight:400}
+    .ko-vs{color:var(--muted);font-family:var(--fh);font-weight:800;font-size:.8rem;flex-shrink:0}
+
+    .ko-bottom-row{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap}
+    .ko-date-in{flex:1;min-width:160px;height:38px;background:rgba(255,255,255,.04);border:1px solid var(--bi);border-radius:10px;color:var(--white);font-family:var(--fb);font-size:.83rem;padding:0 .75rem;outline:none;transition:border-color .2s}
+    .ko-date-in:focus{border-color:var(--gold)}
+    .ko-venue-in{flex:2;min-width:160px;height:38px;background:rgba(255,255,255,.04);border:1px solid var(--bi);border-radius:10px;color:var(--white);font-family:var(--fb);font-size:.83rem;padding:0 .75rem;outline:none;transition:border-color .2s}
+    .ko-venue-in:focus{border-color:var(--gold)}
+    .ko-date-in::placeholder,.ko-venue-in::placeholder{color:rgba(122,136,152,.4)}
+    .ko-score-wrap{display:flex;align-items:center;gap:.4rem;flex-shrink:0}
+    .ko-score-label{font-size:.7rem;color:var(--muted);font-weight:600;letter-spacing:.05em;white-space:nowrap}
+
+    /* AUTO-CALC BUTTON */
+    .btn-auto{display:inline-flex;align-items:center;gap:.5rem;padding:.6rem 1.3rem;border-radius:50px;font-family:var(--fh);font-weight:700;font-size:.8rem;letter-spacing:.04em;cursor:pointer;border:none;background:linear-gradient(135deg,rgba(201,168,76,.2),rgba(201,168,76,.08));color:var(--gold-l);border:1px solid var(--border);transition:background .2s,transform .15s}
+    .btn-auto:hover{background:linear-gradient(135deg,rgba(201,168,76,.3),rgba(201,168,76,.15));transform:translateY(-1px)}
+
+    /* AUTO-CALC STATUS */
+    .auto-status{background:rgba(76,201,76,.08);border:1px solid rgba(76,201,76,.2);border-radius:12px;padding:.75rem 1rem;font-size:.82rem;color:var(--green);margin-bottom:1.5rem;display:none}
+    .auto-status.show{display:block}
+    .auto-warn{background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.2);border-radius:12px;padding:.75rem 1rem;font-size:.82rem;color:var(--gold);margin-bottom:1.5rem;display:none}
+    .auto-warn.show{display:block}
+
+    /* STICKY SAVE BAR */
+    .save-bar{position:fixed;bottom:0;left:0;right:0;z-index:40;background:rgba(8,9,15,.95);border-top:1px solid var(--border);backdrop-filter:blur(16px);padding:.9rem 5%}
+    .save-bar-inner{max-width:960px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:1rem}
+    .save-info{font-size:.82rem;color:var(--muted)}
+    .save-info strong{color:var(--white)}
+    .btn-save{display:inline-flex;align-items:center;gap:.5rem;padding:.85rem 2rem;border-radius:50px;font-family:var(--fh);font-weight:800;font-size:.9rem;letter-spacing:.05em;cursor:pointer;border:none;background:linear-gradient(135deg,var(--green),#2a9a2a);color:#000;box-shadow:0 4px 24px rgba(76,201,76,.3);transition:transform .2s,box-shadow .2s,opacity .2s}
+    .btn-save:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 32px rgba(76,201,76,.45)}
+    .btn-save:disabled{opacity:.45;cursor:not-allowed;transform:none}
+    .btn-save .s-spinner{display:none;width:16px;height:16px;border:2px solid rgba(0,0,0,.25);border-top-color:#000;border-radius:50%;animation:spin .7s linear infinite}
+    .btn-save.loading .s-text{display:none}
+    .btn-save.loading .s-spinner{display:block}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* TOAST */
+    .toast{position:fixed;bottom:5rem;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(20,30,50,.95);border:1px solid var(--border);border-radius:50px;padding:.75rem 1.5rem;font-size:.88rem;backdrop-filter:blur(16px);z-index:200;opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;white-space:nowrap}
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    .toast.success{border-color:var(--green);color:var(--green)}
+    .toast.error{border-color:var(--red);color:#ff6b75}
+
+    .loading-state{text-align:center;padding:5rem;color:var(--muted)}
+    .spinner-lg{width:40px;height:40px;border:3px solid rgba(201,168,76,.2);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 1rem}
+    .denied{text-align:center;padding:5rem 1rem}
+    .denied-icon{font-size:3.5rem;margin-bottom:1rem}
+    .denied h2{font-family:var(--fh);font-size:1.3rem;font-weight:800;margin-bottom:.5rem}
+    .denied p{color:var(--muted);font-size:.9rem}
+
+    @media(max-width:600px){
+      .ko-bottom-row{flex-direction:column;align-items:stretch}
+      .ko-date-in,.ko-venue-in{min-width:unset;width:100%}
+      .match-venue{display:none}
+    }
+  </style>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1544307278201390" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<nav>
+  <div class="nav-in">
+    <a href="dashboard.html" class="back-btn">← Dashboard</a>
+    <div class="nav-center">
+      <span class="nav-title">PANEL <span class="gold">ADMIN</span></span>
+      <span class="admin-badge">ADMIN</span>
+    </div>
+    <button class="btn-logout" id="btnLogout">Salir</button>
+  </div>
+</nav>
+
+<!-- Phase switcher -->
+<div class="phase-switcher">
+  <div class="phase-tabs">
+    <div class="phase-tab active" data-phase="groups">⚽ Fase de Grupos</div>
+    <div class="phase-tab" data-phase="knockout">⚔️ Eliminatorias</div>
+  </div>
+</div>
+
+<!-- Group subtabs (only visible in groups phase) -->
+<div class="group-tabs-wrap" id="groupTabsWrap">
+  <div class="group-tabs" id="groupTabBar"></div>
+</div>
+
+<main id="mainContent">
+  <div class="loading-state">
+    <div class="spinner-lg"></div>
+    Cargando...
+  </div>
+</main>
+
+<div class="save-bar">
+  <div class="save-bar-inner">
+    <div class="save-info" id="saveInfo">Cargando...</div>
+    <button class="btn-save" id="btnSave" disabled>
+      <span class="s-text">Guardar</span>
+      <div class="s-spinner"></div>
+    </button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+  import { initializeApp, getApps, getApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import { getFirestore, doc, getDoc, setDoc, serverTimestamp }
+    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+  import { MATCHES, GROUP_IDS, GRUPOS_DEF, KNOCKOUT_ROUNDS, BRACKET_MAP } from './matches-data.js';
+
+  const ADMIN_EMAIL = 'bautistaoteroalen2008@gmail.com';
+  const firebaseConfig = {
+    apiKey: "AIzaSyBJeBpq7_9R23rtr_fGoUQf8fXKgcBib-E",
+    authDomain: "prode-mundial-2026-4b023.firebaseapp.com",
+    projectId: "prode-mundial-2026-4b023",
+    storageBucket: "prode-mundial-2026-4b023.firebasestorage.app",
+    messagingSenderId: "503197700056",
+    appId: "1:503197700056:web:e13e6e00445b059c716cad",
+  };
+
+  const app  = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  let currentUser    = null;
+  let currentPhase   = 'groups';   // 'groups' | 'knockout'
+  let activeGroupTab = GROUP_IDS[0];
+  let savedResults   = {};   // group stage results { matchId: {home,away} }
+  let savedKnockout  = {};   // knockout bracket+results { matchId: {slot1,slot2,kickoff,sede,home,away} }
+  let savedPhases    = {};   // { R32: true, R16: false, ... }
+  let isDirty        = false;
+
+  // ── Auth ──
+  const authTimeout = setTimeout(() => { window.location.href = 'login.html'; }, 8000);
+  onAuthStateChanged(auth, async user => {
+    clearTimeout(authTimeout);
+    if (!user) { window.location.href = 'login.html'; return; }
+    if (user.email !== ADMIN_EMAIL) { showAccessDenied(); return; }
+    currentUser = user;
+    await loadAll();
+  });
+
+  document.getElementById('btnLogout').addEventListener('click', async () => {
+    await signOut(auth); window.location.href = 'login.html';
+  });
+
+  function showAccessDenied() {
+    document.getElementById('groupTabsWrap').style.display = 'none';
+    document.getElementById('mainContent').innerHTML = `
+      <div class="denied"><div class="denied-icon">🔒</div>
+      <h2>Acceso restringido</h2><p>Solo el administrador puede acceder a este panel.</p></div>`;
+    document.getElementById('btnSave').disabled = true;
+    document.getElementById('saveInfo').textContent = '';
+  }
+
+  async function loadAll() {
+    try {
+      const [resSnap, koSnap, phasesSnap] = await Promise.all([
+        getDoc(doc(db, 'results', 'matches')),
+        getDoc(doc(db, 'knockout', 'bracket')),
+        getDoc(doc(db, 'knockout', 'phases')),
+      ]);
+      savedResults  = resSnap.exists()    ? (resSnap.data().scores  || {}) : {};
+      savedKnockout = koSnap.exists()     ? (koSnap.data()          || {}) : {};
+      savedPhases   = phasesSnap.exists() ? (phasesSnap.data()      || {}) : {};
+    } catch(err) {
+      document.getElementById('mainContent').innerHTML =
+        `<div class="loading-state"><p>Error al cargar: ${err.message}</p></div>`;
+      return;
+    }
+    buildGroupTabs();
+    renderCurrentPhase();
+  }
+
+  // ── Phase switcher ──
+  document.querySelectorAll('.phase-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      if (isDirty && !confirm('Tenés cambios sin guardar. ¿Cambiar de sección?')) return;
+      isDirty = false;
+      document.querySelectorAll('.phase-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      currentPhase = tab.dataset.phase;
+      document.getElementById('groupTabsWrap').style.display =
+        currentPhase === 'groups' ? 'block' : 'none';
+      renderCurrentPhase();
+    });
+  });
+
+  function renderCurrentPhase() {
+    if (currentPhase === 'groups') renderGroupPhase(activeGroupTab);
+    else renderKnockoutPhase();
+  }
+
+  // ─────────────────────────────────────────
+  // GROUP STAGE
+  // ─────────────────────────────────────────
+  function buildGroupTabs() {
+    const bar = document.getElementById('groupTabBar');
+    bar.innerHTML = GROUP_IDS.map(id => {
+      const done = MATCHES.filter(m => m.grupo === id).some(m => savedResults[m.id] != null);
+      return `<div class="g-tab${id === activeGroupTab ? ' active' : ''}${done ? ' done' : ''}" data-group="${id}">Grupo ${id}</div>`;
+    }).join('');
+    bar.querySelectorAll('.g-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        activeGroupTab = tab.dataset.group;
+        bar.querySelectorAll('.g-tab').forEach(t => t.classList.toggle('active', t.dataset.group === activeGroupTab));
+        renderGroupPhase(activeGroupTab);
+      });
+    });
+  }
+
+  function renderGroupPhase(gid) {
+    const matches = MATCHES.filter(m => m.grupo === gid);
+    const byMatchday = {};
+    matches.forEach(m => {
+      if (!byMatchday[m.jornada]) byMatchday[m.jornada] = [];
+      byMatchday[m.jornada].push(m);
+    });
+
+    const totalGroup = MATCHES.length;
+    const totalDone  = Object.keys(savedResults).filter(id => !id.includes('-')).length;
+
+    let html = `<div class="section-hdr">
+      <div class="section-hdr-left">
+        <h2>Grupo ${gid}</h2>
+        <p>Ingresá el marcador final de cada partido jugado</p>
+      </div>
+    </div>`;
+
+    [1,2,3].forEach(j => {
+      const ms = byMatchday[j] || [];
+      if (!ms.length) return;
+      html += `<div class="matchday">
+        <div class="matchday-label">Jornada ${j} · ${formatDate(ms[0].kickoff)}</div>
+        ${ms.map(m => buildGroupMatchRow(m)).join('')}
+      </div>`;
+    });
+
+    document.getElementById('mainContent').innerHTML = html;
+    document.getElementById('saveInfo').innerHTML = `<strong>${totalDone}</strong> / ${totalGroup} resultados de grupo cargados`;
+    document.getElementById('btnSave').disabled = !isDirty;
+
+    document.querySelectorAll('.score-in').forEach(input => {
+      input.addEventListener('input', () => {
+        const v = parseInt(input.value);
+        if (input.value !== '' && (isNaN(v) || v < 0)) input.value = 0;
+        if (v > 99) input.value = 99;
+        isDirty = true;
+        document.getElementById('btnSave').disabled = false;
+        updateGroupRowState(input.closest('.match-row'));
+      });
+    });
+  }
+
+  function buildGroupMatchRow(match) {
+    const res = savedResults[match.id];
+    const homeVal = res != null ? res.home : '';
+    const awayVal = res != null ? res.away : '';
+    return `
+      <div class="match-row${res != null ? ' has-result' : ''}" data-id="${match.id}">
+        <div class="match-teams">
+          <div class="team local"><span class="team-flag">${match.local.f}</span><span class="team-name">${match.local.n}</span></div>
+          <div class="score-inputs">
+            <input class="score-in" type="number" min="0" max="99" value="${homeVal}" data-match="${match.id}" data-side="home" placeholder="–"/>
+            <span class="score-sep">:</span>
+            <input class="score-in" type="number" min="0" max="99" value="${awayVal}" data-match="${match.id}" data-side="away" placeholder="–"/>
+          </div>
+          <div class="team away"><span class="team-flag">${match.visitante.f}</span><span class="team-name">${match.visitante.n}</span></div>
+        </div>
+        <div class="match-meta">
+          <span>${formatDateTime(match.kickoff)}</span>
+          <span>${res != null ? '<span class="result-badge">✓ Guardado</span>' : '<span style="font-size:.7rem;color:var(--muted)">Pendiente</span>'}</span>
+        </div>
+      </div>`;
+  }
+
+  function updateGroupRowState(row) {
+    const inputs = row.querySelectorAll('.score-in');
+    const done = inputs[0]?.value !== '' && inputs[1]?.value !== '';
+    row.classList.toggle('has-result', done);
+    const badge = row.querySelector('.match-meta span:last-child');
+    if (badge) badge.innerHTML = done
+      ? '<span class="result-badge">✓ Guardado</span>'
+      : '<span style="font-size:.7rem;color:var(--muted)">Pendiente</span>';
+  }
+
+  // ─────────────────────────────────────────
+  // KNOCKOUT STAGE
+  // ─────────────────────────────────────────
+
+  // ── Auto-calculate group standings ──
+  function calcGroupStandings() {
+    // standings[groupId] = [ {team, pts, gf, ga, gd}, ... ] sorted 1st→4th
+    const standings = {};
+    GRUPOS_DEF.forEach(({ id, equipos }) => {
+      const stats = {};
+      equipos.forEach(eq => { stats[eq.n] = { team: eq, pts:0, gf:0, ga:0, gd:0 }; });
+      const groupMatches = MATCHES.filter(m => m.grupo === id);
+      groupMatches.forEach(m => {
+        const res = savedResults[m.id];
+        if (!res || res.home == null || res.away == null) return;
+        const h = res.home, a = res.away;
+        const ln = m.local.n, vn = m.visitante.n;
+        stats[ln].gf += h; stats[ln].ga += a; stats[ln].gd += h - a;
+        stats[vn].gf += a; stats[vn].ga += h; stats[vn].gd += a - h;
+        if (h > a)      { stats[ln].pts += 3; }
+        else if (h < a) { stats[vn].pts += 3; }
+        else            { stats[ln].pts += 1; stats[vn].pts += 1; }
+      });
+      standings[id] = Object.values(stats).sort((a,b) =>
+        b.pts - a.pts || b.gd - a.gd || b.gf - a.gf || a.team.n.localeCompare(b.team.n)
+      );
+    });
+    return standings;
+  }
+
+  // ── Resolve a bracket slot to a team object ──
+  function resolveSlot(slotKey, standings, best8thirds, ko) {
+    // Group position: '1A', '2B', etc.
+    const gpMatch = slotKey.match(/^([1-4])([A-L])$/);
+    if (gpMatch) {
+      const pos = parseInt(gpMatch[1]) - 1;
+      const grp = gpMatch[2];
+      return standings[grp]?.[pos]?.team || null;
+    }
+    // Best third-place: 'T3-n'
+    const t3Match = slotKey.match(/^T3-(\d+)$/);
+    if (t3Match) {
+      return best8thirds[parseInt(t3Match[1]) - 1]?.team || null;
+    }
+    // Winner of a previous match: 'WR32-n', 'WR16-n', 'WQF-n', 'WSF-n'
+    const winMatch = slotKey.match(/^W([A-Z0-9]+)-(\d+)$/);
+    if (winMatch) {
+      const prevId = `${winMatch[1]}-${winMatch[2]}`;
+      const prev = ko[prevId];
+      if (!prev || prev.home == null || prev.away == null || !prev.slot1 || !prev.slot2) return null;
+      return prev.home >= prev.away ? prev.slot1 : prev.slot2;
+    }
+    // Loser of a previous match (3rd place): 'LSF-n'
+    const loseMatch = slotKey.match(/^L([A-Z0-9]+)-(\d+)$/);
+    if (loseMatch) {
+      const prevId = `${loseMatch[1]}-${loseMatch[2]}`;
+      const prev = ko[prevId];
+      if (!prev || prev.home == null || prev.away == null || !prev.slot1 || !prev.slot2) return null;
+      return prev.home < prev.away ? prev.slot1 : prev.slot2;
+    }
+    return null;
+  }
+
+  // ── Main auto-populate function ──
+  function autoPopulateBracket() {
+    const standings = calcGroupStandings();
+
+    // Get all 12 third-place teams sorted
+    const allThirds = GRUPOS_DEF.map(({ id }) => standings[id]?.[2]).filter(Boolean);
+    allThirds.sort((a, b) => b.pts - a.pts || b.gd - a.gd || b.gf - a.gf);
+    const best8thirds = allThirds.slice(0, 8);
+
+    // Build updated ko object, preserving kickoff/sede/results entered manually
+    const updated = { ...savedKnockout };
+    let filled = 0;
+
+    for (const [matchId, map] of Object.entries(BRACKET_MAP)) {
+      const existing = updated[matchId] || {};
+      const t1 = resolveSlot(map.s1, standings, best8thirds, updated);
+      const t2 = resolveSlot(map.s2, standings, best8thirds, updated);
+      if (t1 || t2) {
+        updated[matchId] = {
+          // Pre-fill date/sede from BRACKET_MAP if admin hasn't set them yet
+          kickoff: existing.kickoff || map.kickoff || null,
+          sede:    existing.sede    || map.sede    || '',
+          ...existing,
+          slot1: t1 || existing.slot1 || null,
+          slot2: t2 || existing.slot2 || null,
+        };
+        if (t1 && t2) filled++;
+      } else if (!existing.kickoff && map.kickoff) {
+        // No teams yet but we can still pre-fill date/sede
+        updated[matchId] = {
+          ...existing,
+          kickoff: map.kickoff,
+          sede: map.sede || '',
+        };
+      }
+    }
+
+    return { updated, filled };
+  }
+
+  function renderKnockoutPhase() {
+    // Count how many group matches have results to show auto-calc status
+    const groupResultsCount = Object.keys(savedResults).filter(id => !id.includes('-')).length;
+    const totalGroupMatches = MATCHES.length;
+    const allGroupsDone = groupResultsCount === totalGroupMatches;
+    const someGroupsDone = groupResultsCount > 0;
+
+    let statusHtml = '';
+    if (allGroupsDone) {
+      statusHtml = `<div class="auto-status show">✓ Todos los resultados de grupos están cargados. El bracket se calcula automáticamente.</div>`;
+    } else if (someGroupsDone) {
+      statusHtml = `<div class="auto-warn show">⚡ Fase de grupos incompleta (${groupResultsCount}/${totalGroupMatches}). El bracket se completa a medida que se cargan resultados.</div>`;
+    } else {
+      statusHtml = `<div class="auto-warn show">📋 Cargá los resultados de la fase de grupos para que el bracket se complete automáticamente.</div>`;
+    }
+
+    let html = `<div class="section-hdr">
+      <div class="section-hdr-left">
+        <h2>Eliminatorias</h2>
+        <p>Los equipos se completan automáticamente según los resultados de grupos. Solo necesitás agregar fecha, sede y resultado de cada partido.</p>
+      </div>
+    </div>
+    ${statusHtml}`;
+
+    KNOCKOUT_ROUNDS.forEach(round => {
+      const isOn = !!savedPhases[round.id];
+      html += `<div class="ko-round">
+        <div class="ko-round-hdr">
+          <span style="font-size:1rem">⚔️</span>
+          <span class="ko-round-title">${round.name}</span>
+          <div class="ko-round-line"></div>
+          <div class="phase-toggle-wrap">
+            <span class="phase-toggle-label${isOn ? ' on' : ''}" id="toggleLbl-${round.id}">${isOn ? 'Abierto' : 'Cerrado'}</span>
+            <label class="toggle-switch" title="Habilitar pronósticos para ${round.name}">
+              <input type="checkbox" id="phaseToggle-${round.id}" ${isOn ? 'checked' : ''} onchange="onPhaseToggle('${round.id}', this.checked)"/>
+              <span class="toggle-track"></span>
+            </label>
+          </div>
+        </div>`;
+      for (let i = 1; i <= round.count; i++) {
+        html += buildKoMatchRow(round, i);
+      }
+      html += `</div>`;
+    });
+
+    document.getElementById('mainContent').innerHTML = html;
+
+    const totalKo   = KNOCKOUT_ROUNDS.reduce((s, r) => s + r.count, 0);
+    const doneBracket = Object.keys(savedKnockout).filter(id => {
+      const m = savedKnockout[id];
+      return m && m.slot1?.n && m.slot2?.n;
+    }).length;
+    document.getElementById('saveInfo').innerHTML = `<strong>${doneBracket}</strong> / ${totalKo} partidos eliminatorios configurados`;
+    document.getElementById('btnSave').disabled = !isDirty;
+
+    // Attach listeners
+    document.querySelectorAll('.ko-input').forEach(input => {
+      input.addEventListener('input', () => {
+        isDirty = true;
+        document.getElementById('btnSave').disabled = false;
+        updateKoRowState(input.closest('.ko-match'));
+      });
+    });
+  }
+
+  function buildKoMatchRow(round, i) {
+    const id = `${round.id}-${i}`;
+    const m  = savedKnockout[id] || {};
+    const s1 = m.slot1 || {};
+    const s2 = m.slot2 || {};
+    const configured = !!(s1.n && s2.n);
+    const hasResult  = m.home != null && m.away != null;
+
+    // Format stored kickoff for datetime-local input
+    let kickoffVal = '';
+    if (m.kickoff) {
+      const d = m.kickoff.toDate ? m.kickoff.toDate() : new Date(m.kickoff);
+      kickoffVal = d.toISOString().slice(0, 16);
+    }
+
+    return `
+      <div class="ko-match${configured ? ' configured' : ''}${hasResult ? ' has-result' : ''}" data-id="${id}">
+        <div class="ko-match-num">Partido ${round.short} #${i} <span style="margin-left:.5rem">${hasResult ? '<span class="result-badge">✓ Resultado</span>' : configured ? '<span style="font-size:.68rem;color:var(--gold)">● Configurado</span>' : ''}</span></div>
+        <div class="ko-teams-row">
+          <div class="ko-team-inputs">
+            <input class="ko-input ko-flag-in" type="text" maxlength="4" value="${escHtml(s1.f||'')}" data-id="${id}" data-field="s1f" placeholder="🏳"/>
+            <input class="ko-input ko-name-in" type="text" maxlength="30" value="${escHtml(s1.n||'')}" data-id="${id}" data-field="s1n" placeholder="Equipo 1"/>
+          </div>
+          <span class="ko-vs">VS</span>
+          <div class="ko-team-inputs">
+            <input class="ko-input ko-flag-in" type="text" maxlength="4" value="${escHtml(s2.f||'')}" data-id="${id}" data-field="s2f" placeholder="🏳"/>
+            <input class="ko-input ko-name-in" type="text" maxlength="30" value="${escHtml(s2.n||'')}" data-id="${id}" data-field="s2n" placeholder="Equipo 2"/>
+          </div>
+        </div>
+        <div class="ko-bottom-row">
+          <input class="ko-input ko-date-in" type="datetime-local" value="${kickoffVal}" data-id="${id}" data-field="kickoff" title="Fecha y hora (hora local)"/>
+          <input class="ko-input ko-venue-in" type="text" maxlength="50" value="${escHtml(m.sede||'')}" data-id="${id}" data-field="sede" placeholder="Estadio / Sede"/>
+          <div class="ko-score-wrap">
+            <span class="ko-score-label">Resultado:</span>
+            <input class="score-in ko-input" type="number" min="0" max="30" value="${m.home != null ? m.home : ''}" data-id="${id}" data-field="home" placeholder="–" style="color:var(--green)"/>
+            <span class="score-sep">:</span>
+            <input class="score-in ko-input" type="number" min="0" max="30" value="${m.away != null ? m.away : ''}" data-id="${id}" data-field="away" placeholder="–" style="color:var(--green)"/>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function updateKoRowState(row) {
+    const id = row.dataset.id;
+    const s1n = row.querySelector(`[data-field="s1n"]`)?.value.trim();
+    const s2n = row.querySelector(`[data-field="s2n"]`)?.value.trim();
+    const hv  = row.querySelector(`[data-field="home"]`)?.value;
+    const av  = row.querySelector(`[data-field="away"]`)?.value;
+    row.classList.toggle('configured', !!(s1n && s2n));
+    row.classList.toggle('has-result', hv !== '' && av !== '');
+  }
+
+  // ── Save ──
+  document.getElementById('btnSave').addEventListener('click', save);
+
+  async function save() {
+    const btn = document.getElementById('btnSave');
+    btn.classList.add('loading'); btn.disabled = true;
+    try {
+      if (currentPhase === 'groups') await saveGroupResults();
+      else await saveKnockout();
+      isDirty = false;
+      buildGroupTabs();
+      showToast('✓ Guardado correctamente', 'success');
+    } catch(err) {
+      showToast('Error: ' + err.message, 'error');
+    } finally {
+      btn.classList.remove('loading'); btn.disabled = !isDirty;
+    }
+  }
+
+  async function saveGroupResults() {
+    const updates = {};
+    document.querySelectorAll('.score-in').forEach(input => {
+      const { match: matchId, side } = input.dataset;
+      if (!matchId) return;
+      if (!updates[matchId]) updates[matchId] = { ...savedResults[matchId] };
+      if (input.value !== '') updates[matchId][side] = parseInt(input.value);
+    });
+    for (const id in updates) {
+      if (updates[id].home == null || updates[id].away == null) delete updates[id];
+    }
+    const merged = { ...savedResults, ...updates };
+    await setDoc(doc(db, 'results', 'matches'), {
+      scores: merged, updatedAt: serverTimestamp(), updatedBy: currentUser.email,
+    }, { merge: true });
+    savedResults = merged;
+
+    // Auto-populate knockout bracket from updated standings
+    const { updated: koUpdated, filled } = autoPopulateBracket();
+    const koPayload = { updatedAt: serverTimestamp(), updatedBy: currentUser.email };
+    for (const [id, entry] of Object.entries(koUpdated)) {
+      if (!entry || typeof entry !== 'object') continue;
+      const clean = sanitizeEntry(entry);
+      if (Object.keys(clean).length > 0) koPayload[id] = clean;
+    }
+    await setDoc(doc(db, 'knockout', 'bracket'), koPayload, { merge: true });
+    savedKnockout = koUpdated;
+
+    const totalDone = Object.keys(merged).filter(id => !id.includes('-')).length;
+    document.getElementById('saveInfo').innerHTML =
+      `<strong>${totalDone}</strong> / ${MATCHES.length} resultados cargados · ⚡ ${filled} partidos de eliminatorias actualizados`;
+    buildGroupTabs();
+    renderGroupPhase(activeGroupTab);
+  }
+
+  // Sanitize a bracket entry so Firestore doesn't choke on nulls or bad types
+  function sanitizeEntry(entry) {
+    const out = {};
+    // kickoff: keep Timestamp or convert Date
+    if (entry.kickoff != null) out.kickoff = entry.kickoff;
+    if (entry.sede)            out.sede    = entry.sede;
+    if (entry.home != null)    out.home    = entry.home;
+    if (entry.away != null)    out.away    = entry.away;
+    // slot1 / slot2: only save if they have at least a name
+    if (entry.slot1?.n) out.slot1 = { n: entry.slot1.n, f: entry.slot1.f || '' };
+    if (entry.slot2?.n) out.slot2 = { n: entry.slot2.n, f: entry.slot2.f || '' };
+    return out;
+  }
+
+  async function saveKnockout() {
+    // 1. Collect manual edits from the form
+    const updated = { ...savedKnockout };
+    document.querySelectorAll('.ko-match').forEach(row => {
+      const id  = row.dataset.id;
+      const get = field => row.querySelector(`[data-field="${field}"]`)?.value ?? '';
+      const kickoffRaw = get('kickoff');
+      const sede       = get('sede').trim();
+      const homeVal    = get('home');
+      const awayVal    = get('away');
+      const existing   = updated[id] || {};
+      updated[id] = {
+        ...existing,
+        kickoff: kickoffRaw ? new Date(kickoffRaw) : (existing.kickoff || null),
+        sede:    sede || existing.sede || '',
+        ...(homeVal !== '' && awayVal !== ''
+          ? { home: parseInt(homeVal), away: parseInt(awayVal) }
+          : { home: existing.home ?? null, away: existing.away ?? null }),
+      };
+    });
+
+    // 2. Auto-fill next-round slots using the updated results
+    const prev = savedKnockout;
+    savedKnockout = updated;
+    const { updated: autoUpdated, filled } = autoPopulateBracket();
+    savedKnockout = prev;
+
+    // 3. Merge: manual edits win for kickoff/sede/score; auto-fill wins for teams
+    for (const [id, autoMatch] of Object.entries(autoUpdated)) {
+      if (!updated[id]) {
+        updated[id] = autoMatch;
+      } else {
+        if (autoMatch.slot1?.n) updated[id].slot1 = autoMatch.slot1;
+        if (autoMatch.slot2?.n) updated[id].slot2 = autoMatch.slot2;
+      }
+    }
+
+    // 4. Build a clean Firestore-safe payload (no nulls, no raw undefined)
+    const payload = { updatedAt: serverTimestamp(), updatedBy: currentUser.email };
+    for (const [id, entry] of Object.entries(updated)) {
+      if (!entry || typeof entry !== 'object') continue;
+      const clean = sanitizeEntry(entry);
+      if (Object.keys(clean).length > 0) payload[id] = clean;
+    }
+
+    await setDoc(doc(db, 'knockout', 'bracket'), payload, { merge: true });
+    savedKnockout = updated;
+
+    const totalKo    = KNOCKOUT_ROUNDS.reduce((s, r) => s + r.count, 0);
+    const doneBracket = Object.keys(updated).filter(id => {
+      const m = updated[id]; return m?.slot1?.n && m?.slot2?.n;
+    }).length;
+    document.getElementById('saveInfo').innerHTML =
+      `<strong>${doneBracket}</strong> / ${totalKo} partidos configurados · ⚡ ${filled} equipos de próximas rondas actualizados`;
+    renderKnockoutPhase();
+  }
+
+  // ── Phase toggle ──
+  async function onPhaseToggle(roundId, enabled) {
+    const lbl = document.getElementById(`toggleLbl-${roundId}`);
+    if (lbl) {
+      lbl.textContent = enabled ? 'Abierto' : 'Cerrado';
+      lbl.classList.toggle('on', enabled);
+    }
+    savedPhases[roundId] = enabled;
+    try {
+      await setDoc(doc(db, 'knockout', 'phases'), savedPhases, { merge: false });
+    } catch(err) {
+      alert('Error al guardar el estado de la fase: ' + err.message);
+      // Revert on error
+      const cb = document.getElementById(`phaseToggle-${roundId}`);
+      if (cb) cb.checked = !enabled;
+      savedPhases[roundId] = !enabled;
+      if (lbl) { lbl.textContent = !enabled ? 'Abierto' : 'Cerrado'; lbl.classList.toggle('on', !enabled); }
+    }
+  }
+  window.onPhaseToggle = onPhaseToggle;
+
+  // ── Helpers ──
+  function formatDate(d) {
+    return d.toLocaleDateString('es-AR',{weekday:'short',day:'numeric',month:'short',timeZone:'America/Argentina/Buenos_Aires'});
+  }
+  function formatDateTime(d) {
+    return d.toLocaleDateString('es-AR',{day:'numeric',month:'short',timeZone:'America/Argentina/Buenos_Aires'})
+      + ' ' + d.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit',timeZone:'America/Argentina/Buenos_Aires'});
+  }
+  function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function showToast(msg, type='') {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.className = `toast ${type} show`;
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+</script>
+</body>
+</html>

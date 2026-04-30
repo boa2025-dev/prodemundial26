@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Predicciones · Prode Mundial 2026</title>
+  <link rel="icon" href="favicon.ico"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --bg:#08090f; --navy:#0c1220; --card:rgba(255,255,255,.04);
+      --gold:#c9a84c; --gold-l:#f0c040; --glow:rgba(201,168,76,.35);
+      --red:#e63946; --white:#f0f4f8; --muted:#7a8898;
+      --border:rgba(201,168,76,.2); --bi:rgba(255,255,255,.1);
+      --green:#4cc94c;
+      --fh:'Montserrat',sans-serif; --fb:'Inter',sans-serif;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{background:var(--bg);color:var(--white);font-family:var(--fb);min-height:100vh;-webkit-font-smoothing:antialiased;padding-bottom:100px}
+    a{color:inherit;text-decoration:none}
+
+    /* NAV */
+    nav{background:rgba(8,9,15,.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:.9rem 0;position:sticky;top:0;z-index:50}
+    .nav-in{width:90%;max-width:1200px;margin:auto;display:flex;align-items:center;gap:1rem}
+    .back-btn{display:flex;align-items:center;gap:.4rem;font-size:.85rem;color:var(--muted);transition:color .2s;flex-shrink:0}
+    .back-btn:hover{color:var(--gold)}
+    .nav-group{flex:1;text-align:center}
+    .nav-group-name{font-family:var(--fh);font-weight:800;font-size:1rem;letter-spacing:.03em}
+    .nav-group-code{font-size:.72rem;color:var(--muted);letter-spacing:.1em;font-family:'Courier New',monospace}
+    .gold{color:var(--gold)}
+    .btn-logout{background:none;border:1px solid var(--border);color:var(--muted);font-size:.78rem;padding:.35rem .8rem;border-radius:50px;cursor:pointer;transition:border-color .2s,color .2s;font-family:var(--fb);flex-shrink:0}
+    .btn-logout:hover{border-color:var(--red);color:var(--red)}
+
+    /* TAB BAR */
+    .tabs-wrap{background:rgba(8,9,15,.95);border-bottom:1px solid rgba(255,255,255,.06);position:sticky;top:57px;z-index:40;overflow-x:auto;scrollbar-width:none}
+    .tabs-wrap::-webkit-scrollbar{display:none}
+    .tabs{display:flex;width:max-content;min-width:100%;padding:0 5%}
+    .tab{flex-shrink:0;padding:.75rem 1.1rem;font-family:var(--fh);font-weight:700;font-size:.82rem;letter-spacing:.06em;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:color .2s,border-color .2s;white-space:nowrap}
+    .tab:hover{color:var(--white)}
+    .tab.active{color:var(--gold-l);border-color:var(--gold)}
+
+    /* CONTENT */
+    main{width:90%;max-width:900px;margin:0 auto;padding:2rem 0}
+
+    .group-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;flex-wrap:wrap;gap:.8rem}
+    .group-header-left h2{font-family:var(--fh);font-size:1.5rem;font-weight:800;letter-spacing:-.01em}
+    .group-header-left p{font-size:.85rem;color:var(--muted);margin-top:.3rem}
+    .save-status{font-size:.8rem;color:var(--muted);display:flex;align-items:center;gap:.4rem}
+    .save-dot{width:7px;height:7px;border-radius:50%;background:var(--muted)}
+    .save-dot.saved{background:var(--green)}
+    .save-dot.unsaved{background:var(--gold);animation:pulse 1.5s ease-in-out infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+    /* MATCHDAY SECTION */
+    .matchday{margin-bottom:2rem}
+    .matchday-label{font-family:var(--fh);font-size:.72rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:.8rem;display:flex;align-items:center;gap:.6rem}
+    .matchday-label::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.06)}
+
+    /* MATCH ROW */
+    .match-row{background:rgba(12,18,32,.8);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:1rem 1.2rem;margin-bottom:.7rem;transition:border-color .2s}
+    .match-row.has-prediction{border-color:rgba(201,168,76,.15)}
+    .match-row.locked{opacity:.65}
+    .match-row.locked:hover{border-color:rgba(255,255,255,.06)}
+
+    .match-teams{display:flex;align-items:center;gap:.6rem}
+    .team{display:flex;align-items:center;gap:.5rem;flex:1}
+    .team.away{flex-direction:row-reverse;justify-content:flex-start}
+    .team-flag{font-size:1.4rem;line-height:1;flex-shrink:0}
+    .team-name{font-family:var(--fh);font-size:.88rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .team.away .team-name{text-align:right}
+
+    .score-inputs{display:flex;align-items:center;gap:.5rem;flex-shrink:0}
+    .score-in{width:42px;height:42px;background:rgba(255,255,255,.06);border:1px solid var(--bi);border-radius:10px;color:var(--gold-l);font-family:var(--fh);font-weight:800;font-size:1rem;text-align:center;outline:none;transition:border-color .2s,background .2s,box-shadow .2s;-moz-appearance:textfield}
+    .score-in::-webkit-outer-spin-button,.score-in::-webkit-inner-spin-button{-webkit-appearance:none}
+    .score-in:not(:disabled):focus{border-color:var(--gold);background:rgba(201,168,76,.08);box-shadow:0 0 0 3px rgba(201,168,76,.12)}
+    .score-in:not(:disabled):hover{border-color:rgba(255,255,255,.25)}
+    .score-in:disabled{cursor:not-allowed;color:var(--muted);background:rgba(255,255,255,.02)}
+    .score-sep{color:var(--muted);font-size:.8rem;font-weight:600;flex-shrink:0}
+
+    .match-meta{display:flex;align-items:center;justify-content:space-between;margin-top:.6rem;font-size:.73rem;color:var(--muted)}
+    .match-date{}
+    .match-venue{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px;text-align:right}
+    .lock-badge{display:inline-flex;align-items:center;gap:.3rem;font-size:.7rem;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);padding:.15rem .5rem;border-radius:50px;color:var(--muted)}
+    .lock-badge.live{background:rgba(230,57,70,.1);border-color:rgba(230,57,70,.3);color:#ff6b75;animation:livePulse 1.5s ease-in-out infinite}
+    @keyframes livePulse{0%,100%{opacity:1}50%{opacity:.5}}
+
+    /* STICKY FOOTER */
+    .save-bar{position:fixed;bottom:0;left:0;right:0;z-index:40;background:rgba(8,9,15,.95);border-top:1px solid var(--border);backdrop-filter:blur(16px);padding:.9rem 5%}
+    .save-bar-inner{max-width:900px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:1rem}
+    .save-info{font-size:.82rem;color:var(--muted)}
+    .save-info strong{color:var(--white)}
+    .btn-save{display:inline-flex;align-items:center;gap:.5rem;padding:.85rem 2rem;border-radius:50px;font-family:var(--fh);font-weight:800;font-size:.9rem;letter-spacing:.05em;cursor:pointer;border:none;background:linear-gradient(135deg,var(--gold),#a07830);color:#000;box-shadow:0 4px 24px rgba(201,168,76,.35);transition:transform .2s,box-shadow .2s,opacity .2s;position:relative;overflow:hidden}
+    .btn-save::after{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.3),transparent);transform:skewX(-20deg);transition:left .5s}
+    .btn-save:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 32px rgba(201,168,76,.5)}
+    .btn-save:hover:not(:disabled)::after{left:160%}
+    .btn-save:disabled{opacity:.5;cursor:not-allowed;transform:none}
+    .btn-save .s-spinner{display:none;width:16px;height:16px;border:2px solid rgba(0,0,0,.25);border-top-color:#000;border-radius:50%;animation:spin .7s linear infinite}
+    .btn-save.loading .s-text{display:none}
+    .btn-save.loading .s-spinner{display:block}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* TOAST */
+    .toast{position:fixed;bottom:5rem;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(20,30,50,.95);border:1px solid var(--border);border-radius:50px;padding:.75rem 1.5rem;font-size:.88rem;backdrop-filter:blur(16px);z-index:200;opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;white-space:nowrap}
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    .toast.success{border-color:var(--green);color:var(--green)}
+    .toast.error{border-color:var(--red);color:#ff6b75}
+
+    /* LOADING */
+    .loading-state{text-align:center;padding:5rem;color:var(--muted)}
+    .spinner-lg{width:40px;height:40px;border:3px solid rgba(201,168,76,.2);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 1rem}
+
+    @media(max-width:600px){
+      .team-name{font-size:.78rem}
+      .score-in{width:36px;height:36px;font-size:.9rem}
+      .match-venue{display:none}
+      .save-info{display:none}
+      .btn-save{flex:1;justify-content:center}
+    }
+  </style>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1544307278201390" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-in">
+    <a href="dashboard.html" class="back-btn">← Mis grupos</a>
+    <div class="nav-group">
+      <div class="nav-group-name" id="navGroupName">Cargando...</div>
+      <div class="nav-group-code" id="navGroupCode"></div>
+    </div>
+    <button class="btn-logout" id="btnLogout">Salir</button>
+  </div>
+</nav>
+
+<!-- TABS -->
+<div class="tabs-wrap">
+  <div class="tabs" id="tabBar"></div>
+</div>
+
+<!-- MAIN -->
+<main id="mainContent">
+  <div class="loading-state">
+    <div class="spinner-lg"></div>
+    Cargando partidos...
+  </div>
+</main>
+
+<!-- SAVE BAR -->
+<div class="save-bar">
+  <div class="save-bar-inner">
+    <div class="save-info" id="saveInfo">Completá tus predicciones</div>
+    <button class="btn-save" id="btnSave" disabled>
+      <span class="s-text">Guardar predicciones</span>
+      <div class="s-spinner"></div>
+    </button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+  import { initializeApp, getApps, getApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+  import { MATCHES, GROUP_IDS } from './matches-data.js';
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBJeBpq7_9R23rtr_fGoUQf8fXKgcBib-E",
+    authDomain: "prode-mundial-2026-4b023.firebaseapp.com",
+    projectId: "prode-mundial-2026-4b023",
+    storageBucket: "prode-mundial-2026-4b023.firebasestorage.app",
+    messagingSenderId: "503197700056",
+    appId: "1:503197700056:web:e13e6e00445b059c716cad",
+  };
+
+  const app  = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  const params   = new URLSearchParams(location.search);
+  const GROUP_CODE = params.get('code')?.toUpperCase();
+
+  if (!GROUP_CODE) { window.location.href = 'dashboard.html'; }
+
+  let currentUser   = null;
+  let groupData     = null;
+  let savedPreds    = {};   // { matchId: { home, away } }
+  let activeTab     = GROUP_IDS[0];
+  let isDirty       = false;
+
+  // ── Auth guard ──
+  // Timeout: si Firebase no resuelve en 8s, redirigir a login
+  const authTimeout = setTimeout(() => {
+    console.warn('Auth timeout — redirigiendo a login');
+    window.location.href = 'login.html';
+  }, 8000);
+
+  onAuthStateChanged(auth, async user => {
+    clearTimeout(authTimeout);
+    if (!user) { window.location.href = 'login.html'; return; }
+    currentUser = user;
+    await loadData();
+  });
+
+  document.getElementById('btnLogout').addEventListener('click', async () => {
+    await signOut(auth);
+    window.location.href = 'login.html';
+  });
+
+  // ── Load group + predictions ──
+  async function loadData() {
+    try {
+      const [groupSnap, predSnap] = await Promise.all([
+        getDoc(doc(db, 'groups', GROUP_CODE)),
+        getDoc(doc(db, 'predictions', `${currentUser.uid}_${GROUP_CODE}`)),
+      ]);
+
+      if (!groupSnap.exists()) {
+        document.getElementById('mainContent').innerHTML =
+          '<div class="loading-state"><p>Grupo no encontrado. <a href="dashboard.html" style="color:var(--gold)">Volver</a></p></div>';
+        return;
+      }
+
+      groupData = groupSnap.data();
+      savedPreds = predSnap.exists() ? (predSnap.data().matches || {}) : {};
+
+      document.getElementById('navGroupName').textContent = groupData.name;
+      document.getElementById('navGroupCode').textContent = `Código: ${GROUP_CODE}`;
+      document.title = `${groupData.name} · Prode 2026`;
+
+      buildTabs();
+      renderGroup(activeTab);
+      updateSaveBar();
+    } catch (err) {
+      console.error('Error en loadData:', err);
+      document.getElementById('mainContent').innerHTML =
+        `<div class="loading-state"><p>Error al cargar: <strong>${err.message}</strong><br><br><a href="dashboard.html" style="color:var(--gold)">← Volver a mis grupos</a></p></div>`;
+    }
+  }
+
+  // ── Build tab bar ──
+  function buildTabs() {
+    const bar = document.getElementById('tabBar');
+    bar.innerHTML = GROUP_IDS.map(id => `
+      <div class="tab${id === activeTab ? ' active' : ''}" data-group="${id}">Grupo ${id}</div>
+    `).join('');
+    bar.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        activeTab = tab.dataset.group;
+        bar.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.group === activeTab));
+        renderGroup(activeTab);
+      });
+    });
+  }
+
+  // ── Render matches for a group tab ──
+  function renderGroup(gid) {
+    const matches = MATCHES.filter(m => m.grupo === gid);
+    const now = Date.now();
+
+    // Group by matchday
+    const byMatchday = {};
+    matches.forEach(m => {
+      if (!byMatchday[m.jornada]) byMatchday[m.jornada] = [];
+      byMatchday[m.jornada].push(m);
+    });
+
+    let html = `
+      <div class="group-header">
+        <div class="group-header-left">
+          <h2>Grupo ${gid}</h2>
+          <p>Completá el marcador que predecís para cada partido</p>
+        </div>
+        <div class="save-status">
+          <div class="save-dot${isDirty ? ' unsaved' : ' saved'}" id="saveDot"></div>
+          <span id="saveStatusText">${isDirty ? 'Cambios sin guardar' : 'Guardado'}</span>
+        </div>
+      </div>
+    `;
+
+    [1,2,3].forEach(jornada => {
+      const ms = byMatchday[jornada] || [];
+      if (!ms.length) return;
+      html += `<div class="matchday">
+        <div class="matchday-label">Jornada ${jornada} · ${formatDate(ms[0].kickoff)}</div>
+        ${ms.map(m => buildMatchRow(m, now)).join('')}
+      </div>`;
+    });
+
+    document.getElementById('mainContent').innerHTML = html;
+
+    // Attach input listeners
+    document.querySelectorAll('.score-in').forEach(input => {
+      input.addEventListener('input', () => {
+        // Clamp 0-99
+        if (input.value !== '' && (parseInt(input.value) < 0 || parseInt(input.value) > 99)) {
+          input.value = Math.max(0, Math.min(99, parseInt(input.value)));
+        }
+        markDirty();
+        updateMatchRowState(input.closest('.match-row'));
+      });
+    });
+
+    updateSaveBar();
+  }
+
+  function buildMatchRow(match, now) {
+    const locked = now >= match.kickoff.getTime();
+    const pred   = savedPreds[match.id] || {};
+    const homeVal = pred.home != null ? pred.home : '';
+    const awayVal = pred.away != null ? pred.away : '';
+    const hasPred = homeVal !== '' && awayVal !== '';
+    const isLive  = locked && now < match.kickoff.getTime() + 2 * 60 * 60 * 1000; // within 2h of kickoff
+
+    const lockHtml = locked
+      ? `<span class="lock-badge${isLive ? ' live' : ''}">
+           ${isLive ? '🔴 En vivo' : '🔒 Cerrado'}
+         </span>`
+      : '';
+
+    return `
+      <div class="match-row${hasPred ? ' has-prediction' : ''}${locked ? ' locked' : ''}" data-id="${match.id}">
+        <div class="match-teams">
+          <div class="team local">
+            <span class="team-flag">${match.local.f}</span>
+            <span class="team-name">${match.local.n}</span>
+          </div>
+          <div class="score-inputs">
+            <input class="score-in" type="number" min="0" max="99"
+              value="${homeVal}" data-match="${match.id}" data-side="home"
+              ${locked ? 'disabled' : ''} placeholder="–"/>
+            <span class="score-sep">:</span>
+            <input class="score-in" type="number" min="0" max="99"
+              value="${awayVal}" data-match="${match.id}" data-side="away"
+              ${locked ? 'disabled' : ''} placeholder="–"/>
+          </div>
+          <div class="team away">
+            <span class="team-flag">${match.visitante.f}</span>
+            <span class="team-name">${match.visitante.n}</span>
+          </div>
+        </div>
+        <div class="match-meta">
+          <span class="match-date">${formatDateTime(match.kickoff)} · ${match.sede}</span>
+          <span>${lockHtml}</span>
+        </div>
+      </div>`;
+  }
+
+  function updateMatchRowState(row) {
+    const inputs = row.querySelectorAll('.score-in');
+    const h = inputs[0]?.value;
+    const a = inputs[1]?.value;
+    row.classList.toggle('has-prediction', h !== '' && a !== '');
+  }
+
+  // ── Save predictions ──
+  document.getElementById('btnSave').addEventListener('click', savePredictions);
+
+  async function savePredictions() {
+    const btn = document.getElementById('btnSave');
+    btn.classList.add('loading'); btn.disabled = true;
+
+    try {
+      // Collect all current input values from the page
+      const updates = {};
+      document.querySelectorAll('.score-in').forEach(input => {
+        const { match: matchId, side } = input.dataset;
+        if (!updates[matchId]) updates[matchId] = { ...savedPreds[matchId] };
+        if (input.value !== '') updates[matchId][side] = parseInt(input.value);
+      });
+
+      // Merge with existing saved preds (don't overwrite other groups' data)
+      const merged = { ...savedPreds, ...updates };
+
+      await setDoc(
+        doc(db, 'predictions', `${currentUser.uid}_${GROUP_CODE}`),
+        { matches: merged, updatedAt: serverTimestamp(), groupCode: GROUP_CODE },
+        { merge: true }
+      );
+
+      savedPreds = merged;
+      isDirty = false;
+      updateSaveBar();
+      showToast('✓ Predicciones guardadas', 'success');
+
+      // Update save dot
+      const dot = document.getElementById('saveDot');
+      const txt = document.getElementById('saveStatusText');
+      if (dot) { dot.className = 'save-dot saved'; }
+      if (txt) { txt.textContent = 'Guardado'; }
+
+    } catch (err) {
+      console.error(err);
+      showToast('Error al guardar. Intentá de nuevo.', 'error');
+    } finally {
+      btn.classList.remove('loading'); btn.disabled = false;
+    }
+  }
+
+  // ── Dirty state ──
+  function markDirty() {
+    if (!isDirty) {
+      isDirty = true;
+      updateSaveBar();
+      const dot = document.getElementById('saveDot');
+      const txt = document.getElementById('saveStatusText');
+      if (dot) dot.className = 'save-dot unsaved';
+      if (txt) txt.textContent = 'Cambios sin guardar';
+    }
+  }
+
+  function updateSaveBar() {
+    const btn = document.getElementById('btnSave');
+    const info = document.getElementById('saveInfo');
+
+    // Count total predictions (all groups)
+    const totalMatches = MATCHES.length;
+    const filled = Object.values(savedPreds).filter(p => p.home != null && p.away != null).length;
+
+    btn.disabled = !isDirty;
+    if (info) info.innerHTML = `<strong>${filled}</strong> / ${totalMatches} predicciones completadas`;
+  }
+
+  // ── Date formatting ──
+  function formatDate(d) {
+    return d.toLocaleDateString('es-AR', { weekday:'short', day:'numeric', month:'short', timeZone:'America/Argentina/Buenos_Aires' });
+  }
+  function formatDateTime(d) {
+    return d.toLocaleDateString('es-AR', { day:'numeric', month:'short', timeZone:'America/Argentina/Buenos_Aires' })
+      + ' ' + d.toLocaleTimeString('es-AR', { hour:'2-digit', minute:'2-digit', timeZone:'America/Argentina/Buenos_Aires' });
+  }
+
+  // ── Toast ──
+  function showToast(msg, type = '') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = `toast ${type} show`;
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Prode Mundial 2026</title>
+  <link rel="icon" href="favicon.ico"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --bg:#08090f; --navy:#0c1220;
+      --gold:#c9a84c; --gold-l:#f0c040; --glow:rgba(201,168,76,.35);
+      --red:#e63946; --white:#f0f4f8; --muted:#7a8898;
+      --border:rgba(201,168,76,.2); --bi:rgba(255,255,255,.1);
+      --green:#4cc94c;
+      --fh:'Montserrat',sans-serif; --fb:'Inter',sans-serif;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{background:var(--bg);color:var(--white);font-family:var(--fb);min-height:100vh;-webkit-font-smoothing:antialiased;padding-bottom:110px}
+    a{color:inherit;text-decoration:none}
+
+    /* ── NAV ── */
+    nav{background:rgba(8,9,15,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:.85rem 0;position:sticky;top:0;z-index:100}
+    .nav-in{width:90%;max-width:1200px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:1rem}
+    .nav-logo{display:flex;align-items:center;gap:.6rem;font-family:var(--fh);font-weight:900;font-size:1.1rem;flex-shrink:0}
+    .logo-b{width:30px;height:30px;background:linear-gradient(135deg,var(--gold),#6b4a10);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.95rem;box-shadow:0 0 14px var(--glow)}
+    .gold{color:var(--gold)}
+    .nav-right{display:flex;align-items:center;gap:.7rem;flex-shrink:0}
+    .user-name{font-size:.82rem;color:var(--muted)}
+    .admin-link{display:none;font-size:.72rem;font-weight:700;letter-spacing:.05em;color:#ff6b75;border:1px solid rgba(230,57,70,.35);padding:.3rem .7rem;border-radius:50px;transition:background .2s}
+    .admin-link:hover{background:rgba(230,57,70,.1)}
+    .btn-logout{background:none;border:1px solid var(--border);color:var(--muted);font-size:.75rem;padding:.3rem .75rem;border-radius:50px;cursor:pointer;transition:border-color .2s,color .2s;font-family:var(--fb)}
+    .btn-logout:hover{border-color:var(--red);color:var(--red)}
+
+    /* ── GROUPS DROPDOWN ── */
+    .groups-dropdown-wrap{flex:1;display:flex;justify-content:center}
+    .groups-btn{display:flex;align-items:center;gap:.55rem;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:50px;padding:.45rem 1rem .45rem .8rem;cursor:pointer;font-family:var(--fh);font-weight:700;font-size:.82rem;color:var(--white);transition:border-color .2s,background .2s;max-width:260px;min-width:160px;position:relative}
+    .groups-btn:hover{border-color:var(--gold);background:rgba(201,168,76,.06)}
+    .groups-btn .gb-dot{width:8px;height:8px;border-radius:50%;background:var(--gold);flex-shrink:0}
+    .groups-btn .gb-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left}
+    .groups-btn .gb-arrow{color:var(--muted);font-size:.65rem;transition:transform .2s;flex-shrink:0}
+    .groups-btn.open .gb-arrow{transform:rotate(180deg)}
+
+    .groups-menu{position:absolute;top:calc(100% + .5rem);left:50%;transform:translateX(-50%);width:280px;background:#111a2b;border:1px solid var(--border);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.6);overflow:hidden;z-index:200;display:none}
+    .groups-menu.open{display:block}
+
+    .gm-item{display:flex;align-items:center;gap:.75rem;padding:.85rem 1.1rem;cursor:pointer;transition:background .15s;border-bottom:1px solid rgba(255,255,255,.04)}
+    .gm-item:last-of-type{border-bottom:none}
+    .gm-item:hover{background:rgba(201,168,76,.07)}
+    .gm-item.active{background:rgba(201,168,76,.1)}
+    .gm-icon{width:32px;height:32px;border-radius:10px;background:rgba(201,168,76,.1);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0}
+    .gm-info{flex:1;min-width:0}
+    .gm-name{font-family:var(--fh);font-size:.85rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .gm-meta{font-size:.7rem;color:var(--muted);margin-top:.1rem;font-family:'Courier New',monospace;letter-spacing:.04em}
+    .gm-check{color:var(--gold);font-size:.75rem;flex-shrink:0}
+
+    .gm-divider{height:1px;background:rgba(255,255,255,.06);margin:.3rem 0}
+
+    .gm-action{display:flex;align-items:center;gap:.7rem;padding:.75rem 1.1rem;cursor:pointer;transition:background .15s;color:var(--muted);font-size:.82rem}
+    .gm-action:hover{background:rgba(255,255,255,.04);color:var(--white)}
+    .gm-action-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0}
+    .gm-action.create .gm-action-icon{background:rgba(201,168,76,.12);border:1px solid var(--border)}
+    .gm-action.join .gm-action-icon{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08)}
+
+    .gm-loading{padding:1rem 1.1rem;color:var(--muted);font-size:.83rem;display:flex;align-items:center;gap:.6rem}
+    .spin-sm{width:14px;height:14px;border:2px solid rgba(201,168,76,.2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* ── MAIN LAYOUT ── */
+    .page{width:90%;max-width:1200px;margin:0 auto;padding:2.5rem 0}
+
+    /* Leaderboard panel */
+    .lb-panel{background:rgba(12,18,32,.6);border:1px solid var(--border);border-radius:20px;padding:1.6rem;margin-bottom:2.5rem;display:none}
+    .lb-panel-header{display:flex;align-items:center;gap:.7rem;margin-bottom:1.2rem}
+    .lb-panel-title{font-family:var(--fh);font-size:.72rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+    .lb-group-name{font-family:var(--fh);font-size:1rem;font-weight:900;flex:1}
+    .lb-line{flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent)}
+
+    .lb-table{width:100%;border-collapse:collapse}
+    .lb-table th{font-family:var(--fh);font-size:.66rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:.5rem .75rem;text-align:left;border-bottom:1px solid rgba(255,255,255,.06)}
+    .lb-table th:not(:first-child):not(:nth-child(2)){text-align:center}
+    .lb-table td{padding:.7rem .75rem;border-bottom:1px solid rgba(255,255,255,.04);font-size:.87rem;vertical-align:middle}
+    .lb-table td:not(:first-child):not(:nth-child(2)){text-align:center}
+    .lb-table tr:last-child td{border-bottom:none}
+    .lb-table tr:hover td{background:rgba(255,255,255,.02)}
+    .lb-pos{font-family:var(--fh);font-weight:900;font-size:.9rem;color:var(--muted);width:32px}
+    .lb-pos.first{color:var(--gold-l)}
+    .lb-pos.second{color:#b0b8c8}
+    .lb-pos.third{color:#c97a50}
+    .lb-name{font-family:var(--fh);font-weight:700;font-size:.88rem}
+    .you-tag{display:inline-block;font-size:.58rem;font-weight:700;letter-spacing:.08em;background:rgba(201,168,76,.15);border:1px solid var(--border);color:var(--gold);padding:.06rem .38rem;border-radius:50px;margin-left:.35rem;vertical-align:middle}
+    .lb-pts{font-family:var(--fh);font-weight:900;font-size:.95rem}
+    .lb-pts.leader{color:var(--gold-l)}
+    .lb-exact{color:var(--green);font-weight:700}
+    .lb-outcome{color:var(--gold);font-weight:600}
+    .lb-note{font-size:.7rem;color:var(--muted);margin-top:.7rem}
+    .lb-no-results{color:var(--muted);font-size:.85rem;padding:.5rem 0;font-style:italic}
+
+    /* Predictions */
+    .preds-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:2rem;gap:1rem;flex-wrap:wrap}
+    .preds-header-left h2{font-family:var(--fh);font-size:1.4rem;font-weight:900;letter-spacing:-.01em}
+    .preds-header-left p{font-size:.83rem;color:var(--muted);margin-top:.3rem}
+    .save-status{display:flex;align-items:center;gap:.4rem;font-size:.76rem;color:var(--muted);flex-shrink:0}
+    .save-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;background:var(--muted)}
+    .save-dot.saved{background:var(--green)}
+    .save-dot.unsaved{background:var(--gold);animation:pulse 1.5s ease-in-out infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+    /* Phase selector */
+    .phase-selector-wrap{display:flex;align-items:center;gap:1rem;margin-bottom:2rem;flex-wrap:wrap}
+    .phase-select{appearance:none;-webkit-appearance:none;background:rgba(255,255,255,.04) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a8898' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 1rem center;border:1px solid rgba(255,255,255,.12);border-radius:50px;color:var(--white);font-family:var(--fh);font-weight:700;font-size:.88rem;padding:.7rem 2.8rem .7rem 1.2rem;outline:none;cursor:pointer;transition:border-color .2s,box-shadow .2s;min-width:220px}
+    .phase-select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.12)}
+    .phase-select option{background:#111824;color:var(--white)}
+    .phase-counter{font-size:.8rem;color:var(--muted)}
+    .phase-counter strong{color:var(--white)}
+    .phase-counter.complete{color:var(--green)}
+
+    .date-group{margin-bottom:2rem}
+
+    .date-group{margin-bottom:2rem}
+    .date-label{font-family:var(--fh);font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem;display:flex;align-items:center;gap:.6rem}
+    .date-label::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.05)}
+
+    .match-row{background:rgba(12,18,32,.8);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:1rem 1.2rem;margin-bottom:.6rem;transition:border-color .2s}
+    .match-row.has-prediction{border-color:rgba(201,168,76,.18)}
+    .match-row.locked{opacity:.6}
+    .match-teams{display:flex;align-items:center;gap:.6rem}
+    .team{display:flex;align-items:center;gap:.5rem;flex:1;min-width:0}
+    .team.away{flex-direction:row-reverse}
+    .team-flag{font-size:1.3rem;line-height:1;flex-shrink:0}
+    .team-name{font-family:var(--fh);font-size:.85rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .team.away .team-name{text-align:right}
+    .score-inputs{display:flex;align-items:center;gap:.4rem;flex-shrink:0}
+    .score-in{width:42px;height:42px;background:rgba(255,255,255,.05);border:1px solid var(--bi);border-radius:10px;color:var(--gold-l);font-family:var(--fh);font-weight:800;font-size:1rem;text-align:center;outline:none;transition:border-color .2s,background .2s,box-shadow .2s;-moz-appearance:textfield}
+    .score-in::-webkit-outer-spin-button,.score-in::-webkit-inner-spin-button{-webkit-appearance:none}
+    .score-in:not(:disabled):focus{border-color:var(--gold);background:rgba(201,168,76,.08);box-shadow:0 0 0 3px rgba(201,168,76,.12)}
+    .score-in:not(:disabled):hover{border-color:rgba(255,255,255,.25)}
+    .score-in:disabled{cursor:not-allowed;color:var(--muted);background:rgba(255,255,255,.02)}
+    .score-sep{color:var(--muted);font-size:.8rem;flex-shrink:0}
+    .match-meta{display:flex;align-items:center;justify-content:space-between;margin-top:.5rem;font-size:.7rem;color:var(--muted)}
+    .match-venue{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:55%;text-align:right}
+    .lock-badge{display:inline-flex;align-items:center;gap:.25rem;font-size:.67rem;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);padding:.12rem .45rem;border-radius:50px}
+    .lock-badge.live{background:rgba(230,57,70,.1);border-color:rgba(230,57,70,.3);color:#ff6b75;animation:pulse 1.5s ease-in-out infinite}
+
+    .loading-state{text-align:center;padding:4rem;color:var(--muted)}
+    .spinner-lg{width:36px;height:36px;border:3px solid rgba(201,168,76,.2);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 1rem}
+
+    /* ── SAVE BAR ── */
+    .save-bar{position:fixed;bottom:0;left:0;right:0;z-index:40;background:rgba(8,9,15,.96);border-top:1px solid var(--border);backdrop-filter:blur(16px);padding:.9rem 5%}
+    .save-bar-inner{max-width:1200px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:1rem}
+    .save-info{font-size:.82rem;color:var(--muted)}
+    .save-info strong{color:var(--white)}
+    .btn-save{display:inline-flex;align-items:center;gap:.5rem;padding:.8rem 1.8rem;border-radius:50px;font-family:var(--fh);font-weight:800;font-size:.88rem;letter-spacing:.05em;cursor:pointer;border:none;background:linear-gradient(135deg,var(--gold),#a07830);color:#000;box-shadow:0 4px 24px rgba(201,168,76,.35);transition:transform .2s,box-shadow .2s,opacity .2s}
+    .btn-save:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 32px rgba(201,168,76,.5)}
+    .btn-save:disabled{opacity:.4;cursor:not-allowed;transform:none}
+    .btn-save .s-spinner{display:none;width:15px;height:15px;border:2px solid rgba(0,0,0,.25);border-top-color:#000;border-radius:50%;animation:spin .7s linear infinite}
+    .btn-save.loading .s-text{display:none}
+    .btn-save.loading .s-spinner{display:block}
+
+    /* ── MODALS ── */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);z-index:300;display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;pointer-events:none;transition:opacity .25s}
+    .modal-overlay.open{opacity:1;pointer-events:all}
+    .modal{background:linear-gradient(135deg,#111824,#0c1624);border:1px solid var(--border);border-radius:24px;padding:2.4rem;width:100%;max-width:420px;box-shadow:0 40px 100px rgba(0,0,0,.6);transform:translateY(20px) scale(.97);transition:transform .25s;position:relative}
+    .modal-overlay.open .modal{transform:none}
+    .modal-close{position:absolute;top:1.2rem;right:1.2rem;background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.2rem;padding:.3rem;transition:color .2s}
+    .modal-close:hover{color:var(--white)}
+    .modal-icon{font-size:2.2rem;margin-bottom:1rem}
+    .modal-title{font-family:var(--fh);font-size:1.4rem;font-weight:800;margin-bottom:.4rem}
+    .modal-sub{font-size:.88rem;color:var(--muted);margin-bottom:1.8rem;line-height:1.6}
+    .form-group{margin-bottom:1.1rem}
+    .form-label{display:block;font-size:.72rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem}
+    .form-input{width:100%;padding:.85rem 1rem;background:rgba(255,255,255,.04);border:1px solid var(--bi);border-radius:12px;color:var(--white);font-family:var(--fb);font-size:.95rem;outline:none;transition:border-color .2s,box-shadow .2s}
+    .form-input::placeholder{color:rgba(122,136,152,.5)}
+    .form-input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.12)}
+    .code-display{display:flex;align-items:center;justify-content:space-between;padding:.85rem 1rem;background:rgba(201,168,76,.06);border:1px solid var(--border);border-radius:12px;margin-bottom:1.1rem}
+    .code-val{font-family:'Courier New',monospace;font-size:1.5rem;font-weight:900;letter-spacing:.2em;color:var(--gold-l)}
+    .btn-copy{background:none;border:1px solid var(--border);color:var(--muted);font-size:.75rem;padding:.3rem .7rem;border-radius:50px;cursor:pointer;transition:border-color .2s,color .2s;font-family:var(--fb)}
+    .btn-copy:hover{border-color:var(--gold);color:var(--gold)}
+    .btn-copy.copied{border-color:#4cc94c;color:#4cc94c}
+    .modal-error{background:rgba(230,57,70,.1);border:1px solid rgba(230,57,70,.3);border-radius:10px;padding:.75rem 1rem;font-size:.83rem;color:#ff6b75;margin-bottom:1rem;display:none;line-height:1.5}
+    .modal-error.show{display:block}
+    .btn-modal{display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;padding:.85rem;border-radius:50px;font-family:var(--fh);font-weight:700;font-size:.88rem;letter-spacing:.05em;cursor:pointer;border:none;background:linear-gradient(135deg,var(--gold),#a07830);color:#000;box-shadow:0 4px 24px rgba(201,168,76,.3);transition:transform .15s}
+    .btn-modal:hover{transform:translateY(-1px)}
+    .btn-modal .btn-spinner{display:none;width:16px;height:16px;border:2px solid rgba(0,0,0,.3);border-top-color:#000;border-radius:50%;animation:spin .7s linear infinite}
+    .btn-modal.loading .btn-text{display:none}
+    .btn-modal.loading .btn-spinner{display:block}
+
+    /* ── TOAST ── */
+    .toast{position:fixed;bottom:5rem;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(20,30,50,.95);border:1px solid var(--border);border-radius:50px;padding:.75rem 1.5rem;font-size:.88rem;backdrop-filter:blur(16px);z-index:400;opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;white-space:nowrap}
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    .toast.success{border-color:var(--green);color:var(--green)}
+    .toast.error{border-color:var(--red);color:#ff6b75}
+
+    @media(max-width:600px){
+      .user-name{display:none}
+      .team-name{font-size:.78rem}
+      .score-in{width:38px;height:38px;font-size:.9rem}
+      .match-venue{display:none}
+      .save-info{display:none}
+      .btn-save{flex:1;justify-content:center}
+      .lb-table th:nth-child(4),.lb-table td:nth-child(4),
+      .lb-table th:nth-child(5),.lb-table td:nth-child(5){display:none}
+    }
+  </style>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1544307278201390" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-in">
+    <a href="index.html" class="nav-logo">
+      <img src="logo.png" alt="Logo" style="width:30px;height:30px;border-radius:50%;object-fit:cover;box-shadow:0 0 14px var(--glow)"/>
+      <span>PRODE <span class="gold">2026</span></span>
+    </a>
+
+    <!-- Groups dropdown -->
+    <div class="groups-dropdown-wrap" style="position:relative">
+      <div class="groups-btn" id="groupsBtn">
+        <div class="gb-dot"></div>
+        <span class="gb-name" id="gbName">Cargando...</span>
+        <span class="gb-arrow">▼</span>
+      </div>
+      <div class="groups-menu" id="groupsMenu">
+        <div class="gm-loading" id="gmLoading">
+          <div class="spin-sm"></div> Cargando grupos...
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-right">
+      <span class="user-name" id="userName"></span>
+      <a href="admin.html" id="adminLink" class="admin-link">⚙ Admin</a>
+      <button class="btn-logout" id="btnLogout">Salir</button>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="page">
+
+  <!-- Leaderboard panel (shown when a group is selected) -->
+  <div class="lb-panel" id="lbPanel">
+    <div class="lb-panel-header">
+      <span style="font-size:1.1rem">🏆</span>
+      <span class="lb-panel-title">Tabla de Puntos</span>
+      <span class="lb-group-name" id="lbGroupName"></span>
+    </div>
+    <div id="lbContent">
+      <div style="color:var(--muted);font-size:.85rem;display:flex;align-items:center;gap:.6rem">
+        <div class="spin-sm"></div> Calculando...
+      </div>
+    </div>
+  </div>
+
+  <!-- Predictions -->
+  <div class="preds-header">
+    <div class="preds-header-left">
+      <h2>Mis Predicciones</h2>
+      <p>Tus pronósticos valen para todos tus grupos</p>
+    </div>
+    <div class="save-status">
+      <div class="save-dot saved" id="saveDot"></div>
+      <span id="saveStatusText">Guardado</span>
+    </div>
+  </div>
+
+  <div class="phase-selector-wrap">
+    <select class="phase-select" id="phaseSelect">
+      <option value="grupos">⚽ Fase de Grupos</option>
+    </select>
+    <span class="phase-counter" id="phaseCounter"></span>
+  </div>
+
+  <div id="predsContent">
+    <div class="loading-state">
+      <div class="spinner-lg"></div>
+      Cargando predicciones...
+    </div>
+  </div>
+</div>
+
+<!-- SAVE BAR -->
+<div class="save-bar">
+  <div class="save-bar-inner">
+    <div class="save-info" id="saveInfo"></div>
+    <button class="btn-save" id="btnSave" disabled>
+      <span class="s-text">Guardar predicciones</span>
+      <div class="s-spinner"></div>
+    </button>
+  </div>
+</div>
+
+<!-- Modal: Crear grupo -->
+<div class="modal-overlay" id="modalCreate">
+  <div class="modal">
+    <button class="modal-close" data-close="modalCreate">✕</button>
+    <div class="modal-icon">🏆</div>
+    <h2 class="modal-title">Crear nuevo grupo</h2>
+    <p class="modal-sub">Elegí un nombre y compartí el código con tus amigos.</p>
+    <div class="modal-error" id="createError"></div>
+    <div class="form-group">
+      <label class="form-label">Nombre del grupo</label>
+      <input class="form-input" type="text" id="groupName" placeholder="Ej: Los Cracks del Barrio" maxlength="40"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Código de invitación</label>
+      <div class="code-display">
+        <span class="code-val" id="generatedCode">------</span>
+        <button class="btn-copy" id="btnCopyCode">Copiar</button>
+      </div>
+    </div>
+    <button class="btn-modal" id="btnConfirmCreate">
+      <span class="btn-text">Crear grupo</span>
+      <div class="btn-spinner"></div>
+    </button>
+  </div>
+</div>
+
+<!-- Modal: Unirse -->
+<div class="modal-overlay" id="modalJoin">
+  <div class="modal">
+    <button class="modal-close" data-close="modalJoin">✕</button>
+    <div class="modal-icon">🔑</div>
+    <h2 class="modal-title">Unirse a un grupo</h2>
+    <p class="modal-sub">Ingresá el código de 6 letras que te compartieron.</p>
+    <div class="modal-error" id="joinError"></div>
+    <div class="form-group">
+      <label class="form-label">Código del grupo</label>
+      <input class="form-input" type="text" id="joinCode" placeholder="XXXXXX" maxlength="6"
+        style="text-transform:uppercase;letter-spacing:.2em;font-size:1.1rem;font-family:'Courier New',monospace"/>
+    </div>
+    <button class="btn-modal" id="btnConfirmJoin">
+      <span class="btn-text">Unirse al grupo</span>
+      <div class="btn-spinner"></div>
+    </button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+  import { initializeApp, getApps, getApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getAuth, onAuthStateChanged, signOut }
+    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import { getFirestore, collection, doc, getDoc, setDoc, updateDoc,
+    query, where, getDocs, arrayUnion, serverTimestamp }
+    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+  import { MATCHES, KNOCKOUT_ROUNDS } from './matches-data.js';
+
+  const ADMIN_EMAIL = 'bautistaoteroalen2008@gmail.com';
+  // Predictions are global (same doc regardless of group)
+  const GLOBAL_PRED_KEY = uid => `${uid}_global`;
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBJeBpq7_9R23rtr_fGoUQf8fXKgcBib-E",
+    authDomain: "prode-mundial-2026-4b023.firebaseapp.com",
+    projectId: "prode-mundial-2026-4b023",
+    storageBucket: "prode-mundial-2026-4b023.firebasestorage.app",
+    messagingSenderId: "503197700056",
+    appId: "1:503197700056:web:e13e6e00445b059c716cad",
+  };
+
+  const app  = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  let currentUser  = null;
+  let allGroups    = [];
+  let activeGroup  = null;
+  let savedPreds   = {};
+  let knockoutBracket = {};   // { matchId: { slot1, slot2, kickoff, sede, home, away } }
+  let knockoutPhases  = {};   // { R32: true, R16: false, ... }
+  let isDirty      = false;
+
+  // ── Auth ──
+  const authTimeout = setTimeout(() => { window.location.href = 'login.html'; }, 8000);
+  onAuthStateChanged(auth, async user => {
+    clearTimeout(authTimeout);
+    if (!user) { window.location.href = 'login.html'; return; }
+    currentUser = user;
+    document.getElementById('userName').textContent = user.displayName || user.email;
+    if (user.email === ADMIN_EMAIL) document.getElementById('adminLink').style.display = 'inline-flex';
+    await Promise.all([loadGroups(), loadPredictions(), loadKnockoutBracket()]);
+    renderPredictions();
+    updateSaveBar();
+  });
+
+  document.getElementById('btnLogout').addEventListener('click', async () => {
+    await signOut(auth); window.location.href = 'login.html';
+  });
+
+  // ── Load global predictions (shared across groups) ──
+  async function loadPredictions() {
+    try {
+      const snap = await getDoc(doc(db, 'predictions', GLOBAL_PRED_KEY(currentUser.uid)));
+      savedPreds = snap.exists() ? (snap.data().matches || {}) : {};
+    } catch(e) { savedPreds = {}; }
+    // renderPredictions() is called after ALL data loads complete (see onAuthStateChanged)
+  }
+
+  async function loadKnockoutBracket() {
+    try {
+      const [bracketSnap, phasesSnap] = await Promise.all([
+        getDoc(doc(db, 'knockout', 'bracket')),
+        getDoc(doc(db, 'knockout', 'phases')),
+      ]);
+      knockoutBracket = bracketSnap.exists() ? bracketSnap.data() : {};
+      knockoutPhases  = phasesSnap.exists()  ? phasesSnap.data()  : {};
+    } catch(e) { knockoutBracket = {}; knockoutPhases = {}; }
+  }
+
+  // ── Load groups ──
+  async function loadGroups() {
+    const menu = document.getElementById('groupsMenu');
+    try {
+      const q = query(collection(db, 'groups'), where('memberUids', 'array-contains', currentUser.uid));
+      const snap = await getDocs(q);
+      allGroups = snap.docs.map(d => d.data());
+      allGroups.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+    } catch(err) {
+      document.getElementById('gmLoading').textContent = 'Error al cargar grupos.';
+      return;
+    }
+    if (allGroups.length === 0) { window.location.href = 'onboarding.html'; return; }
+    renderGroupsMenu();
+    if (allGroups.length > 0) selectGroup(allGroups[0]);
+  }
+
+  function renderGroupsMenu() {
+    const menu = document.getElementById('groupsMenu');
+    const items = allGroups.map(g => `
+      <div class="gm-item${activeGroup?.code === g.code ? ' active' : ''}" data-code="${g.code}">
+        <div class="gm-icon">⚽</div>
+        <div class="gm-info">
+          <div class="gm-name">${escHtml(g.name)}</div>
+          <div class="gm-meta">${g.code} · 👥 ${g.memberUids?.length || 1}</div>
+        </div>
+        ${activeGroup?.code === g.code ? '<span class="gm-check">✓</span>' : ''}
+      </div>`).join('');
+
+    const noGroups = allGroups.length === 0
+      ? `<div style="padding:.75rem 1.1rem;font-size:.82rem;color:var(--muted)">Todavía no tenés grupos</div>`
+      : '';
+
+    menu.innerHTML = `
+      ${items}
+      ${noGroups}
+      <div class="gm-divider"></div>
+      <div class="gm-action create" id="menuBtnCreate">
+        <div class="gm-action-icon">＋</div> Crear nuevo grupo
+      </div>
+      <div class="gm-action join" id="menuBtnJoin">
+        <div class="gm-action-icon">🔑</div> Unirse con código
+      </div>`;
+
+    menu.querySelectorAll('.gm-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const g = allGroups.find(x => x.code === item.dataset.code);
+        if (g) selectGroup(g);
+        closeMenu();
+      });
+    });
+    document.getElementById('menuBtnCreate').addEventListener('click', () => { closeMenu(); openModal('modalCreate'); openCreateModal(); });
+    document.getElementById('menuBtnJoin').addEventListener('click', () => { closeMenu(); openModal('modalJoin'); });
+  }
+
+  function selectGroup(group) {
+    activeGroup = group;
+    document.getElementById('gbName').textContent = group.name;
+    renderGroupsMenu();
+    showLeaderboard(group);
+  }
+
+  // ── Dropdown toggle ──
+  const groupsBtn  = document.getElementById('groupsBtn');
+  const groupsMenu = document.getElementById('groupsMenu');
+
+  groupsBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    const open = groupsMenu.classList.toggle('open');
+    groupsBtn.classList.toggle('open', open);
+  });
+  document.addEventListener('click', () => closeMenu());
+  groupsMenu.addEventListener('click', e => e.stopPropagation());
+
+  function closeMenu() {
+    groupsMenu.classList.remove('open');
+    groupsBtn.classList.remove('open');
+  }
+
+  // ── Leaderboard ──
+  async function showLeaderboard(group) {
+    const panel = document.getElementById('lbPanel');
+    const content = document.getElementById('lbContent');
+    panel.style.display = 'block';
+    document.getElementById('lbGroupName').textContent = group.name;
+    content.innerHTML = `<div style="color:var(--muted);font-size:.84rem;display:flex;align-items:center;gap:.6rem"><div class="spin-sm"></div>Calculando puntos...</div>`;
+
+    try {
+      const resultsSnap = await getDoc(doc(db, 'results', 'matches'));
+      const results = resultsSnap.exists() ? (resultsSnap.data().scores || {}) : {};
+      const resolvedCount = Object.keys(results).length;
+
+      const members = group.members || group.memberUids.map(uid => ({ uid, displayName: uid }));
+
+      const predPromises = members.map(m =>
+        getDoc(doc(db, 'predictions', GLOBAL_PRED_KEY(m.uid)))
+          .then(snap => ({ member: m, preds: snap.exists() ? (snap.data().matches || {}) : {} }))
+          .catch(() => ({ member: m, preds: {} }))
+      );
+      const allPreds = await Promise.all(predPromises);
+
+      const scores = allPreds.map(({ member, preds }) => {
+        let pts = 0, exact = 0, outcome = 0;
+        for (const [matchId, res] of Object.entries(results)) {
+          const pred = preds[matchId];
+          if (!pred || pred.home == null || pred.away == null) continue;
+          if (pred.home === res.home && pred.away === res.away) {
+            pts += 3; exact++;
+          } else if (Math.sign(pred.home - pred.away) === Math.sign(res.home - res.away)) {
+            pts += 1; outcome++;
+          }
+        }
+        return { name: member.displayName || member.uid, uid: member.uid, pts, exact, outcome };
+      });
+      scores.sort((a, b) => b.pts - a.pts || b.exact - a.exact);
+
+      const medals = ['🥇','🥈','🥉'];
+      const posClass = ['first','second','third'];
+
+      content.innerHTML = `
+        <table class="lb-table">
+          <thead><tr>
+            <th>#</th><th>Jugador</th><th>Pts</th><th>Exactos</th><th>Resultado</th>
+          </tr></thead>
+          <tbody>
+            ${scores.map((s, i) => `<tr>
+              <td class="lb-pos ${posClass[i]||''}">${medals[i]||(i+1)}</td>
+              <td class="lb-name">${escHtml(s.name)}${s.uid===currentUser.uid?'<span class="you-tag">vos</span>':''}</td>
+              <td class="lb-pts${i===0?' leader':''}">${s.pts}</td>
+              <td class="lb-exact">${s.exact}</td>
+              <td class="lb-outcome">${s.outcome}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+        <p class="lb-note">${resolvedCount === 0 ? 'El torneo aún no comenzó · Los puntos se actualizarán cuando haya resultados' : `Basado en ${resolvedCount} partido${resolvedCount!==1?'s':''} con resultado · Exacto = 3pts · Resultado = 1pt`}</p>`;
+    } catch(err) {
+      content.innerHTML = `<p class="lb-no-results">Error: ${err.message}</p>`;
+    }
+  }
+
+  // ── Build phase list (used for select + render) ──
+  function buildPhases() {
+    const now = Date.now();
+    const phases = [];
+
+    // Grupos
+    const groupMatches = [...MATCHES].sort((a, b) => a.kickoff - b.kickoff);
+    phases.push({ id:'grupos', label:'⚽ Fase de Grupos', matches: groupMatches, available: true });
+
+    // Knockout
+    KNOCKOUT_ROUNDS.forEach(round => {
+      const enabled = !!knockoutPhases[round.id];
+      const matches = [];
+      for (let i = 1; i <= round.count; i++) {
+        const id = `${round.id}-${i}`;
+        const bm = knockoutBracket[id];
+        if (bm?.slot1?.n && bm?.slot2?.n) {
+          const kickoff = bm.kickoff
+            ? (bm.kickoff.toDate ? bm.kickoff.toDate() : new Date(bm.kickoff))
+            : new Date('2026-12-31');
+          matches.push({ id, local: bm.slot1, visitante: bm.slot2, kickoff, sede: bm.sede || '' });
+        }
+      }
+      phases.push({
+        id: round.id,
+        label: `⚔️ ${round.name}`,
+        matches,
+        available: enabled && matches.length > 0,
+        locked: !enabled,   // admin disabled
+      });
+    });
+
+    return phases;
+  }
+
+  let activePhaseId = 'grupos';
+
+  function renderPredictions() {
+    const phases = buildPhases();
+
+    // Populate select
+    const sel = document.getElementById('phaseSelect');
+    const currentVal = sel.value || 'grupos';
+    sel.innerHTML = phases.map(p => {
+      const suffix = p.locked ? ' 🔒' : (!p.available && p.id !== 'grupos') ? ' (sin definir)' : '';
+      return `<option value="${p.id}">${p.label}${suffix}</option>`;
+    }).join('');
+    // Restore selection
+    const stillValid = phases.find(p => p.id === currentVal);
+    sel.value = stillValid ? currentVal : 'grupos';
+    activePhaseId = sel.value;
+
+    renderActivePhase(phases);
+
+    sel.onchange = () => {
+      activePhaseId = sel.value;
+      renderActivePhase(phases);
+    };
+  }
+
+  function renderActivePhase(phases) {
+    const now = Date.now();
+    const phase = phases.find(p => p.id === activePhaseId);
+    const container = document.getElementById('predsContent');
+
+    if (phase?.locked) {
+      container.innerHTML = `<div style="text-align:center;padding:3rem;background:rgba(255,255,255,.02);border:1px dashed rgba(255,255,255,.07);border-radius:16px">
+        <div style="font-size:2rem;margin-bottom:.8rem">🔒</div>
+        <div style="font-weight:700;color:var(--white);font-family:var(--fh);margin-bottom:.4rem">Fase no disponible</div>
+        <div style="color:var(--muted);font-size:.85rem">El administrador todavía no habilitó los pronósticos para esta fase.</div>
+      </div>`;
+      updatePhaseCounter(phase, 0, 0);
+      return;
+    }
+    if (!phase || !phase.available || phase.matches.length === 0) {
+      container.innerHTML = `<div style="text-align:center;padding:3rem;color:var(--muted);font-size:.88rem;background:rgba(255,255,255,.02);border:1px dashed rgba(255,255,255,.07);border-radius:16px">
+        ⏳ Los equipos de esta fase todavía no están definidos
+      </div>`;
+      updatePhaseCounter(phase, 0, 0);
+      return;
+    }
+
+    // Grupos: group by date
+    if (phase.id === 'grupos') {
+      const byDate = {};
+      phase.matches.forEach(m => {
+        // Group by Argentina date
+        const key = m.kickoff.toLocaleDateString('en-CA', {timeZone: TZ}); // YYYY-MM-DD
+        if (!byDate[key]) byDate[key] = [];
+        byDate[key].push(m);
+      });
+      container.innerHTML = Object.entries(byDate).map(([, matches]) => `
+        <div class="date-group">
+          <div class="date-label">${formatDateFull(matches[0].kickoff)}</div>
+          ${matches.map(m => buildMatchRow(m, now)).join('')}
+        </div>`).join('');
+    } else {
+      container.innerHTML = phase.matches.map(m => buildMatchRow(m, now)).join('');
+    }
+
+    // Counter
+    const total  = phase.matches.filter(m => !now >= m.kickoff.getTime()).length + phase.matches.length;
+    const filled = phase.matches.filter(m => {
+      const p = savedPreds[m.id]; return p?.home != null && p?.away != null;
+    }).length;
+    updatePhaseCounter(phase, filled, phase.matches.length);
+
+    // Input listeners
+    container.querySelectorAll('.score-in').forEach(input => {
+      input.addEventListener('input', () => {
+        const v = parseInt(input.value);
+        if (input.value !== '' && (isNaN(v) || v < 0)) input.value = 0;
+        if (v > 99) input.value = 99;
+        markDirty();
+        updateMatchRowState(input.closest('.match-row'));
+        // Recount
+        const f = phase.matches.filter(m => {
+          const p = savedPreds[m.id]; return p?.home != null && p?.away != null;
+        }).length;
+        const liveInputs = container.querySelectorAll('.score-in:not(:disabled)');
+        let liveCount = 0;
+        for (let i = 0; i < liveInputs.length; i += 2) {
+          if (liveInputs[i]?.value !== '' && liveInputs[i+1]?.value !== '') liveCount++;
+        }
+        updatePhaseCounter(phase, liveCount, phase.matches.length);
+      });
+    });
+  }
+
+  function updatePhaseCounter(phase, filled, total) {
+    const el = document.getElementById('phaseCounter');
+    if (!el) return;
+    if (!phase?.available || total === 0) { el.textContent = ''; return; }
+    const complete = filled === total;
+    el.className = `phase-counter${complete ? ' complete' : ''}`;
+    el.innerHTML = complete
+      ? `✓ Fase completa`
+      : `<strong>${filled}</strong> / ${total} predicciones completadas`;
+  }
+
+  function buildMatchRow(match, now) {
+    const locked  = now >= match.kickoff.getTime();
+    const isLive  = locked && now < match.kickoff.getTime() + 1.5*3600*1000;
+    const pred    = savedPreds[match.id] || {};
+    const homeVal = pred.home != null ? pred.home : '';
+    const awayVal = pred.away != null ? pred.away : '';
+    const hasPred = homeVal !== '' && awayVal !== '';
+    const lockHtml = locked
+      ? `<span class="lock-badge${isLive?' live':''}">${isLive?'🔴 En vivo':'🔒 Cerrado'}</span>`
+      : '';
+    return `
+      <div class="match-row${hasPred?' has-prediction':''}${locked?' locked':''}" data-id="${match.id}">
+        <div class="match-teams">
+          <div class="team local">
+            <span class="team-flag">${match.local.f}</span>
+            <span class="team-name">${match.local.n}</span>
+          </div>
+          <div class="score-inputs">
+            <input class="score-in" type="number" min="0" max="99"
+              value="${homeVal}" data-match="${match.id}" data-side="home"
+              ${locked?'disabled':''} placeholder="–"/>
+            <span class="score-sep">:</span>
+            <input class="score-in" type="number" min="0" max="99"
+              value="${awayVal}" data-match="${match.id}" data-side="away"
+              ${locked?'disabled':''} placeholder="–"/>
+          </div>
+          <div class="team away">
+            <span class="team-flag">${match.visitante.f}</span>
+            <span class="team-name">${match.visitante.n}</span>
+          </div>
+        </div>
+        <div class="match-meta">
+          <span>${formatTime(match.kickoff)} hs${lockHtml?' · ':''} ${lockHtml}</span>
+          <span class="match-venue">${match.sede}</span>
+        </div>
+      </div>`;
+  }
+
+  function updateMatchRowState(row) {
+    const inputs = row.querySelectorAll('.score-in');
+    row.classList.toggle('has-prediction', inputs[0]?.value!=='' && inputs[1]?.value!=='');
+  }
+
+  // ── Save ──
+  let autoSaveTimer = null;
+
+  document.getElementById('btnSave').addEventListener('click', savePredictions);
+
+  async function savePredictions() {
+    clearTimeout(autoSaveTimer);
+    const btn = document.getElementById('btnSave');
+    btn.classList.add('loading'); btn.disabled = true;
+    setSaveStatus('saving');
+    try {
+      const merged = collectPreds();
+      await setDoc(
+        doc(db, 'predictions', GLOBAL_PRED_KEY(currentUser.uid)),
+        { matches: merged, updatedAt: serverTimestamp() },
+        { merge: true }
+      );
+      savedPreds = merged;
+      isDirty = false;
+      updateSaveBar();
+      setSaveStatus('saved');
+      if (activeGroup) showLeaderboard(activeGroup);
+    } catch(err) {
+      setSaveStatus('unsaved');
+      showToast('Error al guardar: ' + err.message, 'error');
+    } finally {
+      btn.classList.remove('loading'); btn.disabled = !isDirty;
+    }
+  }
+
+  function collectPreds() {
+    const updates = {};
+    document.querySelectorAll('.score-in').forEach(input => {
+      const { match: matchId, side } = input.dataset;
+      if (!matchId) return;
+      if (!updates[matchId]) updates[matchId] = { ...savedPreds[matchId] };
+      if (input.value !== '') updates[matchId][side] = parseInt(input.value);
+    });
+    for (const id in updates) {
+      if (updates[id].home == null || updates[id].away == null) delete updates[id];
+    }
+    return { ...savedPreds, ...updates };
+  }
+
+  function markDirty() {
+    if (!isDirty) {
+      isDirty = true;
+      setSaveStatus('unsaved');
+      document.getElementById('btnSave').disabled = false;
+    }
+    // Auto-save after 1.5s of inactivity
+    clearTimeout(autoSaveTimer);
+    autoSaveTimer = setTimeout(savePredictions, 1500);
+  }
+
+  function setSaveStatus(state) {
+    const dot  = document.getElementById('saveDot');
+    const text = document.getElementById('saveStatusText');
+    dot.className = `save-dot ${state === 'saving' ? 'unsaved' : state}`;
+    if (state === 'saved')   text.textContent = 'Guardado automáticamente';
+    if (state === 'unsaved') text.textContent = 'Guardando...';
+    if (state === 'saving')  text.textContent = 'Guardando...';
+  }
+  function updateSaveBar() {
+    const total  = MATCHES.length;
+    const filled = Object.values(savedPreds).filter(p => p.home != null && p.away != null).length;
+    document.getElementById('saveInfo').innerHTML = `<strong>${filled}</strong> / ${total} predicciones completadas`;
+    document.getElementById('btnSave').disabled = !isDirty;
+    if (!isDirty) setSaveStatus('saved');
+  }
+
+  // ── Modals ──
+  function openModal(id) { document.getElementById(id).classList.add('open'); }
+  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+  document.querySelectorAll('[data-close]').forEach(btn => btn.addEventListener('click', () => closeModal(btn.dataset.close)));
+  document.querySelectorAll('.modal-overlay').forEach(ov => ov.addEventListener('click', e => { if(e.target===ov) ov.classList.remove('open'); }));
+
+  let pendingCode = '';
+  function openCreateModal() {
+    pendingCode = genCode();
+    document.getElementById('generatedCode').textContent = pendingCode;
+    document.getElementById('groupName').value = '';
+    document.getElementById('createError').classList.remove('show');
+  }
+
+  document.getElementById('btnCopyCode').addEventListener('click', () => {
+    navigator.clipboard.writeText(pendingCode);
+    const btn = document.getElementById('btnCopyCode');
+    btn.textContent = '✓ Copiado'; btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('copied'); }, 2000);
+  });
+
+  document.getElementById('btnConfirmCreate').addEventListener('click', async () => {
+    const name  = document.getElementById('groupName').value.trim();
+    const errEl = document.getElementById('createError');
+    errEl.classList.remove('show');
+    if (!name) { errEl.textContent = 'Poné un nombre al grupo.'; errEl.classList.add('show'); return; }
+
+    const btn = document.getElementById('btnConfirmCreate');
+    btn.classList.add('loading'); btn.disabled = true;
+    try {
+      const existing = await getDoc(doc(db, 'groups', pendingCode));
+      if (existing.exists()) { pendingCode = genCode(); document.getElementById('generatedCode').textContent = pendingCode; }
+      await setDoc(doc(db, 'groups', pendingCode), {
+        name, code: pendingCode,
+        createdBy: currentUser.uid,
+        members: [{ uid: currentUser.uid, displayName: currentUser.displayName || currentUser.email }],
+        memberUids: [currentUser.uid],
+        createdAt: serverTimestamp(),
+      });
+      closeModal('modalCreate');
+      showToast('¡Grupo creado! 🎉', 'success');
+      await loadGroups();
+    } catch(err) {
+      errEl.textContent = 'Error al crear el grupo.'; errEl.classList.add('show');
+    } finally { btn.classList.remove('loading'); btn.disabled = false; }
+  });
+
+  document.getElementById('joinCode').addEventListener('input', e => {
+    e.target.value = e.target.value.toUpperCase().replace(/[^A-Z]/g, '');
+  });
+
+  document.getElementById('btnConfirmJoin').addEventListener('click', async () => {
+    const code  = document.getElementById('joinCode').value.trim().toUpperCase();
+    const errEl = document.getElementById('joinError');
+    errEl.classList.remove('show');
+    if (code.length !== 6) { errEl.textContent = 'El código debe tener 6 letras.'; errEl.classList.add('show'); return; }
+
+    const btn = document.getElementById('btnConfirmJoin');
+    btn.classList.add('loading'); btn.disabled = true;
+    try {
+      const groupDoc = await getDoc(doc(db, 'groups', code));
+      if (!groupDoc.exists()) { errEl.textContent = 'No existe ningún grupo con ese código.'; errEl.classList.add('show'); return; }
+      const data = groupDoc.data();
+      if (!data.memberUids?.includes(currentUser.uid)) {
+        await updateDoc(doc(db, 'groups', code), {
+          memberUids: arrayUnion(currentUser.uid),
+          members: arrayUnion({ uid: currentUser.uid, displayName: currentUser.displayName || currentUser.email }),
+        });
+      }
+      closeModal('modalJoin');
+      showToast(`¡Te uniste a "${data.name}"! 🙌`, 'success');
+      await loadGroups();
+    } catch(err) {
+      errEl.textContent = 'Error al unirse.'; errEl.classList.add('show');
+    } finally { btn.classList.remove('loading'); btn.disabled = false; }
+  });
+
+  // ── Helpers ──
+  function genCode() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+    let c = '';
+    for (let i=0;i<6;i++) c += chars[Math.floor(Math.random()*chars.length)];
+    return c;
+  }
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  const TZ = 'America/Argentina/Buenos_Aires';
+  function formatDateFull(d) {
+    return d.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long',timeZone:TZ});
+  }
+  function formatTime(d) {
+    return d.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit',timeZone:TZ});
+  }
+  function showToast(msg, type='') {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.className = `toast ${type} show`;
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  // ── Auto-lock ticker ──
+  // Every 30 seconds, check if any visible unlocked match has now started and re-render
+  setInterval(() => {
+    const now = Date.now();
+    const unlocked = document.querySelectorAll('.match-row:not(.locked)');
+    if (!unlocked.length) return;
+
+    // Build a flat map of all match kickoffs (groups + knockout)
+    const kickoffMap = {};
+    MATCHES.forEach(m => { kickoffMap[m.id] = m.kickoff.getTime(); });
+    Object.entries(knockoutBracket).forEach(([mid, bm]) => {
+      if (!bm?.kickoff) return;
+      const ko = bm.kickoff.toDate ? bm.kickoff.toDate() : new Date(bm.kickoff);
+      kickoffMap[mid] = ko.getTime();
+    });
+
+    let needsRerender = false;
+    unlocked.forEach(row => {
+      const t = kickoffMap[row.dataset.id];
+      if (t && now >= t) needsRerender = true;
+    });
+    if (needsRerender) renderPredictions();
+  }, 30000);
+</script>
+</body>
+</html>

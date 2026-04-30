@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Contacto · Prode Mundial 2026</title>
+  <link rel="icon" href="favicon.ico"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1544307278201390" crossorigin="anonymous"></script>
+  <style>
+    :root{
+      --bg:#08090f; --gold:#c9a84c; --gold-l:#f0c040; --glow:rgba(201,168,76,.35);
+      --white:#f0f4f8; --muted:#7a8898; --border:rgba(201,168,76,.2);
+      --bi:rgba(255,255,255,.1); --green:#4cc94c;
+      --fh:'Montserrat',sans-serif; --fb:'Inter',sans-serif;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--white);font-family:var(--fb);min-height:100vh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
+    body::before{content:'';position:fixed;top:-30%;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(201,168,76,.07) 0%,transparent 70%);pointer-events:none}
+
+    /* Nav */
+    nav{display:flex;align-items:center;justify-content:space-between;padding:1.2rem 2rem;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(8,9,15,.92);backdrop-filter:blur(12px);z-index:10}
+    .nav-logo{display:flex;align-items:center;gap:.6rem;font-family:var(--fh);font-weight:900;font-size:1rem;text-decoration:none;color:var(--white)}
+    .logo-b{width:30px;height:30px;background:linear-gradient(135deg,var(--gold),#6b4a10);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.9rem;box-shadow:0 0 14px var(--glow)}
+    .gold{color:var(--gold)}
+    .nav-back{font-size:.85rem;color:var(--muted);text-decoration:none;transition:color .2s}
+    .nav-back:hover{color:var(--white)}
+
+    /* Page */
+    main{flex:1;display:flex;justify-content:center;padding:3rem 1.5rem 4rem}
+    .container{width:100%;max-width:640px}
+
+    .page-header{margin-bottom:2.5rem}
+    .page-tag{font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.8rem}
+    .page-title{font-family:var(--fh);font-size:clamp(1.8rem,5vw,2.6rem);font-weight:900;letter-spacing:-.02em;line-height:1.1;margin-bottom:.8rem}
+    .page-sub{color:var(--muted);font-size:.95rem;line-height:1.7}
+
+    /* Form */
+    .contact-form{background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:24px;padding:2rem}
+    .form-group{margin-bottom:1.4rem}
+    .form-label{display:block;font-size:.72rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem}
+    .form-input,.form-textarea{width:100%;padding:.85rem 1rem;background:rgba(255,255,255,.04);border:1px solid var(--bi);border-radius:12px;color:var(--white);font-family:var(--fb);font-size:.95rem;outline:none;transition:border-color .2s,box-shadow .2s}
+    .form-input::placeholder,.form-textarea::placeholder{color:rgba(122,136,152,.45)}
+    .form-input:focus,.form-textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.12)}
+    .form-textarea{resize:vertical;min-height:130px;line-height:1.6}
+
+    .btn-primary{display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;padding:.9rem;border-radius:50px;font-family:var(--fh);font-weight:800;font-size:.9rem;letter-spacing:.05em;cursor:pointer;border:none;background:linear-gradient(135deg,var(--gold),#a07830);color:#000;box-shadow:0 4px 24px rgba(201,168,76,.35);transition:transform .15s,box-shadow .15s}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(201,168,76,.5)}
+
+    .success-msg{display:none;text-align:center;padding:1.8rem;background:rgba(76,201,76,.07);border:1px solid rgba(76,201,76,.25);border-radius:16px;margin-top:1rem}
+    .success-msg.show{display:block}
+    .success-icon{font-size:2.2rem;margin-bottom:.6rem}
+    .success-msg h3{font-family:var(--fh);font-size:1.1rem;font-weight:800;color:var(--green);margin-bottom:.4rem}
+    .success-msg p{font-size:.88rem;color:var(--muted);line-height:1.6}
+
+    /* Info cards */
+    .info-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-top:2rem}
+    .info-card{background:rgba(255,255,255,.02);border:1px solid var(--bi);border-radius:16px;padding:1.4rem;text-align:center}
+    .info-card-icon{font-size:1.6rem;margin-bottom:.7rem}
+    .info-card h4{font-family:var(--fh);font-size:.85rem;font-weight:800;margin-bottom:.3rem}
+    .info-card p{font-size:.78rem;color:var(--muted);line-height:1.5}
+    .info-card a{color:var(--gold);text-decoration:none}
+    .info-card a:hover{text-decoration:underline}
+
+    /* Footer */
+    footer{text-align:center;padding:1.5rem;font-size:.75rem;color:var(--muted);border-top:1px solid rgba(255,255,255,.06)}
+    footer a{color:var(--muted);text-decoration:none;margin:0 .5rem}
+    footer a:hover{color:var(--white)}
+  </style>
+</head>
+<body>
+  <nav>
+    <a class="nav-logo" href="dashboard.html">
+      <img src="logo.png" alt="Logo" style="width:30px;height:30px;border-radius:50%;object-fit:cover;box-shadow:0 0 14px var(--glow)"/>
+      Prode <span class="gold">2026</span>
+    </a>
+    <a class="nav-back" href="dashboard.html">← Volver al inicio</a>
+  </nav>
+
+  <main>
+    <div class="container">
+      <div class="page-header">
+        <div class="page-tag">Soporte</div>
+        <h1 class="page-title">Contacto</h1>
+        <p class="page-sub">¿Tenés alguna duda, sugerencia o problema? Escribinos y te respondemos a la brevedad.</p>
+      </div>
+
+      <div class="contact-form">
+        <div class="form-group">
+          <label class="form-label" for="nombre">Nombre</label>
+          <input class="form-input" type="text" id="nombre" placeholder="Tu nombre completo"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="email">Email</label>
+          <input class="form-input" type="email" id="email" placeholder="tu@email.com"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="asunto">Asunto</label>
+          <input class="form-input" type="text" id="asunto" placeholder="¿En qué te podemos ayudar?"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="mensaje">Mensaje</label>
+          <textarea class="form-textarea" id="mensaje" placeholder="Contanos tu consulta con detalle..."></textarea>
+        </div>
+        <button class="btn-primary" id="btnEnviar" onclick="enviarFormulario()">Enviar mensaje</button>
+        <div class="success-msg" id="successMsg">
+          <div class="success-icon">✅</div>
+          <h3>¡Mensaje enviado!</h3>
+          <p>Gracias por escribirnos. Te responderemos a la brevedad en tu email.</p>
+        </div>
+      </div>
+
+      <div class="info-cards">
+        <div class="info-card">
+          <div class="info-card-icon">📧</div>
+          <h4>Email</h4>
+          <p><a href="mailto:bautistaoteroalen2008@gmail.com">bautistaoteroalen2008@gmail.com</a></p>
+        </div>
+        <div class="info-card">
+          <div class="info-card-icon">⚡</div>
+          <h4>Tiempo de respuesta</h4>
+          <p>Respondemos en menos de 48 horas hábiles</p>
+        </div>
+        <div class="info-card">
+          <div class="info-card-icon">🌍</div>
+          <h4>Mundial 2026</h4>
+          <p>Soporte activo durante todo el torneo</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <a href="contacto.html">Contacto</a>
+    <a href="acerca.html">Acerca de</a>
+    <a href="privacidad.html">Privacidad</a>
+    <a href="aviso-legal.html">Aviso Legal</a>
+    <br/><br/>© 2026 Prode Mundial. Todos los derechos reservados.
+  </footer>
+
+  <script>
+    function enviarFormulario() {
+      const nombre  = document.getElementById('nombre').value.trim();
+      const email   = document.getElementById('email').value.trim();
+      const asunto  = document.getElementById('asunto').value.trim();
+      const mensaje = document.getElementById('mensaje').value.trim();
+
+      if (!nombre || !email || !asunto || !mensaje) {
+        alert('Por favor completá todos los campos.');
+        return;
+      }
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        alert('Por favor ingresá un email válido.');
+        return;
+      }
+
+      const btn = document.getElementById('btnEnviar');
+      btn.disabled = true;
+      btn.textContent = 'Enviando...';
+
+      // Simulated send — replace with a real email service (e.g. EmailJS / Formspree)
+      setTimeout(() => {
+        document.getElementById('successMsg').classList.add('show');
+        btn.style.display = 'none';
+        document.getElementById('nombre').value  = '';
+        document.getElementById('email').value   = '';
+        document.getElementById('asunto').value  = '';
+        document.getElementById('mensaje').value = '';
+      }, 900);
+    }
+  </script>
+</body>
+</html>

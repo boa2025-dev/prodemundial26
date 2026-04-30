@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Acerca de · Prode Mundial 2026</title>
+  <link rel="icon" href="favicon.ico"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1544307278201390" crossorigin="anonymous"></script>
+  <style>
+    :root{
+      --bg:#08090f; --gold:#c9a84c; --gold-l:#f0c040; --glow:rgba(201,168,76,.35);
+      --white:#f0f4f8; --muted:#7a8898; --border:rgba(201,168,76,.2);
+      --bi:rgba(255,255,255,.1);
+      --fh:'Montserrat',sans-serif; --fb:'Inter',sans-serif;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--white);font-family:var(--fb);min-height:100vh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
+    body::before{content:'';position:fixed;top:-30%;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(201,168,76,.07) 0%,transparent 70%);pointer-events:none}
+
+    nav{display:flex;align-items:center;justify-content:space-between;padding:1.2rem 2rem;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(8,9,15,.92);backdrop-filter:blur(12px);z-index:10}
+    .nav-logo{display:flex;align-items:center;gap:.6rem;font-family:var(--fh);font-weight:900;font-size:1rem;text-decoration:none;color:var(--white)}
+    .logo-b{width:30px;height:30px;background:linear-gradient(135deg,var(--gold),#6b4a10);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.9rem;box-shadow:0 0 14px var(--glow)}
+    .gold{color:var(--gold)}
+    .nav-back{font-size:.85rem;color:var(--muted);text-decoration:none;transition:color .2s}
+    .nav-back:hover{color:var(--white)}
+
+    main{flex:1;display:flex;justify-content:center;padding:3rem 1.5rem 4rem}
+    .container{width:100%;max-width:720px}
+
+    .page-tag{font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.8rem}
+    .page-title{font-family:var(--fh);font-size:clamp(1.8rem,5vw,2.8rem);font-weight:900;letter-spacing:-.02em;line-height:1.1;margin-bottom:1rem}
+    .page-sub{color:var(--muted);font-size:1rem;line-height:1.8;margin-bottom:3rem}
+
+    /* Hero banner */
+    .hero-banner{background:linear-gradient(135deg,rgba(201,168,76,.12),rgba(201,168,76,.03));border:1px solid var(--border);border-radius:24px;padding:2.5rem 2rem;text-align:center;margin-bottom:2.5rem}
+    .hero-emoji{font-size:3.5rem;margin-bottom:1rem;display:block}
+    .hero-banner h2{font-family:var(--fh);font-size:1.5rem;font-weight:900;margin-bottom:.7rem}
+    .hero-banner p{color:var(--muted);font-size:.93rem;line-height:1.8;max-width:520px;margin:0 auto}
+
+    /* Feature grid */
+    .features{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:2.5rem}
+    .feature-card{background:rgba(255,255,255,.02);border:1px solid var(--bi);border-radius:18px;padding:1.5rem}
+    .feature-icon{font-size:1.8rem;margin-bottom:.8rem}
+    .feature-card h3{font-family:var(--fh);font-size:.9rem;font-weight:800;margin-bottom:.4rem}
+    .feature-card p{font-size:.8rem;color:var(--muted);line-height:1.6}
+
+    /* Section */
+    .section{margin-bottom:2.5rem}
+    .section-title{font-family:var(--fh);font-size:1.2rem;font-weight:800;margin-bottom:.8rem;display:flex;align-items:center;gap:.5rem}
+    .section-title::after{content:'';flex:1;height:1px;background:var(--border);margin-left:.5rem}
+    .section p{color:var(--muted);font-size:.9rem;line-height:1.8;margin-bottom:.8rem}
+
+    /* Stats row */
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:2.5rem}
+    .stat{text-align:center;background:rgba(255,255,255,.02);border:1px solid var(--bi);border-radius:16px;padding:1.4rem .8rem}
+    .stat-num{font-family:var(--fh);font-size:2rem;font-weight:900;color:var(--gold-l)}
+    .stat-label{font-size:.75rem;color:var(--muted);margin-top:.2rem}
+
+    /* CTA */
+    .cta{background:linear-gradient(135deg,rgba(201,168,76,.1),rgba(201,168,76,.04));border:1px solid var(--border);border-radius:20px;padding:2rem;text-align:center}
+    .cta h3{font-family:var(--fh);font-size:1.2rem;font-weight:900;margin-bottom:.5rem}
+    .cta p{color:var(--muted);font-size:.88rem;margin-bottom:1.2rem;line-height:1.6}
+    .btn-gold{display:inline-flex;align-items:center;gap:.4rem;padding:.75rem 2rem;border-radius:50px;font-family:var(--fh);font-weight:800;font-size:.88rem;letter-spacing:.05em;background:linear-gradient(135deg,var(--gold),#a07830);color:#000;text-decoration:none;transition:transform .15s,box-shadow .15s;box-shadow:0 4px 20px rgba(201,168,76,.3)}
+    .btn-gold:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(201,168,76,.5)}
+
+    footer{text-align:center;padding:1.5rem;font-size:.75rem;color:var(--muted);border-top:1px solid rgba(255,255,255,.06)}
+    footer a{color:var(--muted);text-decoration:none;margin:0 .5rem}
+    footer a:hover{color:var(--white)}
+  </style>
+</head>
+<body>
+  <nav>
+    <a class="nav-logo" href="dashboard.html">
+      <img src="logo.png" alt="Logo" style="width:30px;height:30px;border-radius:50%;object-fit:cover;box-shadow:0 0 14px var(--glow)"/>
+      Prode <span class="gold">2026</span>
+    </a>
+    <a class="nav-back" href="dashboard.html">← Volver al inicio</a>
+  </nav>
+
+  <main>
+    <div class="container">
+      <div class="page-tag">Quiénes somos</div>
+      <h1 class="page-title">Acerca de Prode Mundial 2026</h1>
+      <p class="page-sub">El prode más completo para vivir el Mundial de fútbol con tus amigos. Predecí, competí y seguí cada partido del torneo.</p>
+
+      <div class="hero-banner">
+        <span class="hero-emoji">🏆</span>
+        <h2>Hecho para vivir el Mundial al máximo</h2>
+        <p>Prode Mundial 2026 es una plataforma gratuita donde podés armar grupos con tus amigos, cargar tus predicciones para cada partido y ver quién acierta más a lo largo de todo el torneo.</p>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-num">48</div>
+          <div class="stat-label">Selecciones</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">104</div>
+          <div class="stat-label">Partidos</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">3</div>
+          <div class="stat-label">Países sede</div>
+        </div>
+      </div>
+
+      <div class="features">
+        <div class="feature-card">
+          <div class="feature-icon">👥</div>
+          <h3>Grupos privados</h3>
+          <p>Creá tu grupo con un código único y compartilo con tus amigos, familia o compañeros de trabajo.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🎯</div>
+          <h3>Predicciones en tiempo real</h3>
+          <p>Cargá los resultados de todos los partidos de la fase de grupos y las eliminatorias.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📊</div>
+          <h3>Tabla de puntos</h3>
+          <p>Seguí el puntaje de todos los participantes de tu grupo con la tabla actualizada automáticamente.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">⚡</div>
+          <h3>Bracket automático</h3>
+          <p>El cuadro de eliminatorias se arma solo a partir de los resultados reales de la fase de grupos.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔒</div>
+          <h3>Seguro y gratuito</h3>
+          <p>Sin costo, sin publicidad invasiva. Tus datos están protegidos con Firebase de Google.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📱</div>
+          <h3>Desde cualquier dispositivo</h3>
+          <p>Funciona perfecto en celular, tablet y computadora. Solo necesitás un navegador.</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Cómo funciona</div>
+        <p>1. <strong>Registrate</strong> con tu email o tu cuenta de Google.</p>
+        <p>2. <strong>Creá o unite</strong> a un grupo con tu código de invitación.</p>
+        <p>3. <strong>Cargá tus predicciones</strong> antes de que arranque cada partido.</p>
+        <p>4. <strong>Seguí la tabla</strong> y mirá cómo van sumando puntos todos los del grupo.</p>
+        <p>5. <strong>El que más acierte gana</strong> — exacto vale doble que solo el ganador.</p>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Sistema de puntos</div>
+        <p><strong>Resultado exacto:</strong> 3 puntos — adivinás el marcador exacto del partido.</p>
+        <p><strong>Resultado correcto:</strong> 1 punto — adivinás quién gana (o el empate) pero no el marcador.</p>
+        <p><strong>Resultado incorrecto:</strong> 0 puntos.</p>
+      </div>
+
+      <div class="cta">
+        <h3>¿Todavía no jugás?</h3>
+        <p>Registrate gratis y empezá a predecir los partidos del Mundial 2026.</p>
+        <a class="btn-gold" href="register.html">⚽ Unirme ahora</a>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <a href="contacto.html">Contacto</a>
+    <a href="acerca.html">Acerca de</a>
+    <a href="privacidad.html">Privacidad</a>
+    <a href="aviso-legal.html">Aviso Legal</a>
+    <br/><br/>© 2026 Prode Mundial. Todos los derechos reservados.
+  </footer>
+</body>
+</html>
