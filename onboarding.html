@@ -157,7 +157,8 @@
 <script type="module">
   import { initializeApp, getApps, getApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
   import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-  import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, serverTimestamp }
+  import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, serverTimestamp,
+    collection, query, where, getDocs }
     from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
   const firebaseConfig = {
@@ -178,11 +179,19 @@
 
   const authTimeout = setTimeout(() => { window.location.href = 'login.html'; }, 8000);
 
-  onAuthStateChanged(auth, user => {
+  onAuthStateChanged(auth, async user => {
     clearTimeout(authTimeout);
     if (!user) { window.location.href = 'login.html'; return; }
     currentUser = user;
-    // Show first name if available
+
+    // Si el usuario ya está en un grupo, mandarlo al dashboard directamente
+    try {
+      const q    = query(collection(db, 'groups'), where('memberUids', 'array-contains', user.uid));
+      const snap = await getDocs(q);
+      if (!snap.empty) { window.location.href = 'dashboard.html'; return; }
+    } catch(e) { /* si falla la consulta, mostrar el onboarding normalmente */ }
+
+    // Mostrar nombre
     const name = user.displayName?.split(' ')[0];
     if (name) document.getElementById('nameDisplay').textContent = `, ${name}`;
   });

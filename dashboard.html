@@ -653,9 +653,10 @@
 
   // ── Load groups ──
   async function loadGroups() {
-    const menu = document.getElementById('groupsMenu');
+    const q = query(collection(db, 'groups'), where('memberUids', 'array-contains', currentUser.uid));
+
+    // Intento 1
     try {
-      const q = query(collection(db, 'groups'), where('memberUids', 'array-contains', currentUser.uid));
       const snap = await getDocs(q);
       allGroups = snap.docs.map(d => d.data());
       allGroups.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
@@ -663,7 +664,29 @@
       document.getElementById('gmLoading').textContent = 'Error al cargar grupos.';
       return;
     }
-    if (allGroups.length === 0) { window.location.href = 'onboarding.html'; return; }
+
+    // Si no encontró grupos, esperar 1.5s y reintentar una vez
+    // (cubre timing issues justo después de crear un grupo)
+    if (allGroups.length === 0) {
+      await new Promise(r => setTimeout(r, 1500));
+      try {
+        const snap2 = await getDocs(q);
+        allGroups = snap2.docs.map(d => d.data());
+        allGroups.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+      } catch(err) { /* mantener allGroups = [] */ }
+    }
+
+    // Si después del retry sigue sin grupos, mostrar modal en lugar de redirigir
+    if (allGroups.length === 0) {
+      // Mostrar interfaz para crear/unirse sin salir del dashboard
+      document.getElementById('gmLoading').innerHTML =
+        '<span style="color:var(--muted);font-size:.8rem">No pertenecés a ningún grupo todavía.</span>';
+      // Abrir modal para unirse o crear
+      openModal('modalCreate');
+      openCreateModal();
+      return;
+    }
+
     renderGroupsMenu();
     if (allGroups.length > 0) selectGroup(allGroups[0]);
   }
