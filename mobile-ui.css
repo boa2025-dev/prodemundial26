@@ -1,0 +1,498 @@
+/* ================================================================
+   MOBILE UI — Pill Glass Bottom Nav · Prode Mundial 2026
+   Solo aplica en pantallas ≤ 768px. Desktop queda intacto.
+   ================================================================ */
+
+/* ── BOTTOM NAV PILL GLASS ── */
+.bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 1.1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 250;
+  pointer-events: none;
+}
+.bn-pill {
+  display: flex;
+  align-items: center;
+  gap: .2rem;
+  padding: .35rem;
+  background: rgba(10,15,28,.82);
+  border: 1px solid rgba(201,168,76,.18);
+  border-radius: 50px;
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  box-shadow:
+    0 8px 40px rgba(0,0,0,.65),
+    0 0 0 1px rgba(255,255,255,.05) inset,
+    0 1px 0 rgba(255,255,255,.06) inset;
+  pointer-events: all;
+}
+.bn-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .18rem;
+  padding: .58rem 1.15rem;
+  border-radius: 50px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #586070;
+  font-size: .56rem;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  transition: color .2s, background .2s;
+  font-family: 'Montserrat', sans-serif;
+  min-width: 60px;
+}
+.bn-item svg {
+  width: 20px; height: 20px;
+  stroke: currentColor; fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round; stroke-linejoin: round;
+  transition: filter .25s;
+}
+.bn-item.active {
+  background: rgba(201,168,76,.14);
+  color: #c9a84c;
+}
+.bn-item.active svg {
+  filter: drop-shadow(0 0 6px rgba(201,168,76,.55));
+}
+
+/* ── MOBILE ONLY BODY PADDING ── */
+@media (max-width: 768px) {
+  .bottom-nav { display: flex; }
+
+  /* Espacio para el bottom nav */
+  body { padding-bottom: 6rem !important; }
+
+  /* Save bar sube sobre el bottom nav */
+  .save-bar { bottom: 4.8rem !important; }
+
+  /* El toast también sube */
+  .toast { bottom: 8rem !important; }
+
+  /* ── TOP NAV MOBILE SIMPLIFICADO ── */
+  .groups-dropdown-wrap { display: none !important; }
+  .user-name { display: none !important; }
+  .admin-link { display: none !important; }
+
+  /* ── MOBILE VIEWS ── */
+  /* Todas las vistas mobile ocultas por defecto */
+  .mb-view { display: none; }
+  .mb-view.active { display: block; }
+
+  /* Cuando estamos en tab inicio/tabla/perfil, ocultar el contenido desktop */
+  .page.mb-hide-desktop > .lb-panel,
+  .page.mb-hide-desktop > .preds-header,
+  .page.mb-hide-desktop > .phase-selector-wrap,
+  .page.mb-hide-desktop > #predsContent { display: none !important; }
+
+  /* ── MOBILE SECTION HEADERS ── */
+  .mb-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.2rem;
+    padding: .2rem 0;
+  }
+  .mb-section-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 900;
+    letter-spacing: -.01em;
+  }
+  .mb-section-badge {
+    font-size: .65rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: #4cc94c;
+    background: rgba(76,201,76,.1);
+    border: 1px solid rgba(76,201,76,.25);
+    padding: .25rem .65rem;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: .3rem;
+  }
+  .mb-section-badge::before {
+    content: '';
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: #4cc94c;
+  }
+
+  /* ── GROUP CARD (mobile) ── */
+  .mb-group-card {
+    background: rgba(12,18,32,.8);
+    border: 1px solid rgba(201,168,76,.18);
+    border-radius: 18px;
+    padding: 1rem 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.2rem;
+    gap: 1rem;
+  }
+  .mb-group-icon {
+    width: 44px; height: 44px;
+    background: linear-gradient(135deg, rgba(201,168,76,.2), rgba(201,168,76,.06));
+    border: 1px solid rgba(201,168,76,.2);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+  .mb-group-info { flex: 1; min-width: 0; }
+  .mb-group-name {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 800; font-size: .95rem;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .mb-group-meta { font-size: .72rem; color: #7a8898; margin-top: .2rem; }
+  .mb-group-switch {
+    color: #7a8898;
+    font-size: .7rem;
+    display: flex; align-items: center; gap: .3rem;
+  }
+
+  /* ── PODIO ── */
+  .mb-podio {
+    background: rgba(12,18,32,.8);
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: 20px;
+    padding: 1.2rem 1rem 0;
+    margin-bottom: 1.2rem;
+    overflow: hidden;
+  }
+  .mb-podio-title {
+    font-size: .65rem;
+    font-weight: 700;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: #c9a84c;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .mb-podio-title a {
+    color: #7a8898;
+    font-weight: 600;
+    letter-spacing: .06em;
+    transition: color .2s;
+  }
+  .mb-podio-bars {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: .5rem;
+    min-height: 110px;
+  }
+  .mb-podio-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .35rem;
+    flex: 1;
+  }
+  .mb-podio-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.08);
+    border: 2px solid rgba(255,255,255,.12);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900; font-size: .85rem;
+    flex-shrink: 0;
+  }
+  .mb-podio-col.pos-1 .mb-podio-avatar {
+    width: 42px; height: 42px;
+    border-color: #c9a84c;
+    background: linear-gradient(135deg, rgba(201,168,76,.2), rgba(201,168,76,.06));
+    box-shadow: 0 0 16px rgba(201,168,76,.3);
+    font-size: 1rem;
+  }
+  .mb-podio-col.you .mb-podio-avatar {
+    border-color: #c9a84c;
+  }
+  .mb-podio-uname {
+    font-size: .68rem; font-weight: 700;
+    color: #c8d0d8; text-align: center;
+    max-width: 70px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .mb-podio-col.you .mb-podio-uname { color: #c9a84c; }
+  .mb-podio-bar {
+    width: 100%;
+    border-radius: 10px 10px 0 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding-top: .4rem;
+    min-height: 40px;
+  }
+  .mb-podio-col.pos-2 .mb-podio-bar { background: rgba(90,100,120,.35); height: 55px; }
+  .mb-podio-col.pos-1 .mb-podio-bar {
+    background: linear-gradient(180deg, rgba(201,168,76,.25), rgba(201,168,76,.12));
+    height: 75px;
+    border-top: 2px solid rgba(201,168,76,.4);
+  }
+  .mb-podio-col.pos-3 .mb-podio-bar { background: rgba(180,100,60,.25); height: 40px; }
+  .mb-podio-pts {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900; font-size: .85rem;
+    color: #fff; text-align: center;
+  }
+  .mb-podio-col.pos-1 .mb-podio-pts { color: #f0c040; font-size: 1rem; }
+  .mb-podio-pos {
+    font-size: .6rem; font-weight: 700;
+    color: rgba(255,255,255,.5);
+  }
+
+  /* Lista resto de jugadores */
+  .mb-lb-list { padding: .6rem 0; }
+  .mb-lb-row {
+    display: flex; align-items: center; gap: .75rem;
+    padding: .6rem .2rem;
+    border-top: 1px solid rgba(255,255,255,.05);
+    font-size: .83rem;
+  }
+  .mb-lb-pos { font-family:'Montserrat',sans-serif; font-weight:800; font-size:.8rem; color:#7a8898; width:20px; text-align:center; flex-shrink:0; }
+  .mb-lb-avatar { width:28px; height:28px; border-radius:50%; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1); display:flex; align-items:center; justify-content:center; font-family:'Montserrat',sans-serif; font-weight:800; font-size:.72rem; flex-shrink:0; }
+  .mb-lb-name { flex:1; font-weight:600; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .mb-lb-row.mb-you .mb-lb-name { color:#c9a84c; }
+  .mb-lb-row.mb-you .mb-lb-pos { color:#c9a84c; }
+  .mb-lb-pts { font-family:'Montserrat',sans-serif; font-weight:800; font-size:.88rem; color:#c9a84c; flex-shrink:0; }
+  .mb-lb-exact { font-size:.72rem; color:#4cc94c; flex-shrink:0; }
+
+  /* ── PRÓXIMO PARTIDO CARD ── */
+  .mb-next-match {
+    background: rgba(12,18,32,.8);
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: 18px;
+    padding: 1rem 1.2rem;
+    margin-bottom: 1.2rem;
+  }
+  .mb-nm-label {
+    font-size: .62rem; font-weight:700; letter-spacing:.12em;
+    text-transform:uppercase; color:#7a8898;
+    margin-bottom: .7rem;
+    display: flex; align-items: center; gap: .4rem;
+  }
+  .mb-nm-label-dot { width:6px; height:6px; border-radius:50%; background:var(--red, #e63946); animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.3} }
+  .mb-nm-teams {
+    display: flex; align-items: center; justify-content: space-between; gap: .5rem;
+  }
+  .mb-nm-team { display:flex; flex-direction:column; align-items:center; gap:.3rem; flex:1; }
+  .mb-nm-flag { font-size: 2rem; }
+  .mb-nm-name { font-family:'Montserrat',sans-serif; font-weight:700; font-size:.78rem; text-align:center; }
+  .mb-nm-vs {
+    display:flex; flex-direction:column; align-items:center; gap:.2rem;
+    flex-shrink: 0;
+  }
+  .mb-nm-time {
+    font-family:'Montserrat',sans-serif; font-weight:900; font-size:1rem;
+    color:#e63946;
+  }
+  .mb-nm-time.normal { color:#c9a84c; }
+  .mb-nm-venue { font-size:.62rem; color:#7a8898; margin-top:.5rem; text-align:center; }
+
+  /* ── PERFIL MOBILE ── */
+  .mb-profile {
+    display: flex; flex-direction: column; gap: 1rem;
+  }
+  .mb-profile-header {
+    display: flex; align-items: center; gap: 1rem;
+    background: rgba(12,18,32,.8);
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: 18px;
+    padding: 1.2rem;
+  }
+  .mb-profile-avatar {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(201,168,76,.25), rgba(201,168,76,.08));
+    border: 2px solid rgba(201,168,76,.35);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900; font-size: 1.3rem;
+    flex-shrink: 0;
+    box-shadow: 0 0 20px rgba(201,168,76,.2);
+  }
+  .mb-profile-name { font-family:'Montserrat',sans-serif; font-weight:800; font-size:1.05rem; }
+  .mb-profile-email { font-size:.75rem; color:#7a8898; margin-top:.2rem; }
+  .mb-stats-row {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: .75rem;
+  }
+  .mb-stat-card {
+    background: rgba(12,18,32,.8);
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: 14px;
+    padding: 1rem .8rem;
+    text-align: center;
+  }
+  .mb-stat-val {
+    font-family:'Montserrat',sans-serif;
+    font-weight:900; font-size:1.4rem;
+    color:#c9a84c; line-height:1;
+  }
+  .mb-stat-lbl { font-size:.65rem; color:#7a8898; text-transform:uppercase; letter-spacing:.08em; margin-top:.3rem; }
+
+  .mb-achievements {
+    background: rgba(12,18,32,.8);
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: 18px;
+    padding: 1rem 1.2rem;
+  }
+  .mb-achievements-title { font-size:.65rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:#c9a84c; margin-bottom:.8rem; }
+  .mb-ach-list { display:flex; gap:.6rem; overflow-x:auto; padding-bottom:.4rem; }
+  .mb-ach-list::-webkit-scrollbar { display:none; }
+  .mb-ach-item {
+    flex-shrink:0;
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:12px;
+    padding:.8rem .7rem;
+    text-align:center; min-width:72px;
+  }
+  .mb-ach-icon { font-size:1.4rem; margin-bottom:.3rem; }
+  .mb-ach-name { font-size:.65rem; font-weight:700; color:#c8d0d8; }
+  .mb-ach-desc { font-size:.58rem; color:#7a8898; margin-top:.15rem; }
+
+  .mb-settings-list {
+    background: rgba(12,18,32,.8);
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: 18px;
+    overflow: hidden;
+  }
+  .mb-settings-item {
+    display:flex; align-items:center; gap:.85rem;
+    padding:1rem 1.2rem;
+    border-bottom: 1px solid rgba(255,255,255,.05);
+    cursor:pointer; transition: background .15s;
+  }
+  .mb-settings-item:last-child { border-bottom: none; }
+  .mb-settings-item:hover { background:rgba(255,255,255,.03); }
+  .mb-settings-icon { font-size:1.1rem; width:24px; text-align:center; flex-shrink:0; }
+  .mb-settings-label { flex:1; font-size:.88rem; font-weight:500; }
+  .mb-settings-value { font-size:.78rem; color:#7a8898; }
+  .mb-settings-arrow { color:#4a5568; font-size:.7rem; }
+
+  .mb-btn-logout {
+    width:100%;
+    padding:.9rem;
+    border-radius:14px;
+    border: 1px solid rgba(230,57,70,.25);
+    background: rgba(230,57,70,.06);
+    color:#ff6b75;
+    font-family:'Montserrat',sans-serif;
+    font-weight:700; font-size:.88rem;
+    cursor:pointer;
+    transition:background .2s, border-color .2s;
+  }
+  .mb-btn-logout:hover { background:rgba(230,57,70,.12); border-color:rgba(230,57,70,.4); }
+
+  /* ── PRODE TAB ── save status indicator ── */
+  .mb-save-indicator {
+    display: flex; align-items: center; gap: .4rem;
+    font-size: .7rem; color: #7a8898;
+    margin-bottom: .8rem;
+    padding: .4rem .8rem;
+    background: rgba(12,18,32,.6);
+    border-radius: 50px;
+    align-self: flex-start;
+  }
+  .mb-save-dot { width:6px; height:6px; border-radius:50%; background:#4cc94c; }
+  .mb-save-dot.unsaved { background:#c9a84c; animation:pulse 1.5s infinite; }
+
+  /* ── LOGIN MOBILE ── */
+  .auth-card {
+    border-radius: 24px !important;
+    padding: 2rem 1.4rem !important;
+  }
+  .form-input {
+    height: 52px !important;
+    font-size: 1rem !important;
+    padding: .9rem 1rem .9rem 2.8rem !important;
+  }
+  .btn-google {
+    height: 52px !important;
+    border-radius: 14px !important;
+    font-size: .95rem !important;
+    border-color: rgba(255,255,255,.2) !important;
+    background: rgba(255,255,255,.09) !important;
+  }
+  .btn-submit {
+    height: 52px !important;
+    border-radius: 14px !important;
+    font-size: 1rem !important;
+  }
+
+  /* ── INDEX MOBILE HERO ── */
+  .hero-title .year { font-size: clamp(3.5rem, 22vw, 7rem) !important; }
+  .hero-sub { font-size: .95rem !important; }
+  .hero-actions .btn { width: 100%; justify-content: center; }
+  .hero-actions { flex-direction: column; align-items: center; }
+
+  /* ── TABLA MOBILE VIEW ── */
+  .mb-tabla-your-row {
+    background: rgba(201,168,76,.08);
+    border: 1px solid rgba(201,168,76,.25);
+    border-radius: 14px;
+    padding: .9rem 1rem;
+    margin-bottom: 1rem;
+    display: flex; align-items: center; gap: .75rem;
+  }
+  .mb-your-avatar {
+    width:40px; height:40px;
+    border-radius:50%;
+    background: linear-gradient(135deg, rgba(201,168,76,.25), rgba(201,168,76,.08));
+    border: 2px solid rgba(201,168,76,.4);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Montserrat',sans-serif; font-weight:900; font-size:.95rem;
+    flex-shrink:0;
+    box-shadow: 0 0 14px rgba(201,168,76,.25);
+  }
+  .mb-your-info { flex:1; }
+  .mb-your-name { font-family:'Montserrat',sans-serif; font-weight:800; font-size:.9rem; }
+  .mb-your-meta { font-size:.7rem; color:#7a8898; margin-top:.15rem; }
+  .mb-your-pts { font-family:'Montserrat',sans-serif; font-weight:900; font-size:1.3rem; color:#f0c040; }
+  .mb-your-pts-lbl { font-size:.6rem; color:#7a8898; text-align:right; }
+
+  .mb-tabla-filters {
+    display:flex; gap:.5rem; overflow-x:auto; padding-bottom:.4rem;
+    margin-bottom:1rem;
+  }
+  .mb-tabla-filters::-webkit-scrollbar { display:none; }
+  .mb-filter-pill {
+    flex-shrink:0;
+    padding:.4rem 1rem;
+    border-radius:50px;
+    border:1px solid rgba(255,255,255,.1);
+    background:transparent;
+    color:#7a8898;
+    font-size:.75rem; font-weight:700;
+    font-family:'Montserrat',sans-serif;
+    cursor:pointer; transition:.15s;
+    white-space:nowrap;
+  }
+  .mb-filter-pill.active {
+    background:rgba(201,168,76,.14);
+    border-color:rgba(201,168,76,.3);
+    color:#c9a84c;
+  }
+}
+
+/* ── VERY SMALL SCREENS ── */
+@media (max-width: 380px) {
+  .bn-item { padding: .55rem .85rem; min-width: 52px; font-size:.52rem; }
+  .bn-item svg { width:18px; height:18px; }
+}

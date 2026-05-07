@@ -205,6 +205,7 @@
       .lb-table th:nth-child(5),.lb-table td:nth-child(5){display:none}
     }
   </style>
+  <link rel="stylesheet" href="mobile-ui.css"/>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1544307278201390" crossorigin="anonymous"></script>
 </head>
 <body>
@@ -239,8 +240,116 @@
   </div>
 </nav>
 
-<!-- MAIN -->
-<div class="page">
+<!-- ═══════════════════════════════════════════
+     MOBILE VIEWS (solo visibles en ≤768px)
+═══════════════════════════════════════════ -->
+<div class="page" id="mbPageInicio" style="display:none">
+
+  <!-- Group card -->
+  <div class="mb-group-card" id="mbGroupCard">
+    <div class="mb-group-icon">⚽</div>
+    <div class="mb-group-info">
+      <div class="mb-group-name" id="mbGroupName">Cargando...</div>
+      <div class="mb-group-meta" id="mbGroupMeta"></div>
+    </div>
+    <div class="mb-group-switch" id="mbGroupSwitch">⇅</div>
+  </div>
+
+  <!-- Podio + tabla -->
+  <div class="mb-podio" id="mbPodio">
+    <div class="mb-podio-title">
+      <span>🏆 Tabla de puntos</span>
+      <a href="#" id="mbVerTabla">Ver todos →</a>
+    </div>
+    <div class="mb-podio-bars" id="mbPodioBars">
+      <div style="color:#586070;font-size:.8rem;padding:1rem">Cargando...</div>
+    </div>
+    <div class="mb-lb-list" id="mbLbList"></div>
+  </div>
+
+  <!-- Próximo partido -->
+  <div class="mb-next-match" id="mbNextMatch" style="display:none">
+    <div class="mb-nm-label"><span class="mb-nm-label-dot"></span>Próximo partido</div>
+    <div class="mb-nm-teams" id="mbNmTeams"></div>
+    <div class="mb-nm-venue" id="mbNmVenue"></div>
+  </div>
+
+</div>
+
+<!-- MOBILE TABLA VIEW -->
+<div class="page mb-view" id="mbPageTabla">
+  <div class="mb-section-header">
+    <span class="mb-section-title">Tabla de puntos</span>
+  </div>
+  <!-- Tu fila fija arriba -->
+  <div class="mb-tabla-your-row" id="mbTablaYourRow" style="display:none">
+    <div class="mb-your-avatar" id="mbYourAvatar">?</div>
+    <div class="mb-your-info">
+      <div class="mb-your-name" id="mbYourName">—</div>
+      <div class="mb-your-meta" id="mbYourMeta">— exactos</div>
+    </div>
+    <div>
+      <div class="mb-your-pts" id="mbYourPts">—</div>
+      <div class="mb-your-pts-lbl">PTS</div>
+    </div>
+  </div>
+  <!-- Lista completa -->
+  <div id="mbTablaList" style="background:rgba(12,18,32,.8);border:1px solid rgba(255,255,255,.07);border-radius:18px;overflow:hidden;">
+    <div style="padding:1.5rem;color:#7a8898;font-size:.85rem">Cargando...</div>
+  </div>
+</div>
+
+<!-- MOBILE PERFIL VIEW -->
+<div class="page mb-view" id="mbPagePerfil">
+  <div class="mb-profile">
+    <div class="mb-profile-header">
+      <div class="mb-profile-avatar" id="mbPfAvatar">?</div>
+      <div>
+        <div class="mb-profile-name" id="mbPfName">—</div>
+        <div class="mb-profile-email" id="mbPfEmail">—</div>
+      </div>
+    </div>
+    <div class="mb-stats-row">
+      <div class="mb-stat-card">
+        <div class="mb-stat-val" id="mbPfPts">—</div>
+        <div class="mb-stat-lbl">Puntos</div>
+      </div>
+      <div class="mb-stat-card">
+        <div class="mb-stat-val" id="mbPfExact">—</div>
+        <div class="mb-stat-lbl">Exactos</div>
+      </div>
+      <div class="mb-stat-card">
+        <div class="mb-stat-val" id="mbPfGroups">—</div>
+        <div class="mb-stat-lbl">Grupos</div>
+      </div>
+    </div>
+    <div class="mb-achievements">
+      <div class="mb-achievements-title">Logros</div>
+      <div class="mb-ach-list">
+        <div class="mb-ach-item"><div class="mb-ach-icon">🎯</div><div class="mb-ach-name">Tirador</div><div class="mb-ach-desc">5 exactos</div></div>
+        <div class="mb-ach-item"><div class="mb-ach-icon">🔥</div><div class="mb-ach-name">Racha x3</div><div class="mb-ach-desc">3 al hilo</div></div>
+        <div class="mb-ach-item"><div class="mb-ach-icon">⚽</div><div class="mb-ach-name">Jugador</div><div class="mb-ach-desc">1er prode</div></div>
+      </div>
+    </div>
+    <div class="mb-settings-list">
+      <div class="mb-settings-item" id="mbMisGrupos">
+        <span class="mb-settings-icon">🔗</span>
+        <span class="mb-settings-label">Mis grupos</span>
+        <span class="mb-settings-value" id="mbPfGroupsCount">—</span>
+        <span class="mb-settings-arrow">›</span>
+      </div>
+      <div class="mb-settings-item" id="mbShareApp">
+        <span class="mb-settings-icon">↗</span>
+        <span class="mb-settings-label">Compartir Prode</span>
+        <span class="mb-settings-arrow">›</span>
+      </div>
+    </div>
+    <button class="mb-btn-logout" id="mbBtnLogout">Cerrar sesión</button>
+  </div>
+</div>
+
+<!-- MAIN (desktop + prode tab mobile) -->
+<div class="page" id="mainPage">
 
   <!-- Leaderboard panel (shown when a group is selected) -->
   <div class="lb-panel" id="lbPanel">
@@ -528,6 +637,18 @@
         return { name: member.displayName || member.uid, uid: member.uid, pts, exact, outcome };
       });
       scores.sort((a, b) => b.pts - a.pts || b.exact - a.exact);
+
+      // Populate mobile views
+      if (window.populateMobileViews) {
+        window.populateMobileViews({
+          user: currentUser,
+          groups: allGroups,
+          currentGroup: { name: group.name, code: group.code, members: group.memberUids?.length },
+          leaderboard: scores.map(s => ({ uid: s.uid, name: s.name, points: s.pts, exact: s.exact })),
+          predictions: savedPreds,
+          matches: MATCHES,
+        });
+      }
 
       const medals = ['🥇','🥈','🥉'];
       const posClass = ['first','second','third'];
@@ -930,6 +1051,257 @@
     });
     if (needsRerender) renderPredictions();
   }, 30000);
+</script>
+
+<!-- ═══════════════════════════════
+     BOTTOM NAV PILL GLASS
+═══════════════════════════════ -->
+<nav class="bottom-nav" id="bottomNav" aria-label="Navegación principal">
+  <div class="bn-pill">
+    <button class="bn-item active" data-tab="inicio" id="bnInicio">
+      <svg viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
+      <span>Inicio</span>
+    </button>
+    <button class="bn-item" data-tab="prode" id="bnProde">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg>
+      <span>Prode</span>
+    </button>
+    <button class="bn-item" data-tab="tabla" id="bnTabla">
+      <svg viewBox="0 0 24 24"><path d="M3 3h18v18H3zM3 9h18M3 15h18M9 3v18"/></svg>
+      <span>Tabla</span>
+    </button>
+    <button class="bn-item" data-tab="perfil" id="bnPerfil">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      <span>Perfil</span>
+    </button>
+  </div>
+</nav>
+
+<script>
+/* ═══ BOTTOM NAV — TAB SWITCHING ═══ */
+(function() {
+  const isMobile = () => window.innerWidth <= 768;
+
+  const views = {
+    inicio: document.getElementById('mbPageInicio'),
+    prode:  document.getElementById('mainPage'),
+    tabla:  document.getElementById('mbPageTabla'),
+    perfil: document.getElementById('mbPagePerfil'),
+  };
+  const btns = document.querySelectorAll('.bn-item');
+
+  function switchTab(tab) {
+    if (!isMobile()) return;
+
+    // Toggle buttons
+    btns.forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+
+    // Toggle views
+    Object.entries(views).forEach(([key, el]) => {
+      if (!el) return;
+      el.style.display = (key === tab) ? 'block' : 'none';
+    });
+
+    // Save bar: only show on prode tab
+    const saveBar = document.querySelector('.save-bar');
+    if (saveBar) saveBar.style.display = tab === 'prode' ? '' : 'none';
+  }
+
+  function applyMobile() {
+    if (!isMobile()) {
+      // Restore desktop layout
+      Object.values(views).forEach(el => { if (el) el.style.display = ''; });
+      const saveBar = document.querySelector('.save-bar');
+      if (saveBar) saveBar.style.display = '';
+      return;
+    }
+    // Apply current tab
+    const active = document.querySelector('.bn-item.active');
+    switchTab(active ? active.dataset.tab : 'inicio');
+  }
+
+  btns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (isMobile()) switchTab(btn.dataset.tab);
+    });
+  });
+
+  // "Ver todos" en inicio → va a tabla
+  const verTablaLink = document.getElementById('mbVerTabla');
+  if (verTablaLink) {
+    verTablaLink.addEventListener('click', e => {
+      e.preventDefault();
+      switchTab('tabla');
+    });
+  }
+
+  // Group card tap → abre dropdown del desktop (reutilizamos el btn)
+  const mbGroupSwitch = document.getElementById('mbGroupSwitch');
+  const mbGroupCard   = document.getElementById('mbGroupCard');
+  if (mbGroupSwitch) {
+    mbGroupSwitch.addEventListener('click', () => {
+      document.getElementById('groupsBtn')?.click();
+    });
+  }
+
+  // Perfil logout
+  const mbLogout = document.getElementById('mbBtnLogout');
+  if (mbLogout) {
+    mbLogout.addEventListener('click', () => {
+      document.getElementById('btnLogout')?.click();
+    });
+  }
+
+  // Share app
+  const mbShare = document.getElementById('mbShareApp');
+  if (mbShare) {
+    mbShare.addEventListener('click', () => {
+      if (navigator.share) {
+        navigator.share({ title: 'Prode Mundial 2026', url: 'https://prodemundial26.online' });
+      }
+    });
+  }
+
+  window.addEventListener('resize', applyMobile, { passive: true });
+  applyMobile();
+
+  /* ═══ POPULATE MOBILE VIEWS ═══
+     Se llama desde el JS principal una vez que los datos están cargados.
+     Se expone como window.populateMobileViews(data)
+  */
+  window.populateMobileViews = function({ user, groups, currentGroup, leaderboard, predictions, matches }) {
+
+    if (!isMobile()) return;
+
+    /* --- Group card --- */
+    if (currentGroup) {
+      const el = document.getElementById('mbGroupName');
+      const meta = document.getElementById('mbGroupMeta');
+      if (el) el.textContent = currentGroup.name || 'Mi grupo';
+      if (meta) meta.textContent = (currentGroup.code || '') + (currentGroup.members ? ' · ' + currentGroup.members + ' jugadores' : '');
+    }
+
+    /* --- Podio bars --- */
+    const barsEl  = document.getElementById('mbPodioBars');
+    const listEl  = document.getElementById('mbLbList');
+    if (barsEl && leaderboard && leaderboard.length) {
+      const top3   = leaderboard.slice(0, 3);
+      const rest   = leaderboard.slice(3);
+      const userId = user?.uid;
+
+      // Order for visual podio: 2nd, 1st, 3rd
+      const order = [top3[1], top3[0], top3[2]].filter(Boolean);
+      const posClass = (idx) => idx === 1 ? 'pos-1' : idx === 0 ? 'pos-2' : 'pos-3';
+
+      barsEl.innerHTML = order.map(p => {
+        const isYou = p.uid === userId;
+        const initials = (p.name || '?').charAt(0).toUpperCase();
+        const origPos  = leaderboard.indexOf(p); // 0-based
+        return `
+          <div class="mb-podio-col ${posClass(origPos)}${isYou ? ' you' : ''}">
+            <div class="mb-podio-avatar">${initials}</div>
+            <div class="mb-podio-uname">${isYou ? 'Vos' : (p.name || '?')}</div>
+            <div class="mb-podio-bar">
+              <div class="mb-podio-pts">${p.points || 0}</div>
+              <div class="mb-podio-pos">#${origPos + 1}</div>
+            </div>
+          </div>`;
+      }).join('');
+
+      if (listEl) {
+        listEl.innerHTML = rest.map((p, i) => {
+          const isYou = p.uid === userId;
+          const initials = (p.name || '?').charAt(0).toUpperCase();
+          return `
+            <div class="mb-lb-row${isYou ? ' mb-you' : ''}">
+              <span class="mb-lb-pos">${i + 4}</span>
+              <div class="mb-lb-avatar">${initials}</div>
+              <span class="mb-lb-name">${isYou ? 'Vos' : (p.name || '?')}</span>
+              <span class="mb-lb-exact">${p.exact || 0}✓</span>
+              <span class="mb-lb-pts">${p.points || 0}</span>
+            </div>`;
+        }).join('');
+      }
+    }
+
+    /* --- Tabla completa --- */
+    const tablaListEl   = document.getElementById('mbTablaList');
+    const tablaYourRow  = document.getElementById('mbTablaYourRow');
+    if (leaderboard && leaderboard.length) {
+      const userId = user?.uid;
+      const me     = leaderboard.find(p => p.uid === userId);
+
+      if (me && tablaYourRow) {
+        const initials = (me.name || '?').charAt(0).toUpperCase();
+        const myPos    = leaderboard.indexOf(me) + 1;
+        document.getElementById('mbYourAvatar').textContent = initials;
+        document.getElementById('mbYourName').textContent   = me.name || 'Vos';
+        document.getElementById('mbYourMeta').textContent   = `#${myPos} · ${me.exact || 0} exactos`;
+        document.getElementById('mbYourPts').textContent    = me.points || 0;
+        tablaYourRow.style.display = 'flex';
+      }
+
+      if (tablaListEl) {
+        tablaListEl.innerHTML = leaderboard.map((p, i) => {
+          const isYou    = p.uid === userId;
+          const initials = (p.name || '?').charAt(0).toUpperCase();
+          const medal    = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}`;
+          return `
+            <div class="mb-lb-row${isYou ? ' mb-you' : ''}" style="padding:.75rem 1rem">
+              <span class="mb-lb-pos">${medal}</span>
+              <div class="mb-lb-avatar">${initials}</div>
+              <span class="mb-lb-name">${isYou ? 'Vos ✦' : (p.name || '?')}</span>
+              <span class="mb-lb-exact">${p.exact || 0}✓</span>
+              <span class="mb-lb-pts">${p.points || 0}</span>
+            </div>`;
+        }).join('');
+      }
+    }
+
+    /* --- Próximo partido --- */
+    if (matches && matches.length) {
+      const now   = Date.now();
+      const next  = matches.find(m => m.kickoff.getTime() > now);
+      if (next) {
+        const card   = document.getElementById('mbNextMatch');
+        const teamsEl= document.getElementById('mbNmTeams');
+        const venueEl= document.getElementById('mbNmVenue');
+        if (card && teamsEl) {
+          const diff     = next.kickoff.getTime() - now;
+          const hrs      = Math.floor(diff / 3600000);
+          const mins     = Math.floor((diff % 3600000) / 60000);
+          const isSoon   = hrs < 3;
+          const timeStr  = next.kickoff.toLocaleTimeString('es-AR', { hour:'2-digit', minute:'2-digit', timeZone:'America/Argentina/Buenos_Aires' });
+          teamsEl.innerHTML = `
+            <div class="mb-nm-team"><div class="mb-nm-flag">${next.local?.flag || '🏳️'}</div><div class="mb-nm-name">${next.local?.name || next.local || '?'}</div></div>
+            <div class="mb-nm-vs"><div class="mb-nm-time${isSoon ? '' : ' normal'}">${timeStr}</div><div style="font-size:.65rem;color:#7a8898">ARG</div></div>
+            <div class="mb-nm-team"><div class="mb-nm-flag">${next.visitante?.flag || '🏳️'}</div><div class="mb-nm-name">${next.visitante?.name || next.visitante || '?'}</div></div>`;
+          if (venueEl) venueEl.textContent = next.sede || '';
+          card.style.display = 'block';
+        }
+      }
+    }
+
+    /* --- Perfil --- */
+    if (user) {
+      const name     = user.displayName || user.email?.split('@')[0] || 'Usuario';
+      const initials = name.charAt(0).toUpperCase();
+      const el = id => document.getElementById(id);
+      if (el('mbPfAvatar'))    el('mbPfAvatar').textContent    = initials;
+      if (el('mbPfName'))      el('mbPfName').textContent      = name;
+      if (el('mbPfEmail'))     el('mbPfEmail').textContent     = user.email || '';
+      if (el('mbPfGroups'))    el('mbPfGroups').textContent    = groups ? groups.length : '—';
+      if (el('mbPfGroupsCount')) el('mbPfGroupsCount').textContent = groups ? groups.length : '—';
+
+      // Stats from predictions
+      if (predictions) {
+        const filled = Object.values(predictions).filter(p => p.home !== undefined && p.away !== undefined).length;
+        if (el('mbPfExact')) el('mbPfExact').textContent = '—'; // se calcula server-side
+      }
+    }
+  };
+
+})();
 </script>
 </body>
 </html>
