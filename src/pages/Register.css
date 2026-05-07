@@ -1,0 +1,71 @@
+.reg-bg {
+  background:
+    radial-gradient(ellipse 60% 50% at 80% 10%, rgba(201, 168, 76, 0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 10% 90%, rgba(230, 57, 70, 0.06) 0%, transparent 60%),
+    linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-navy) 100%) !important;
+}
+
+.step-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.step-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(201, 168, 76, 0.25);
+  transition: background 0.3s, width 0.3s;
+}
+
+.step-dot.active {
+  width: 24px;
+  border-radius: 4px;
+  background: var(--gold);
+}
+
+.pwd-strength { margin-top: 0.5rem; }
+
+.pwd-strength-bar {
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  margin-bottom: 0.3rem;
+}
+
+.pwd-strength-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s, background 0.3s;
+}
+
+.pwd-strength-label { font-size: 0.72rem; color: var(--muted); }
+
+.terms-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 1.4rem;
+  margin-top: 0.4rem;
+}
+
+.terms-check {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  accent-color: var(--gold);
+  cursor: pointer;
+  margin-top: 1px;
+}
+
+.terms-label {
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.terms-label a { color: var(--gold); }

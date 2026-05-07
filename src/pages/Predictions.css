@@ -1,0 +1,55 @@
+.preds-page {
+  background: var(--bg);
+  color: var(--white);
+  font-family: var(--fb);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  padding-bottom: 100px;
+}
+
+.preds-nav { background: rgba(8,9,15,.92); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); padding: .9rem 0; position: sticky; top: 0; z-index: 50; }
+.preds-nav .nav-in { width: 90%; max-width: 1200px; margin: auto; display: flex; align-items: center; gap: 1rem; }
+.back-btn { display: flex; align-items: center; gap: .4rem; font-size: .85rem; color: var(--muted); transition: color .2s; flex-shrink: 0; }
+.back-btn:hover { color: var(--gold); }
+.nav-group { flex: 1; text-align: center; }
+.nav-group-name { font-family: var(--fh); font-weight: 800; font-size: 1rem; letter-spacing: .03em; }
+.nav-group-code { font-size: .72rem; color: var(--muted); letter-spacing: .1em; font-family: 'Courier New', monospace; }
+.gold { color: var(--gold); }
+.btn-logout { background: none; border: 1px solid var(--border); color: var(--muted); font-size: .78rem; padding: .35rem .8rem; border-radius: 50px; cursor: pointer; transition: border-color .2s, color .2s; font-family: var(--fb); flex-shrink: 0; }
+.btn-logout:hover { border-color: var(--red); color: var(--red); }
+
+/* TAB BAR */
+.tabs-wrap { background: rgba(8,9,15,.95); border-bottom: 1px solid rgba(255,255,255,.06); position: sticky; top: 57px; z-index: 40; overflow-x: auto; scrollbar-width: none; }
+.tabs-wrap::-webkit-scrollbar { display: none; }
+.tabs { display: flex; width: max-content; min-width: 100%; padding: 0 5%; }
+.tab { flex-shrink: 0; padding: .75rem 1.1rem; font-family: var(--fh); font-weight: 700; font-size: .82rem; letter-spacing: .06em; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+.tab:hover { color: var(--white); }
+.tab.active { color: var(--gold-l); border-color: var(--gold); }
+
+/* CONTENT */
+.preds-page main { width: 90%; max-width: 900px; margin: 0 auto; padding: 2rem 0; }
+
+.group-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; flex-wrap: wrap; gap: .8rem; }
+.group-header-left h2 { font-family: var(--fh); font-size: 1.5rem; font-weight: 800; letter-spacing: -.01em; }
+.group-header-left p { font-size: .85rem; color: var(--muted); margin-top: .3rem; }
+.save-status { font-size: .8rem; color: var(--muted); display: flex; align-items: center; gap: .4rem; }
+.save-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); }
+.save-dot.saved { background: var(--green); }
+.save-dot.unsaved { background: var(--gold); animation: pulse 1.5s ease-in-out infinite; }
+
+.matchday { margin-bottom: 2rem; }
+.matchday-label { font-family: var(--fh); font-size: .72rem; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; color: var(--muted); margin-bottom: .8rem; display: flex; align-items: center; gap: .6rem; }
+.matchday-label::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,.06); }
+
+.match-date {}
+.match-venue { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 200px; text-align: right; }
+
+.preds-page .save-bar-inner { max-width: 900px; }
+
+@media (max-width: 600px) {
+  .team-name { font-size: .78rem; }
+  .score-in { width: 36px; height: 36px; font-size: .9rem; }
+  .match-venue { display: none; }
+  .save-info { display: none; }
+  .btn-save { flex: 1; justify-content: center; }
+}
