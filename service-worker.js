@@ -1,4 +1,4 @@
-const CACHE = 'prode2026-v1';
+const CACHE = 'prode2026-v3';
 const SHELL = [
   '/',
   '/index.html',
