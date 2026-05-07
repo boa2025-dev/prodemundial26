@@ -204,8 +204,160 @@
       .lb-table th:nth-child(4),.lb-table td:nth-child(4),
       .lb-table th:nth-child(5),.lb-table td:nth-child(5){display:none}
     }
+
+    /* ════════════════════════════════════════
+       MOBILE UI — PILL GLASS BOTTOM NAV
+       Solo aplica ≤ 768px. Desktop intacto.
+    ════════════════════════════════════════ */
+
+    /* Bottom nav base (desktop: oculto) */
+    .bottom-nav{display:none}
+
+    @media(max-width:768px){
+      /* Mostrar bottom nav */
+      .bottom-nav{
+        display:flex;
+        position:fixed;bottom:1rem;left:50%;transform:translateX(-50%);
+        z-index:9999;
+      }
+      .bn-pill{
+        display:flex;align-items:center;gap:.15rem;padding:.3rem;
+        background:rgba(8,12,22,.88);
+        border:1px solid rgba(201,168,76,.22);
+        border-radius:50px;
+        backdrop-filter:blur(28px) saturate(180%);
+        -webkit-backdrop-filter:blur(28px) saturate(180%);
+        box-shadow:0 8px 40px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.05) inset;
+      }
+      .bn-item{
+        display:flex;flex-direction:column;align-items:center;gap:.15rem;
+        padding:.55rem 1rem;border-radius:50px;border:none;background:transparent;
+        cursor:pointer;color:#586070;
+        font-size:.55rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+        font-family:'Montserrat',sans-serif;transition:color .2s,background .2s;
+        min-width:58px;
+      }
+      .bn-item svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:filter .25s}
+      .bn-item.active{background:rgba(201,168,76,.16);color:#c9a84c}
+      .bn-item.active svg{filter:drop-shadow(0 0 7px rgba(201,168,76,.6))}
+
+      /* Espacio para el bottom nav y save bar */
+      body{padding-bottom:5.5rem !important}
+      .save-bar{bottom:4.5rem !important}
+      .toast{bottom:8rem !important}
+
+      /* Ocultar desktop elements en mobile */
+      .groups-dropdown-wrap{display:none !important}
+      .admin-link{display:none !important}
+
+      /* ── Tab system (body data-tab) ── */
+      /* Por defecto ocultar todas las mobile-views */
+      #mbPageInicio,#mbPageTabla,#mbPagePerfil{display:none}
+
+      /* Mostrar según tab activo */
+      body[data-tab="inicio"] #mbPageInicio{display:block}
+      body[data-tab="tabla"]  #mbPageTabla {display:block}
+      body[data-tab="perfil"] #mbPagePerfil{display:block}
+
+      /* Ocultar mainPage cuando no es tab prode */
+      body[data-tab="inicio"] #mainPage,
+      body[data-tab="tabla"]  #mainPage,
+      body[data-tab="perfil"] #mainPage{display:none !important}
+
+      /* Ocultar save-bar cuando no es tab prode */
+      body[data-tab="inicio"] .save-bar,
+      body[data-tab="tabla"]  .save-bar,
+      body[data-tab="perfil"] .save-bar{display:none !important}
+
+      /* ── Group card ── */
+      .mb-group-card{background:rgba(12,18,32,.8);border:1px solid rgba(201,168,76,.18);border-radius:16px;padding:.9rem 1.1rem;display:flex;align-items:center;gap:.9rem;margin-bottom:1.1rem;cursor:pointer}
+      .mb-group-icon{width:40px;height:40px;background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.2);border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+      .mb-group-name{font-family:'Montserrat',sans-serif;font-weight:800;font-size:.92rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .mb-group-meta{font-size:.7rem;color:#7a8898;margin-top:.15rem}
+      .mb-group-switch{margin-left:auto;color:#7a8898;font-size:1.1rem;flex-shrink:0}
+
+      /* ── Podio ── */
+      .mb-podio{background:rgba(12,18,32,.8);border:1px solid rgba(255,255,255,.07);border-radius:18px;padding:1.1rem 1rem 0;margin-bottom:1.1rem;overflow:hidden}
+      .mb-podio-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:.9rem;font-size:.62rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:#c9a84c}
+      .mb-podio-head a{color:#7a8898;font-weight:600}
+      .mb-podio-bars{display:flex;align-items:flex-end;justify-content:center;gap:.5rem;padding:0 .5rem;min-height:100px}
+      .mb-pd-col{display:flex;flex-direction:column;align-items:center;gap:.3rem;flex:1}
+      .mb-pd-av{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-weight:900;font-size:.8rem}
+      .mb-pd-col.p1 .mb-pd-av{width:40px;height:40px;border-color:#c9a84c;background:rgba(201,168,76,.15);box-shadow:0 0 14px rgba(201,168,76,.3);font-size:.95rem}
+      .mb-pd-col.you .mb-pd-av{border-color:#c9a84c}
+      .mb-pd-name{font-size:.65rem;font-weight:700;color:#c8d0d8;text-align:center;max-width:64px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .mb-pd-col.you .mb-pd-name,.mb-pd-col.p1 .mb-pd-name{color:#c9a84c}
+      .mb-pd-bar{width:100%;border-radius:8px 8px 0 0;display:flex;flex-direction:column;align-items:center;padding-top:.35rem}
+      .mb-pd-col.p2 .mb-pd-bar{background:rgba(80,90,110,.3);height:52px}
+      .mb-pd-col.p1 .mb-pd-bar{background:linear-gradient(180deg,rgba(201,168,76,.22),rgba(201,168,76,.1));height:70px;border-top:2px solid rgba(201,168,76,.38)}
+      .mb-pd-col.p3 .mb-pd-bar{background:rgba(160,90,50,.22);height:38px}
+      .mb-pd-pts{font-family:'Montserrat',sans-serif;font-weight:900;font-size:.82rem;color:#fff}
+      .mb-pd-col.p1 .mb-pd-pts{color:#f0c040;font-size:.95rem}
+
+      /* List resto */
+      .mb-lb-list{padding:.4rem 0}
+      .mb-lb-row{display:flex;align-items:center;gap:.65rem;padding:.6rem .2rem;border-top:1px solid rgba(255,255,255,.05);font-size:.82rem}
+      .mb-lb-pos{font-family:'Montserrat',sans-serif;font-weight:800;font-size:.78rem;color:#7a8898;width:18px;text-align:center;flex-shrink:0}
+      .mb-lb-av{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-weight:800;font-size:.68rem;flex-shrink:0}
+      .mb-lb-name{flex:1;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      .mb-lb-row.mb-you .mb-lb-name,.mb-lb-row.mb-you .mb-lb-pos{color:#c9a84c}
+      .mb-lb-pts{font-family:'Montserrat',sans-serif;font-weight:800;font-size:.85rem;color:#c9a84c;flex-shrink:0}
+      .mb-lb-exact{font-size:.7rem;color:#4cc94c;flex-shrink:0}
+
+      /* ── Next match ── */
+      .mb-next{background:rgba(12,18,32,.8);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:1rem 1.1rem;margin-bottom:1rem}
+      .mb-next-lbl{font-size:.6rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#7a8898;margin-bottom:.65rem;display:flex;align-items:center;gap:.4rem}
+      .mb-next-dot{width:5px;height:5px;border-radius:50%;background:#e63946;animation:mblPulse 1.5s infinite}
+      @keyframes mblPulse{0%,100%{opacity:1}50%{opacity:.25}}
+      .mb-next-teams{display:flex;align-items:center;justify-content:space-between;gap:.4rem}
+      .mb-next-team{display:flex;flex-direction:column;align-items:center;gap:.25rem;flex:1}
+      .mb-next-flag{font-size:1.9rem}
+      .mb-next-tname{font-family:'Montserrat',sans-serif;font-weight:700;font-size:.75rem;text-align:center}
+      .mb-next-vs{display:flex;flex-direction:column;align-items:center;gap:.15rem;flex-shrink:0}
+      .mb-next-time{font-family:'Montserrat',sans-serif;font-weight:900;font-size:.95rem;color:#c9a84c}
+      .mb-next-time.urgent{color:#e63946}
+
+      /* ── Tabla view ── */
+      .mb-your-row{background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.22);border-radius:13px;padding:.85rem 1rem;margin-bottom:.9rem;display:flex;align-items:center;gap:.7rem}
+      .mb-ya-av{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,rgba(201,168,76,.22),rgba(201,168,76,.07));border:2px solid rgba(201,168,76,.38);display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-weight:900;font-size:.9rem;flex-shrink:0;box-shadow:0 0 12px rgba(201,168,76,.22)}
+      .mb-ya-name{font-family:'Montserrat',sans-serif;font-weight:800;font-size:.88rem}
+      .mb-ya-meta{font-size:.68rem;color:#7a8898;margin-top:.12rem}
+      .mb-ya-pts{font-family:'Montserrat',sans-serif;font-weight:900;font-size:1.25rem;color:#f0c040}
+      .mb-ya-lbl{font-size:.58rem;color:#7a8898;text-align:right}
+      .mb-tabla-box{background:rgba(12,18,32,.8);border:1px solid rgba(255,255,255,.07);border-radius:16px;overflow:hidden}
+      .mb-tabla-row{display:flex;align-items:center;gap:.65rem;padding:.7rem 1rem;border-bottom:1px solid rgba(255,255,255,.05)}
+      .mb-tabla-row:last-child{border-bottom:none}
+      .mb-tabla-row.mb-you{background:rgba(201,168,76,.04)}
+
+      /* ── Perfil view ── */
+      .mb-pf-header{display:flex;align-items:center;gap:.9rem;background:rgba(12,18,32,.8);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:1.1rem;margin-bottom:.9rem}
+      .mb-pf-av{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,rgba(201,168,76,.22),rgba(201,168,76,.07));border:2px solid rgba(201,168,76,.32);display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-weight:900;font-size:1.25rem;flex-shrink:0;box-shadow:0 0 18px rgba(201,168,76,.2)}
+      .mb-pf-name{font-family:'Montserrat',sans-serif;font-weight:800;font-size:1rem}
+      .mb-pf-email{font-size:.72rem;color:#7a8898;margin-top:.18rem}
+      .mb-pf-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:.65rem;margin-bottom:.9rem}
+      .mb-pf-stat{background:rgba(12,18,32,.8);border:1px solid rgba(255,255,255,.07);border-radius:13px;padding:.9rem .7rem;text-align:center}
+      .mb-pf-sval{font-family:'Montserrat',sans-serif;font-weight:900;font-size:1.35rem;color:#c9a84c;line-height:1}
+      .mb-pf-slbl{font-size:.62rem;color:#7a8898;text-transform:uppercase;letter-spacing:.08em;margin-top:.28rem}
+      .mb-pf-settings{background:rgba(12,18,32,.8);border:1px solid rgba(255,255,255,.07);border-radius:16px;overflow:hidden;margin-bottom:.9rem}
+      .mb-pf-item{display:flex;align-items:center;gap:.8rem;padding:.95rem 1.1rem;border-bottom:1px solid rgba(255,255,255,.05);cursor:pointer;transition:background .15s}
+      .mb-pf-item:last-child{border-bottom:none}
+      .mb-pf-item:hover{background:rgba(255,255,255,.03)}
+      .mb-pf-ico{font-size:1rem;width:22px;text-align:center;flex-shrink:0}
+      .mb-pf-lbl{flex:1;font-size:.87rem;font-weight:500}
+      .mb-pf-val{font-size:.75rem;color:#7a8898}
+      .mb-pf-arr{color:#3a4558;font-size:.7rem}
+      .mb-pf-logout{width:100%;padding:.85rem;border-radius:13px;border:1px solid rgba(230,57,70,.22);background:rgba(230,57,70,.06);color:#ff6b75;font-family:'Montserrat',sans-serif;font-weight:700;font-size:.87rem;cursor:pointer;transition:background .2s}
+      .mb-pf-logout:hover{background:rgba(230,57,70,.12)}
+
+      /* Sección header mobile */
+      .mb-sec-hdr{font-family:'Montserrat',sans-serif;font-size:1.05rem;font-weight:900;margin-bottom:1rem;letter-spacing:-.01em}
+    }
+
+    @media(max-width:380px){
+      .bn-item{padding:.5rem .75rem;min-width:50px;font-size:.5rem}
+      .bn-item svg{width:18px;height:18px}
+    }
   </style>
-  <link rel="stylesheet" href="mobile-ui.css"/>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1544307278201390" crossorigin="anonymous"></script>
 </head>
 <body>
@@ -240,115 +392,89 @@
   </div>
 </nav>
 
-<!-- ═══════════════════════════════════════════
-     MOBILE VIEWS (solo visibles en ≤768px)
-═══════════════════════════════════════════ -->
-<div class="page" id="mbPageInicio" style="display:none">
+<!-- ════════════════════════════
+     MOBILE VIEWS (≤768px only)
+════════════════════════════ -->
 
-  <!-- Group card -->
+<!-- TAB: INICIO -->
+<div class="page" id="mbPageInicio">
+  <div class="mb-sec-hdr">Hola 👋 <span id="mbHelloName" style="color:#c9a84c"></span></div>
+
   <div class="mb-group-card" id="mbGroupCard">
     <div class="mb-group-icon">⚽</div>
-    <div class="mb-group-info">
+    <div style="flex:1;min-width:0">
       <div class="mb-group-name" id="mbGroupName">Cargando...</div>
       <div class="mb-group-meta" id="mbGroupMeta"></div>
     </div>
-    <div class="mb-group-switch" id="mbGroupSwitch">⇅</div>
+    <div class="mb-group-switch">⇅</div>
   </div>
 
-  <!-- Podio + tabla -->
   <div class="mb-podio" id="mbPodio">
-    <div class="mb-podio-title">
+    <div class="mb-podio-head">
       <span>🏆 Tabla de puntos</span>
       <a href="#" id="mbVerTabla">Ver todos →</a>
     </div>
     <div class="mb-podio-bars" id="mbPodioBars">
-      <div style="color:#586070;font-size:.8rem;padding:1rem">Cargando...</div>
+      <div style="color:#586070;font-size:.78rem;padding:1rem 0">Cargando...</div>
     </div>
     <div class="mb-lb-list" id="mbLbList"></div>
   </div>
 
-  <!-- Próximo partido -->
-  <div class="mb-next-match" id="mbNextMatch" style="display:none">
-    <div class="mb-nm-label"><span class="mb-nm-label-dot"></span>Próximo partido</div>
-    <div class="mb-nm-teams" id="mbNmTeams"></div>
-    <div class="mb-nm-venue" id="mbNmVenue"></div>
+  <div class="mb-next" id="mbNext" style="display:none">
+    <div class="mb-next-lbl"><span class="mb-next-dot"></span>Próximo partido</div>
+    <div class="mb-next-teams" id="mbNextTeams"></div>
   </div>
-
 </div>
 
-<!-- MOBILE TABLA VIEW -->
-<div class="page mb-view" id="mbPageTabla">
-  <div class="mb-section-header">
-    <span class="mb-section-title">Tabla de puntos</span>
-  </div>
-  <!-- Tu fila fija arriba -->
-  <div class="mb-tabla-your-row" id="mbTablaYourRow" style="display:none">
-    <div class="mb-your-avatar" id="mbYourAvatar">?</div>
-    <div class="mb-your-info">
-      <div class="mb-your-name" id="mbYourName">—</div>
-      <div class="mb-your-meta" id="mbYourMeta">— exactos</div>
+<!-- TAB: TABLA -->
+<div class="page" id="mbPageTabla">
+  <div class="mb-sec-hdr">Tabla de puntos</div>
+  <div class="mb-your-row" id="mbYourRow" style="display:none">
+    <div class="mb-ya-av" id="mbYaAv">?</div>
+    <div style="flex:1">
+      <div class="mb-ya-name" id="mbYaName">—</div>
+      <div class="mb-ya-meta" id="mbYaMeta">—</div>
     </div>
+    <div style="text-align:right">
+      <div class="mb-ya-pts" id="mbYaPts">—</div>
+      <div class="mb-ya-lbl">PTS</div>
+    </div>
+  </div>
+  <div class="mb-tabla-box" id="mbTablaList">
+    <div style="padding:1.2rem;color:#7a8898;font-size:.83rem">Cargando...</div>
+  </div>
+</div>
+
+<!-- TAB: PERFIL -->
+<div class="page" id="mbPagePerfil">
+  <div class="mb-pf-header">
+    <div class="mb-pf-av" id="mbPfAv">?</div>
     <div>
-      <div class="mb-your-pts" id="mbYourPts">—</div>
-      <div class="mb-your-pts-lbl">PTS</div>
+      <div class="mb-pf-name" id="mbPfName">—</div>
+      <div class="mb-pf-email" id="mbPfEmail">—</div>
     </div>
   </div>
-  <!-- Lista completa -->
-  <div id="mbTablaList" style="background:rgba(12,18,32,.8);border:1px solid rgba(255,255,255,.07);border-radius:18px;overflow:hidden;">
-    <div style="padding:1.5rem;color:#7a8898;font-size:.85rem">Cargando...</div>
+  <div class="mb-pf-stats">
+    <div class="mb-pf-stat"><div class="mb-pf-sval" id="mbPfPts">—</div><div class="mb-pf-slbl">Puntos</div></div>
+    <div class="mb-pf-stat"><div class="mb-pf-sval" id="mbPfExact">—</div><div class="mb-pf-slbl">Exactos</div></div>
+    <div class="mb-pf-stat"><div class="mb-pf-sval" id="mbPfGrps">—</div><div class="mb-pf-slbl">Grupos</div></div>
   </div>
+  <div class="mb-pf-settings">
+    <div class="mb-pf-item" id="mbShareBtn">
+      <span class="mb-pf-ico">↗</span>
+      <span class="mb-pf-lbl">Compartir Prode</span>
+      <span class="mb-pf-arr">›</span>
+    </div>
+    <div class="mb-pf-item" id="mbAdminBtn" style="display:none">
+      <span class="mb-pf-ico">⚙</span>
+      <span class="mb-pf-lbl">Panel de Admin</span>
+      <span class="mb-pf-arr">›</span>
+    </div>
+  </div>
+  <button class="mb-pf-logout" id="mbLogoutBtn">Cerrar sesión</button>
 </div>
 
-<!-- MOBILE PERFIL VIEW -->
-<div class="page mb-view" id="mbPagePerfil">
-  <div class="mb-profile">
-    <div class="mb-profile-header">
-      <div class="mb-profile-avatar" id="mbPfAvatar">?</div>
-      <div>
-        <div class="mb-profile-name" id="mbPfName">—</div>
-        <div class="mb-profile-email" id="mbPfEmail">—</div>
-      </div>
-    </div>
-    <div class="mb-stats-row">
-      <div class="mb-stat-card">
-        <div class="mb-stat-val" id="mbPfPts">—</div>
-        <div class="mb-stat-lbl">Puntos</div>
-      </div>
-      <div class="mb-stat-card">
-        <div class="mb-stat-val" id="mbPfExact">—</div>
-        <div class="mb-stat-lbl">Exactos</div>
-      </div>
-      <div class="mb-stat-card">
-        <div class="mb-stat-val" id="mbPfGroups">—</div>
-        <div class="mb-stat-lbl">Grupos</div>
-      </div>
-    </div>
-    <div class="mb-achievements">
-      <div class="mb-achievements-title">Logros</div>
-      <div class="mb-ach-list">
-        <div class="mb-ach-item"><div class="mb-ach-icon">🎯</div><div class="mb-ach-name">Tirador</div><div class="mb-ach-desc">5 exactos</div></div>
-        <div class="mb-ach-item"><div class="mb-ach-icon">🔥</div><div class="mb-ach-name">Racha x3</div><div class="mb-ach-desc">3 al hilo</div></div>
-        <div class="mb-ach-item"><div class="mb-ach-icon">⚽</div><div class="mb-ach-name">Jugador</div><div class="mb-ach-desc">1er prode</div></div>
-      </div>
-    </div>
-    <div class="mb-settings-list">
-      <div class="mb-settings-item" id="mbMisGrupos">
-        <span class="mb-settings-icon">🔗</span>
-        <span class="mb-settings-label">Mis grupos</span>
-        <span class="mb-settings-value" id="mbPfGroupsCount">—</span>
-        <span class="mb-settings-arrow">›</span>
-      </div>
-      <div class="mb-settings-item" id="mbShareApp">
-        <span class="mb-settings-icon">↗</span>
-        <span class="mb-settings-label">Compartir Prode</span>
-        <span class="mb-settings-arrow">›</span>
-      </div>
-    </div>
-    <button class="mb-btn-logout" id="mbBtnLogout">Cerrar sesión</button>
-  </div>
-</div>
-
-<!-- MAIN (desktop + prode tab mobile) -->
+<!-- MAIN (desktop layout + tab Prode en mobile) -->
 <div class="page" id="mainPage">
 
   <!-- Leaderboard panel (shown when a group is selected) -->
@@ -1053,24 +1179,22 @@
   }, 30000);
 </script>
 
-<!-- ═══════════════════════════════
-     BOTTOM NAV PILL GLASS
-═══════════════════════════════ -->
-<nav class="bottom-nav" id="bottomNav" aria-label="Navegación principal">
+<!-- ════════════ BOTTOM NAV PILL ════════════ -->
+<nav class="bottom-nav">
   <div class="bn-pill">
-    <button class="bn-item active" data-tab="inicio" id="bnInicio">
+    <button class="bn-item active" data-tab="inicio">
       <svg viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
       <span>Inicio</span>
     </button>
-    <button class="bn-item" data-tab="prode" id="bnProde">
+    <button class="bn-item" data-tab="prode">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg>
       <span>Prode</span>
     </button>
-    <button class="bn-item" data-tab="tabla" id="bnTabla">
-      <svg viewBox="0 0 24 24"><path d="M3 3h18v18H3zM3 9h18M3 15h18M9 3v18"/></svg>
+    <button class="bn-item" data-tab="tabla">
+      <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
       <span>Tabla</span>
     </button>
-    <button class="bn-item" data-tab="perfil" id="bnPerfil">
+    <button class="bn-item" data-tab="perfil">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
       <span>Perfil</span>
     </button>
@@ -1078,229 +1202,163 @@
 </nav>
 
 <script>
-/* ═══ BOTTOM NAV — TAB SWITCHING ═══ */
-(function() {
-  const isMobile = () => window.innerWidth <= 768;
+/* ════ MOBILE TAB SWITCHING ════ */
+(function(){
+  // Set initial tab on body
+  document.body.setAttribute('data-tab','inicio');
 
-  const views = {
-    inicio: document.getElementById('mbPageInicio'),
-    prode:  document.getElementById('mainPage'),
-    tabla:  document.getElementById('mbPageTabla'),
-    perfil: document.getElementById('mbPagePerfil'),
-  };
-  const btns = document.querySelectorAll('.bn-item');
-
-  function switchTab(tab) {
-    if (!isMobile()) return;
-
-    // Toggle buttons
-    btns.forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
-
-    // Toggle views
-    Object.entries(views).forEach(([key, el]) => {
-      if (!el) return;
-      el.style.display = (key === tab) ? 'block' : 'none';
-    });
-
-    // Save bar: only show on prode tab
-    const saveBar = document.querySelector('.save-bar');
-    if (saveBar) saveBar.style.display = tab === 'prode' ? '' : 'none';
-  }
-
-  function applyMobile() {
-    if (!isMobile()) {
-      // Restore desktop layout
-      Object.values(views).forEach(el => { if (el) el.style.display = ''; });
-      const saveBar = document.querySelector('.save-bar');
-      if (saveBar) saveBar.style.display = '';
-      return;
-    }
-    // Apply current tab
-    const active = document.querySelector('.bn-item.active');
-    switchTab(active ? active.dataset.tab : 'inicio');
-  }
-
-  btns.forEach(btn => {
+  document.querySelectorAll('.bn-item').forEach(btn => {
     btn.addEventListener('click', () => {
-      if (isMobile()) switchTab(btn.dataset.tab);
+      const tab = btn.dataset.tab;
+      // Update body attribute → CSS handles show/hide
+      document.body.setAttribute('data-tab', tab);
+      // Update active button
+      document.querySelectorAll('.bn-item').forEach(b => b.classList.toggle('active', b === btn));
     });
   });
 
-  // "Ver todos" en inicio → va a tabla
-  const verTablaLink = document.getElementById('mbVerTabla');
-  if (verTablaLink) {
-    verTablaLink.addEventListener('click', e => {
-      e.preventDefault();
-      switchTab('tabla');
-    });
-  }
+  // "Ver todos" → tabla
+  document.getElementById('mbVerTabla')?.addEventListener('click', e => {
+    e.preventDefault();
+    document.body.setAttribute('data-tab','tabla');
+    document.querySelectorAll('.bn-item').forEach(b => b.classList.toggle('active', b.dataset.tab === 'tabla'));
+  });
 
-  // Group card tap → abre dropdown del desktop (reutilizamos el btn)
-  const mbGroupSwitch = document.getElementById('mbGroupSwitch');
-  const mbGroupCard   = document.getElementById('mbGroupCard');
-  if (mbGroupSwitch) {
-    mbGroupSwitch.addEventListener('click', () => {
-      document.getElementById('groupsBtn')?.click();
-    });
-  }
+  // Group card → opens desktop dropdown
+  document.getElementById('mbGroupCard')?.addEventListener('click', () => {
+    document.getElementById('groupsBtn')?.click();
+  });
 
   // Perfil logout
-  const mbLogout = document.getElementById('mbBtnLogout');
-  if (mbLogout) {
-    mbLogout.addEventListener('click', () => {
-      document.getElementById('btnLogout')?.click();
-    });
-  }
+  document.getElementById('mbLogoutBtn')?.addEventListener('click', () => {
+    document.getElementById('btnLogout')?.click();
+  });
 
-  // Share app
-  const mbShare = document.getElementById('mbShareApp');
-  if (mbShare) {
-    mbShare.addEventListener('click', () => {
-      if (navigator.share) {
-        navigator.share({ title: 'Prode Mundial 2026', url: 'https://prodemundial26.online' });
-      }
-    });
-  }
+  // Share
+  document.getElementById('mbShareBtn')?.addEventListener('click', () => {
+    navigator.share?.({ title:'Prode Mundial 2026', text:'Jugá el prode del mundial!', url:'https://prodemundial26.online' });
+  });
 
-  window.addEventListener('resize', applyMobile, { passive: true });
-  applyMobile();
+  // Admin link in perfil
+  document.getElementById('mbAdminBtn')?.addEventListener('click', () => {
+    window.location.href = 'admin.html';
+  });
 
-  /* ═══ POPULATE MOBILE VIEWS ═══
-     Se llama desde el JS principal una vez que los datos están cargados.
-     Se expone como window.populateMobileViews(data)
-  */
-  window.populateMobileViews = function({ user, groups, currentGroup, leaderboard, predictions, matches }) {
+  /* ════ POPULATE MOBILE VIEWS ════ */
+  window.populateMobileViews = function({ user, groups, currentGroup, leaderboard, matches }) {
+    const $ = id => document.getElementById(id);
 
-    if (!isMobile()) return;
+    // Hello name
+    const name = user?.displayName || user?.email?.split('@')[0] || '';
+    const initials = name.charAt(0).toUpperCase();
+    if ($('mbHelloName')) $('mbHelloName').textContent = name.split(' ')[0];
 
-    /* --- Group card --- */
+    // Group card
     if (currentGroup) {
-      const el = document.getElementById('mbGroupName');
-      const meta = document.getElementById('mbGroupMeta');
-      if (el) el.textContent = currentGroup.name || 'Mi grupo';
-      if (meta) meta.textContent = (currentGroup.code || '') + (currentGroup.members ? ' · ' + currentGroup.members + ' jugadores' : '');
+      if ($('mbGroupName')) $('mbGroupName').textContent = currentGroup.name || 'Mi grupo';
+      if ($('mbGroupMeta')) $('mbGroupMeta').textContent = (currentGroup.code || '') + (currentGroup.members ? ' · ' + currentGroup.members + ' jugadores' : '');
     }
 
-    /* --- Podio bars --- */
-    const barsEl  = document.getElementById('mbPodioBars');
-    const listEl  = document.getElementById('mbLbList');
-    if (barsEl && leaderboard && leaderboard.length) {
-      const top3   = leaderboard.slice(0, 3);
-      const rest   = leaderboard.slice(3);
-      const userId = user?.uid;
+    const uid = user?.uid;
 
-      // Order for visual podio: 2nd, 1st, 3rd
-      const order = [top3[1], top3[0], top3[2]].filter(Boolean);
-      const posClass = (idx) => idx === 1 ? 'pos-1' : idx === 0 ? 'pos-2' : 'pos-3';
+    // Podio + lb list
+    if (leaderboard?.length) {
+      const top3 = leaderboard.slice(0, 3);
+      const rest = leaderboard.slice(3);
 
-      barsEl.innerHTML = order.map(p => {
-        const isYou = p.uid === userId;
-        const initials = (p.name || '?').charAt(0).toUpperCase();
-        const origPos  = leaderboard.indexOf(p); // 0-based
-        return `
-          <div class="mb-podio-col ${posClass(origPos)}${isYou ? ' you' : ''}">
-            <div class="mb-podio-avatar">${initials}</div>
-            <div class="mb-podio-uname">${isYou ? 'Vos' : (p.name || '?')}</div>
-            <div class="mb-podio-bar">
-              <div class="mb-podio-pts">${p.points || 0}</div>
-              <div class="mb-podio-pos">#${origPos + 1}</div>
+      // Visual order: 2nd | 1st | 3rd
+      const visual = [top3[1], top3[0], top3[2]].filter(Boolean);
+      const pcls   = p => leaderboard.indexOf(p) === 0 ? 'p1' : leaderboard.indexOf(p) === 1 ? 'p2' : 'p3';
+
+      if ($('mbPodioBars')) {
+        $('mbPodioBars').innerHTML = visual.map(p => {
+          const isYou = p.uid === uid;
+          const ini   = (p.name||'?').charAt(0).toUpperCase();
+          const pos   = leaderboard.indexOf(p);
+          return `<div class="mb-pd-col ${pcls(p)}${isYou?' you':''}">
+            <div class="mb-pd-av">${ini}</div>
+            <div class="mb-pd-name">${isYou?'Vos':(p.name||'?')}</div>
+            <div class="mb-pd-bar">
+              <div class="mb-pd-pts">${p.points||0}</div>
             </div>
           </div>`;
-      }).join('');
+        }).join('');
+      }
 
-      if (listEl) {
-        listEl.innerHTML = rest.map((p, i) => {
-          const isYou = p.uid === userId;
-          const initials = (p.name || '?').charAt(0).toUpperCase();
-          return `
-            <div class="mb-lb-row${isYou ? ' mb-you' : ''}">
-              <span class="mb-lb-pos">${i + 4}</span>
-              <div class="mb-lb-avatar">${initials}</div>
-              <span class="mb-lb-name">${isYou ? 'Vos' : (p.name || '?')}</span>
-              <span class="mb-lb-exact">${p.exact || 0}✓</span>
-              <span class="mb-lb-pts">${p.points || 0}</span>
-            </div>`;
+      if ($('mbLbList')) {
+        $('mbLbList').innerHTML = rest.map((p,i) => {
+          const isYou = p.uid === uid;
+          return `<div class="mb-lb-row${isYou?' mb-you':''}">
+            <span class="mb-lb-pos">${i+4}</span>
+            <div class="mb-lb-av">${(p.name||'?').charAt(0).toUpperCase()}</div>
+            <span class="mb-lb-name">${isYou?'Vos':(p.name||'?')}</span>
+            <span class="mb-lb-exact">${p.exact||0}✓</span>
+            <span class="mb-lb-pts">${p.points||0}</span>
+          </div>`;
+        }).join('');
+      }
+
+      // Tabla completa
+      const me    = leaderboard.find(p => p.uid === uid);
+      const myPos = me ? leaderboard.indexOf(me) + 1 : null;
+      if (me) {
+        if ($('mbYourRow')) $('mbYourRow').style.display = 'flex';
+        if ($('mbYaAv'))   $('mbYaAv').textContent   = (me.name||'?').charAt(0).toUpperCase();
+        if ($('mbYaName')) $('mbYaName').textContent  = me.name || 'Vos';
+        if ($('mbYaMeta')) $('mbYaMeta').textContent  = `#${myPos} · ${me.exact||0} exactos`;
+        if ($('mbYaPts'))  $('mbYaPts').textContent   = me.points || 0;
+        if ($('mbPfPts'))  $('mbPfPts').textContent   = me.points || 0;
+        if ($('mbPfExact'))$('mbPfExact').textContent = me.exact  || 0;
+      }
+
+      if ($('mbTablaList')) {
+        const medals = ['🥇','🥈','🥉'];
+        $('mbTablaList').innerHTML = leaderboard.map((p,i) => {
+          const isYou = p.uid === uid;
+          return `<div class="mb-tabla-row${isYou?' mb-you':''}">
+            <span class="mb-lb-pos">${medals[i]||(i+1)}</span>
+            <div class="mb-lb-av">${(p.name||'?').charAt(0).toUpperCase()}</div>
+            <span class="mb-lb-name">${isYou?'Vos ✦':(p.name||'?')}</span>
+            <span class="mb-lb-exact">${p.exact||0}✓</span>
+            <span class="mb-lb-pts">${p.points||0}</span>
+          </div>`;
         }).join('');
       }
     }
 
-    /* --- Tabla completa --- */
-    const tablaListEl   = document.getElementById('mbTablaList');
-    const tablaYourRow  = document.getElementById('mbTablaYourRow');
-    if (leaderboard && leaderboard.length) {
-      const userId = user?.uid;
-      const me     = leaderboard.find(p => p.uid === userId);
-
-      if (me && tablaYourRow) {
-        const initials = (me.name || '?').charAt(0).toUpperCase();
-        const myPos    = leaderboard.indexOf(me) + 1;
-        document.getElementById('mbYourAvatar').textContent = initials;
-        document.getElementById('mbYourName').textContent   = me.name || 'Vos';
-        document.getElementById('mbYourMeta').textContent   = `#${myPos} · ${me.exact || 0} exactos`;
-        document.getElementById('mbYourPts').textContent    = me.points || 0;
-        tablaYourRow.style.display = 'flex';
-      }
-
-      if (tablaListEl) {
-        tablaListEl.innerHTML = leaderboard.map((p, i) => {
-          const isYou    = p.uid === userId;
-          const initials = (p.name || '?').charAt(0).toUpperCase();
-          const medal    = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}`;
-          return `
-            <div class="mb-lb-row${isYou ? ' mb-you' : ''}" style="padding:.75rem 1rem">
-              <span class="mb-lb-pos">${medal}</span>
-              <div class="mb-lb-avatar">${initials}</div>
-              <span class="mb-lb-name">${isYou ? 'Vos ✦' : (p.name || '?')}</span>
-              <span class="mb-lb-exact">${p.exact || 0}✓</span>
-              <span class="mb-lb-pts">${p.points || 0}</span>
-            </div>`;
-        }).join('');
-      }
-    }
-
-    /* --- Próximo partido --- */
-    if (matches && matches.length) {
-      const now   = Date.now();
-      const next  = matches.find(m => m.kickoff.getTime() > now);
-      if (next) {
-        const card   = document.getElementById('mbNextMatch');
-        const teamsEl= document.getElementById('mbNmTeams');
-        const venueEl= document.getElementById('mbNmVenue');
-        if (card && teamsEl) {
-          const diff     = next.kickoff.getTime() - now;
-          const hrs      = Math.floor(diff / 3600000);
-          const mins     = Math.floor((diff % 3600000) / 60000);
-          const isSoon   = hrs < 3;
-          const timeStr  = next.kickoff.toLocaleTimeString('es-AR', { hour:'2-digit', minute:'2-digit', timeZone:'America/Argentina/Buenos_Aires' });
-          teamsEl.innerHTML = `
-            <div class="mb-nm-team"><div class="mb-nm-flag">${next.local?.flag || '🏳️'}</div><div class="mb-nm-name">${next.local?.name || next.local || '?'}</div></div>
-            <div class="mb-nm-vs"><div class="mb-nm-time${isSoon ? '' : ' normal'}">${timeStr}</div><div style="font-size:.65rem;color:#7a8898">ARG</div></div>
-            <div class="mb-nm-team"><div class="mb-nm-flag">${next.visitante?.flag || '🏳️'}</div><div class="mb-nm-name">${next.visitante?.name || next.visitante || '?'}</div></div>`;
-          if (venueEl) venueEl.textContent = next.sede || '';
-          card.style.display = 'block';
+    // Próximo partido
+    if (matches?.length) {
+      const now  = Date.now();
+      const next = matches.find(m => m.kickoff.getTime() > now);
+      if (next && $('mbNext')) {
+        const diff    = next.kickoff.getTime() - now;
+        const isSoon  = diff < 3 * 3600000;
+        const timeStr = next.kickoff.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit',timeZone:'America/Argentina/Buenos_Aires'});
+        const locName = typeof next.local === 'object' ? (next.local.name || next.local) : next.local;
+        const visName = typeof next.visitante === 'object' ? (next.visitante.name || next.visitante) : next.visitante;
+        const locFlag = typeof next.local === 'object' ? next.local.flag : '';
+        const visFlag = typeof next.visitante === 'object' ? next.visitante.flag : '';
+        if ($('mbNextTeams')) {
+          $('mbNextTeams').innerHTML = `
+            <div class="mb-next-team"><div class="mb-next-flag">${locFlag||'🏳️'}</div><div class="mb-next-tname">${locName||'?'}</div></div>
+            <div class="mb-next-vs"><div class="mb-next-time${isSoon?' urgent':''}">${timeStr}</div><div style="font-size:.6rem;color:#7a8898">ARG</div></div>
+            <div class="mb-next-team"><div class="mb-next-flag">${visFlag||'🏳️'}</div><div class="mb-next-tname">${visName||'?'}</div></div>`;
         }
+        $('mbNext').style.display = 'block';
       }
     }
 
-    /* --- Perfil --- */
-    if (user) {
-      const name     = user.displayName || user.email?.split('@')[0] || 'Usuario';
-      const initials = name.charAt(0).toUpperCase();
-      const el = id => document.getElementById(id);
-      if (el('mbPfAvatar'))    el('mbPfAvatar').textContent    = initials;
-      if (el('mbPfName'))      el('mbPfName').textContent      = name;
-      if (el('mbPfEmail'))     el('mbPfEmail').textContent     = user.email || '';
-      if (el('mbPfGroups'))    el('mbPfGroups').textContent    = groups ? groups.length : '—';
-      if (el('mbPfGroupsCount')) el('mbPfGroupsCount').textContent = groups ? groups.length : '—';
+    // Perfil
+    if ($('mbPfAv'))    $('mbPfAv').textContent    = initials;
+    if ($('mbPfName'))  $('mbPfName').textContent  = name;
+    if ($('mbPfEmail')) $('mbPfEmail').textContent = user?.email || '';
+    if ($('mbPfGrps'))  $('mbPfGrps').textContent  = groups?.length || '—';
 
-      // Stats from predictions
-      if (predictions) {
-        const filled = Object.values(predictions).filter(p => p.home !== undefined && p.away !== undefined).length;
-        if (el('mbPfExact')) el('mbPfExact').textContent = '—'; // se calcula server-side
-      }
+    // Admin link en perfil
+    if (user?.email === 'bautistaoteroalen2008@gmail.com') {
+      if ($('mbAdminBtn')) $('mbAdminBtn').style.display = 'flex';
     }
   };
-
 })();
 </script>
 </body>
