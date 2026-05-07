@@ -245,7 +245,7 @@
       .bn-item.active svg{filter:drop-shadow(0 0 7px rgba(201,168,76,.6))}
 
       /* Espacio para el bottom nav y save bar */
-      body{padding-bottom:5.5rem !important}
+      body{padding-bottom:5.5rem}
       .save-bar{bottom:4.5rem !important}
       .toast{bottom:8rem !important}
 
@@ -1248,7 +1248,8 @@
   }
 
   /* ── Padding para que nada quede tapado ── */
-  document.body.style.paddingBottom = '140px';
+  // setProperty con 'important' para ganar sobre cualquier regla CSS
+  document.body.style.setProperty('padding-bottom', '170px', 'important');
 
   /* ── Ocultar nav desktop ── */
   const deskDrop = document.querySelector('.groups-dropdown-wrap');
