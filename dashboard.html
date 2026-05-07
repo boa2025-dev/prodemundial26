@@ -1183,69 +1183,101 @@
 </script>
 
 <!-- ════════════ BOTTOM NAV PILL ════════════ -->
-<nav class="bottom-nav">
-  <div class="bn-pill">
-    <button class="bn-item active" data-tab="inicio">
-      <svg viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
-      <span>Inicio</span>
+<nav id="bottomNav" style="display:none;position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:9999;pointer-events:none">
+  <div id="bnPill" style="display:flex;align-items:center;gap:2px;padding:4px;background:rgba(8,12,22,.92);border:1px solid rgba(201,168,76,.25);border-radius:50px;-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);box-shadow:0 8px 32px rgba(0,0,0,.7);pointer-events:all">
+    <button id="bnI" onclick="mbTab('inicio')" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 18px;border-radius:50px;border:none;background:rgba(201,168,76,.18);color:#c9a84c;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;font-family:Montserrat,sans-serif;cursor:pointer;min-width:60px">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
+      Inicio
     </button>
-    <button class="bn-item" data-tab="prode">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg>
-      <span>Prode</span>
+    <button id="bnP" onclick="mbTab('prode')" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 18px;border-radius:50px;border:none;background:transparent;color:#586070;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;font-family:Montserrat,sans-serif;cursor:pointer;min-width:60px">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg>
+      Prode
     </button>
-    <button class="bn-item" data-tab="tabla">
-      <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-      <span>Tabla</span>
+    <button id="bnT" onclick="mbTab('tabla')" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 18px;border-radius:50px;border:none;background:transparent;color:#586070;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;font-family:Montserrat,sans-serif;cursor:pointer;min-width:60px">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      Tabla
     </button>
-    <button class="bn-item" data-tab="perfil">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-      <span>Perfil</span>
+    <button id="bnPf" onclick="mbTab('perfil')" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 18px;border-radius:50px;border:none;background:transparent;color:#586070;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;font-family:Montserrat,sans-serif;cursor:pointer;min-width:60px">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      Perfil
     </button>
   </div>
 </nav>
 
 <script>
-/* ════ MOBILE TAB SWITCHING ════ */
+/* ════ MOBILE UI — JS puro, sin dependencias de CSS ════ */
 (function(){
-  // Set initial tab on body
-  document.body.setAttribute('data-tab','inicio');
+  const ON_MOBILE = window.innerWidth <= 768 || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  if (!ON_MOBILE) return; // Desktop: no hace nada
 
-  document.querySelectorAll('.bn-item').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const tab = btn.dataset.tab;
-      // Update body attribute → CSS handles show/hide
-      document.body.setAttribute('data-tab', tab);
-      // Update active button
-      document.querySelectorAll('.bn-item').forEach(b => b.classList.toggle('active', b === btn));
+  // ── Mostrar bottom nav con inline styles ──
+  const nav = document.getElementById('bottomNav');
+  if (nav) nav.style.display = 'flex';
+
+  // ── Ocultar elementos innecesarios en mobile ──
+  const dropdown = document.querySelector('.groups-dropdown-wrap');
+  if (dropdown) dropdown.style.display = 'none';
+  const adminLnk = document.getElementById('adminLink');
+  if (adminLnk) adminLnk.style.display = 'none';
+
+  // ── Ajustar body padding para el nav ──
+  document.body.style.paddingBottom = '90px';
+
+  // ── Referencias a vistas ──
+  const views = {
+    inicio: document.getElementById('mbPageInicio'),
+    prode:  document.getElementById('mainPage'),
+    tabla:  document.getElementById('mbPageTabla'),
+    perfil: document.getElementById('mbPagePerfil'),
+  };
+  const savebar = document.querySelector('.save-bar');
+  const btns = { inicio: document.getElementById('bnI'), prode: document.getElementById('bnP'), tabla: document.getElementById('bnT'), perfil: document.getElementById('bnPf') };
+  const ACTIVE_STYLE   = 'background:rgba(201,168,76,.18);color:#c9a84c';
+  const INACTIVE_STYLE = 'background:transparent;color:#586070';
+
+  // ── Ocultar todas las vistas excepto inicio ──
+  Object.entries(views).forEach(([k, el]) => {
+    if (!el) return;
+    el.style.display = k === 'inicio' ? 'block' : 'none';
+  });
+  if (savebar) savebar.style.display = 'none';
+
+  // ── Función de cambio de tab ──
+  window.mbTab = function(tab) {
+    // Mostrar vista correcta
+    Object.entries(views).forEach(([k, el]) => {
+      if (!el) return;
+      el.style.display = k === tab ? 'block' : 'none';
     });
-  });
+    // Save bar solo en prode
+    if (savebar) savebar.style.display = tab === 'prode' ? '' : 'none';
+    // Actualizar botones
+    Object.entries(btns).forEach(([k, btn]) => {
+      if (!btn) return;
+      btn.style.cssText = btn.style.cssText.replace(/background:[^;]+;color:[^;]+/, k === tab ? ACTIVE_STYLE : INACTIVE_STYLE);
+    });
+  };
 
-  // "Ver todos" → tabla
-  document.getElementById('mbVerTabla')?.addEventListener('click', e => {
-    e.preventDefault();
-    document.body.setAttribute('data-tab','tabla');
-    document.querySelectorAll('.bn-item').forEach(b => b.classList.toggle('active', b.dataset.tab === 'tabla'));
-  });
+  // ── Botón "Ver todos" → tabla ──
+  document.getElementById('mbVerTabla')?.addEventListener('click', e => { e.preventDefault(); window.mbTab('tabla'); });
 
-  // Group card → opens desktop dropdown
-  document.getElementById('mbGroupCard')?.addEventListener('click', () => {
-    document.getElementById('groupsBtn')?.click();
-  });
+  // ── Group card → abre dropdown ──
+  document.getElementById('mbGroupCard')?.addEventListener('click', () => document.getElementById('groupsBtn')?.click());
 
-  // Perfil logout
-  document.getElementById('mbLogoutBtn')?.addEventListener('click', () => {
-    document.getElementById('btnLogout')?.click();
-  });
+  // ── Perfil logout ──
+  document.getElementById('mbLogoutBtn')?.addEventListener('click', () => document.getElementById('btnLogout')?.click());
 
-  // Share
-  document.getElementById('mbShareBtn')?.addEventListener('click', () => {
-    navigator.share?.({ title:'Prode Mundial 2026', text:'Jugá el prode del mundial!', url:'https://prodemundial26.online' });
-  });
+  // ── Share ──
+  document.getElementById('mbShareBtn')?.addEventListener('click', () =>
+    navigator.share?.({ title:'Prode Mundial 2026', text:'Jugá el prode del mundial!', url:'https://prodemundial26.online' })
+  );
 
-  // Admin link in perfil
-  document.getElementById('mbAdminBtn')?.addEventListener('click', () => {
-    window.location.href = 'admin.html';
-  });
+  // ── Admin link perfil ──
+  document.getElementById('mbAdminBtn')?.addEventListener('click', () => { window.location.href = 'admin.html'; });
+
+  // Inicio activo por defecto
+  window.mbTab('inicio');
+
 
   /* ════ POPULATE MOBILE VIEWS ════ */
   window.populateMobileViews = function({ user, groups, currentGroup, leaderboard, matches }) {
