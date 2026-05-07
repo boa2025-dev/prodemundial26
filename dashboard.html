@@ -1208,20 +1208,31 @@
 /* ════ MOBILE UI — JS puro, sin dependencias de CSS ════ */
 (function(){
   const ON_MOBILE = window.innerWidth <= 768 || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-  if (!ON_MOBILE) return; // Desktop: no hace nada
+  if (!ON_MOBILE) return;
 
-  // ── Mostrar bottom nav con inline styles ──
+  // ── Mostrar bottom nav ──
   const nav = document.getElementById('bottomNav');
-  if (nav) nav.style.display = 'flex';
+  if (nav) {
+    nav.style.display = 'flex';
+    // Respetar home indicator del iPhone
+    nav.style.bottom = 'max(16px, calc(env(safe-area-inset-bottom, 0px) + 10px))';
+  }
 
-  // ── Ocultar elementos innecesarios en mobile ──
+  // ── Ocultar elementos desktop ──
   const dropdown = document.querySelector('.groups-dropdown-wrap');
   if (dropdown) dropdown.style.display = 'none';
   const adminLnk = document.getElementById('adminLink');
   if (adminLnk) adminLnk.style.display = 'none';
 
-  // ── Ajustar body padding para el nav ──
-  document.body.style.paddingBottom = '90px';
+  // ── Save bar: subirla por encima del bottom nav ──
+  const savebar = document.querySelector('.save-bar');
+  if (savebar) {
+    savebar.style.bottom = '88px';   // encima del pill nav
+    savebar.style.borderRadius = '16px 16px 0 0';
+  }
+
+  // ── Padding body para que el contenido no quede tapado ──
+  document.body.style.paddingBottom = '160px';
 
   // ── Referencias a vistas ──
   const views = {
@@ -1230,7 +1241,6 @@
     tabla:  document.getElementById('mbPageTabla'),
     perfil: document.getElementById('mbPagePerfil'),
   };
-  const savebar = document.querySelector('.save-bar');
   const btns = { inicio: document.getElementById('bnI'), prode: document.getElementById('bnP'), tabla: document.getElementById('bnT'), perfil: document.getElementById('bnPf') };
   const ACTIVE_STYLE   = 'background:rgba(201,168,76,.18);color:#c9a84c';
   const INACTIVE_STYLE = 'background:transparent;color:#586070';
@@ -1240,7 +1250,6 @@
     if (!el) return;
     el.style.display = k === 'inicio' ? 'block' : 'none';
   });
-  if (savebar) savebar.style.display = 'none';
 
   // ── Función de cambio de tab ──
   window.mbTab = function(tab) {
@@ -1249,8 +1258,9 @@
       if (!el) return;
       el.style.display = k === tab ? 'block' : 'none';
     });
-    // Save bar solo en prode
-    if (savebar) savebar.style.display = tab === 'prode' ? '' : 'none';
+    // Save bar: visible solo en prode tab
+    const sb = document.querySelector('.save-bar');
+    if (sb) sb.style.display = tab === 'prode' ? '' : 'none';
     // Actualizar botones
     Object.entries(btns).forEach(([k, btn]) => {
       if (!btn) return;
