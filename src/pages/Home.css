@@ -326,3 +326,164 @@ section { padding: 8rem 0; }
   .ball-wrap { width:70px; height:70px; top:6%; right:2%; }
   .ball-svg { width:70px; height:70px; }
 }
+
+/* ───────────────────────────────────────────
+   MOBILE LANDING: simplified, conversion-focused
+─────────────────────────────────────────── */
+@media (max-width: 640px) {
+
+  /* Hero: remove canvas decorations, clean layout */
+  #hero {
+    min-height: 100svh;
+    background: var(--bg);
+    align-items: flex-end;
+    justify-content: flex-start;
+    padding: 0;
+  }
+
+  #heroBg {
+    background:
+      radial-gradient(ellipse 100% 55% at 50% 0%, rgba(201,168,76,.15) 0%, transparent 65%),
+      var(--bg);
+  }
+
+  /* Hide complex decorations on mobile */
+  .ball-wrap, .ball-wrap-2,
+  .float-card,
+  .scroll-hint,
+  .hero-stats { display: none !important; }
+
+  /* Hero content: bottom sheet style */
+  .hero-content {
+    position: relative;
+    z-index: 4;
+    width: 100%;
+    padding: 0 20px 32px;
+    text-align: left;
+    max-width: 100%;
+    background: linear-gradient(to top, var(--bg) 70%, transparent);
+  }
+
+  .hero-badge {
+    width: 72px;
+    height: 72px;
+    margin: 0 0 20px 0;
+    background: linear-gradient(135deg, var(--gold), #6b4a10);
+  }
+
+  .badge-ring { display: none; }
+  .badge-inner { font-size: 2rem; -webkit-text-fill-color: initial; color: #000; }
+
+  .hero-eyebrow {
+    font-size: 11px;
+    letter-spacing: .25em;
+    margin-bottom: 10px;
+    animation: none;
+    opacity: 1;
+  }
+
+  .hero-title {
+    align-items: flex-start;
+    text-align: left;
+    margin-bottom: 14px;
+  }
+
+  .hero-title span:first-child {
+    font-size: 36px;
+    animation: none;
+    opacity: 1;
+    line-height: 1.1;
+  }
+
+  .year {
+    font-size: 56px;
+    animation: none;
+    opacity: 1;
+  }
+
+  .hero-sub {
+    font-size: 15px;
+    margin: 0 0 24px;
+    max-width: 100%;
+    text-align: left;
+    animation: none;
+    opacity: 1;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* Mobile CTAs: fullwidth pill buttons */
+  .hero-actions {
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    animation: none;
+    opacity: 1;
+  }
+
+  .hero-actions .btn {
+    width: 100%;
+    justify-content: center;
+    height: 56px;
+    font-size: 1rem;
+    letter-spacing: .06em;
+    border-radius: 50px;
+  }
+
+  .hero-actions .btn-primary {
+    box-shadow: 0 4px 30px rgba(201,168,76,.5);
+    font-size: 1rem;
+    font-weight: 900;
+  }
+
+  .hero-actions .btn-outline {
+    height: 48px;
+    background: rgba(255,255,255,.06);
+    border-color: rgba(255,255,255,.12);
+    color: var(--muted);
+    font-size: .9rem;
+  }
+
+  /* Social proof */
+  .hero-countdown-mobile { display: block; }
+
+  /* Hide most sections on mobile to keep it focused */
+  #features, #how-it-works, #leaderboard, #trust { display: none; }
+
+  /* Teams marquee: keep but simplify */
+  #teams { padding: 3rem 0; }
+  .teams-header { padding: 0 16px; text-align: left; margin-bottom: 2rem; }
+  .teams-header .section-sub,
+  .teams-header .divider { margin-inline: 0; }
+
+  /* CTA: simplified on mobile */
+  #cta {
+    padding: 4rem 0;
+    margin-top: 0;
+  }
+
+  .cta-trophy { font-size: 3rem; margin-bottom: 1rem; }
+  .cta-title { font-size: 2rem; }
+  .cta-sub { font-size: .9rem; max-width: 280px; margin: 0 auto 1.5rem; }
+  .btn-cta { padding: .9rem 2rem; font-size: .95rem; }
+
+  /* Footer: compact */
+  .home-page footer { padding: 1.5rem 1rem; }
+  .footer-inner { flex-direction: column; align-items: center; text-align: center; gap: 1rem; }
+
+  /* Nav mobile */
+  nav { padding: .8rem 0; }
+
+  /* Mobile social proof badge below buttons */
+  .hero-mobile-proof {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+}
+
+.hero-mobile-proof { display: none; }

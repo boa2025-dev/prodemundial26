@@ -342,3 +342,60 @@
   margin: 1.6rem -2.4rem -2.8rem;
   opacity: 0.5;
 }
+
+/* ── Mobile improvements ── */
+@media (max-width: 640px) {
+  .login-page main {
+    padding: 1.5rem 1rem;
+    align-items: flex-start;
+    padding-top: 2rem;
+  }
+
+  .auth-card {
+    border-radius: 24px;
+    padding: 2rem 1.4rem;
+    max-width: 100%;
+  }
+
+  .auth-nav .nav-inner { padding: 0 1rem; }
+
+  /* Bigger inputs on mobile */
+  .auth-input {
+    height: 52px;
+    font-size: 1rem;
+    padding: 0 1rem 0 2.8rem !important;
+  }
+
+  .form-input {
+    height: 52px;
+    font-size: 1rem;
+  }
+
+  /* Larger Google button */
+  .btn-google {
+    height: 52px;
+    font-size: 1rem;
+    font-weight: 700;
+    background: #fff;
+    color: #1a1a1a;
+    border-color: transparent;
+  }
+
+  .btn-google:hover {
+    background: #f5f5f5;
+  }
+
+  /* Full-width prominent submit button */
+  .btn-submit {
+    height: 56px;
+    font-size: 1rem;
+    border-radius: 50px;
+    letter-spacing: .08em;
+  }
+
+  /* "Olvidé" inline with label */
+  .forgot-row {
+    margin-top: 0;
+    margin-bottom: 1.2rem;
+  }
+}

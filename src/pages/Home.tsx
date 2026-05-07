@@ -295,6 +295,15 @@ export default function Home() {
               <Link to="/login" className="btn btn-outline">Ya tengo cuenta →</Link>
             </div>
 
+            {/* Mobile social proof */}
+            <div className="hero-mobile-proof">
+              <span>Sin instalar</span>
+              <span>·</span>
+              <span>100% gratis</span>
+              <span>·</span>
+              <span>104 partidos</span>
+            </div>
+
             {/* Mobile countdown */}
             <div className="hero-countdown-mobile">
               <div className="hcm-inner">

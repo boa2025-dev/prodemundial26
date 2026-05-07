@@ -7,6 +7,7 @@ import Onboarding from './pages/Onboarding';
 import Dashboard from './pages/Dashboard';
 import Predictions from './pages/Predictions';
 import Admin from './pages/Admin';
+import Perfil from './pages/Perfil';
 import Acerca from './pages/Acerca';
 import Contacto from './pages/Contacto';
 import Privacidad from './pages/Privacidad';
@@ -26,6 +27,7 @@ export default function App() {
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/predictions" element={<ProtectedRoute><Predictions /></ProtectedRoute>} />
       <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
+      <Route path="/perfil" element={<ProtectedRoute><Perfil /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

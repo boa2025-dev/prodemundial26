@@ -1,0 +1,137 @@
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
+import { signOut } from 'firebase/auth';
+import { auth, db } from '../firebase';
+import { useAuth } from '../hooks/useAuth';
+import BottomNav from '../components/BottomNav';
+import './Perfil.css';
+
+const GLOBAL_PRED_KEY = (uid: string) => `${uid}_global`;
+
+export default function Perfil() {
+  const { currentUser } = useAuth();
+  const navigate = useNavigate();
+  const [groups, setGroups] = useState<any[]>([]);
+  const [stats, setStats] = useState({ pts: 0, exactos: 0, resultados: 0 });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!currentUser) { navigate('/login', { replace: true }); return; }
+    loadStats();
+  }, [currentUser]);
+
+  async function loadStats() {
+    if (!currentUser) return;
+    try {
+      const [predSnap, groupSnap, resultsSnap] = await Promise.all([
+        getDoc(doc(db, 'predictions', GLOBAL_PRED_KEY(currentUser.uid))),
+        getDocs(query(collection(db, 'groups'), where('memberUids', 'array-contains', currentUser.uid))),
+        getDoc(doc(db, 'results', 'matches')),
+      ]);
+
+      const preds = predSnap.exists() ? (predSnap.data().matches || {}) : {};
+      const results: Record<string, { home: number; away: number }> = resultsSnap.exists() ? (resultsSnap.data().scores || {}) : {};
+
+      let pts = 0, exactos = 0, resultados = 0;
+      for (const [matchId, res] of Object.entries(results)) {
+        const pred = preds[matchId];
+        if (!pred || pred.home == null || pred.away == null) continue;
+        if (pred.home === res.home && pred.away === res.away) { pts += 3; exactos++; }
+        else if (Math.sign(pred.home - pred.away) === Math.sign(res.home - res.away)) { pts += 1; resultados++; }
+      }
+
+      setStats({ pts, exactos, resultados });
+      setGroups(groupSnap.docs.map(d => d.data()));
+    } catch { /* ignore */ }
+    finally { setLoading(false); }
+  }
+
+  const name = currentUser?.displayName || currentUser?.email || '';
+  const initial = name.charAt(0).toUpperCase();
+  const email = currentUser?.email || '';
+
+  const ACHIEVEMENTS = [
+    { icon: '🎯', title: 'Tirador', desc: '5 exactos', unlocked: stats.exactos >= 5 },
+    { icon: '🔥', title: 'Racha x5', desc: '5 al hilo', unlocked: stats.exactos >= 5 },
+    { icon: '👑', title: 'Líder', desc: '#1 grupo', unlocked: stats.pts > 100 },
+    { icon: '⚽', title: 'Prode pro', desc: '50 preds', unlocked: false },
+    { icon: '🏆', title: 'Campeón', desc: 'Ganó grupo', unlocked: false },
+  ];
+
+  return (
+    <div className="perfil-page">
+      <div className="perfil-header">
+        <span className="perfil-title">Perfil</span>
+        <button className="perfil-settings-btn" aria-label="Ajustes">⚙</button>
+      </div>
+
+      {/* Avatar */}
+      <div className="perfil-avatar-wrap">
+        <div className="perfil-avatar">{initial}</div>
+        <div className="perfil-check">✓</div>
+      </div>
+      <div className="perfil-name">{name.split(' ').slice(0, 2).join(' ')}</div>
+      <div className="perfil-email">{email}</div>
+
+      {/* Stats */}
+      <div className="perfil-stats">
+        <div className="perfil-stat">
+          <div className="perfil-stat-num" style={{ color: 'var(--gold-l)' }}>{stats.pts}</div>
+          <div className="perfil-stat-label">PUNTOS</div>
+        </div>
+        <div className="perfil-stat">
+          <div className="perfil-stat-num" style={{ color: 'var(--green)' }}>{stats.exactos}</div>
+          <div className="perfil-stat-label">EXACTOS</div>
+        </div>
+        <div className="perfil-stat">
+          <div className="perfil-stat-num">{groups.length}</div>
+          <div className="perfil-stat-label">GRUPOS</div>
+        </div>
+      </div>
+
+      {/* Achievements */}
+      <div className="perfil-section-label">LOGROS</div>
+      <div className="perfil-achievements">
+        {ACHIEVEMENTS.map(a => (
+          <div key={a.title} className={`perfil-achievement${a.unlocked ? '' : ' locked'}`}>
+            <span className="ach-icon">{a.icon}</span>
+            <span className="ach-title">{a.title}</span>
+            <span className="ach-desc">{a.desc}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Settings */}
+      <div className="perfil-menu">
+        <div className="perfil-menu-item" onClick={() => navigate('/dashboard')}>
+          <span className="pmi-icon">🔗</span>
+          <span className="pmi-label">Mis grupos</span>
+          <span className="pmi-right">{groups.length} <span className="pmi-chevron">›</span></span>
+        </div>
+        <div className="perfil-menu-item" onClick={() => navigator.share?.({ title: 'Prode Mundial 2026', url: 'https://prodemundial26.online' }).catch(() => {})}>
+          <span className="pmi-icon">↗</span>
+          <span className="pmi-label">Compartir Prode</span>
+          <span className="pmi-chevron">›</span>
+        </div>
+        <div className="perfil-menu-item" onClick={() => navigate('/acerca')}>
+          <span className="pmi-icon">ℹ</span>
+          <span className="pmi-label">Acerca de</span>
+          <span className="pmi-chevron">›</span>
+        </div>
+        <div className="perfil-menu-item" onClick={() => navigate('/privacidad')}>
+          <span className="pmi-icon">🔒</span>
+          <span className="pmi-label">Privacidad</span>
+          <span className="pmi-chevron">›</span>
+        </div>
+        <div className="perfil-menu-item danger" onClick={() => signOut(auth).then(() => navigate('/login'))}>
+          <span className="pmi-icon">↩</span>
+          <span className="pmi-label">Cerrar sesión</span>
+        </div>
+      </div>
+
+      <div style={{ height: 100 }} />
+      <BottomNav />
+    </div>
+  );
+}

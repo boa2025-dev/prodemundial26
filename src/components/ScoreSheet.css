@@ -1,0 +1,223 @@
+.sheet-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 600;
+  display: flex;
+  align-items: flex-end;
+  animation: sheetOverlayIn 0.25s ease;
+}
+
+@keyframes sheetOverlayIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.sheet-container {
+  width: 100%;
+  background: #0d1424;
+  border: 1px solid rgba(201, 168, 76, 0.2);
+  border-radius: 28px 28px 0 0;
+  padding: 0 20px 0;
+  padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  animation: sheetSlideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes sheetSlideUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+.sheet-grabber {
+  width: 36px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  margin: 12px auto 0;
+}
+
+.sheet-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin: 20px 0 24px;
+}
+
+.sheet-header-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sheet-jornada {
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-family: var(--fh);
+  font-weight: 700;
+}
+
+.sheet-title {
+  font-family: var(--fh);
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--white);
+}
+
+.sheet-close {
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: var(--muted);
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Teams layout */
+.sheet-teams {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.sheet-team {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.sheet-team-flag {
+  font-size: 32px;
+  line-height: 1;
+}
+
+.sheet-team-name {
+  font-family: var(--fh);
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--white);
+  text-align: center;
+}
+
+.sheet-stepper {
+  width: 56px;
+  height: 38px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--white);
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+  -webkit-tap-highlight-color: transparent;
+  font-family: var(--fh);
+}
+
+.sheet-stepper:active {
+  background: rgba(201, 168, 76, 0.2);
+}
+
+.sheet-stepper.up {
+  order: -1;
+}
+
+.sheet-score-box {
+  width: 80px;
+  height: 80px;
+  background: rgba(201, 168, 76, 0.1);
+  border: 2px solid rgba(201, 168, 76, 0.35);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--fh);
+  font-size: 36px;
+  font-weight: 900;
+  color: var(--gold-l);
+  box-shadow: 0 0 20px rgba(201, 168, 76, 0.2);
+}
+
+.sheet-vs {
+  font-family: var(--fh);
+  font-size: 24px;
+  font-weight: 900;
+  color: var(--muted);
+  flex-shrink: 0;
+  margin-top: 40px;
+}
+
+/* Points preview */
+.sheet-preview {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+}
+
+.sheet-preview-flag { font-size: 18px; flex-shrink: 0; }
+
+.sheet-preview-label {
+  font-family: var(--fh);
+  font-weight: 800;
+  font-size: 13px;
+  color: var(--white);
+  flex: 1;
+}
+
+.sheet-preview-pts {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: right;
+}
+
+.sheet-pts-row {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.sheet-pts-row strong { color: var(--gold); }
+
+/* Save button */
+.sheet-save-btn {
+  width: 100%;
+  padding: 18px;
+  border-radius: 50px;
+  border: none;
+  background: linear-gradient(135deg, var(--gold), #a07830);
+  color: #000;
+  font-family: var(--fh);
+  font-weight: 900;
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  box-shadow: 0 4px 24px rgba(201, 168, 76, 0.4);
+  transition: transform 0.15s, box-shadow 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sheet-save-btn:active {
+  transform: scale(0.98);
+  box-shadow: 0 2px 12px rgba(201, 168, 76, 0.3);
+}
