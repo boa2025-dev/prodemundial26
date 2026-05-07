@@ -1205,88 +1205,101 @@
 </nav>
 
 <script>
-/* ════ MOBILE UI — JS puro, sin dependencias de CSS ════ */
+/* ════ MOBILE UI ════ */
 (function(){
-  const ON_MOBILE = window.innerWidth <= 768 || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-  if (!ON_MOBILE) return;
+  const MOBILE = window.innerWidth <= 900 || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  if (!MOBILE) return;
 
-  // ── Mostrar bottom nav ──
+  /* ── Mostrar bottom nav ── */
   const nav = document.getElementById('bottomNav');
-  if (nav) {
-    nav.style.display = 'flex';
-    // Respetar home indicator del iPhone
-    nav.style.bottom = 'max(16px, calc(env(safe-area-inset-bottom, 0px) + 10px))';
+  if (nav) nav.style.display = 'flex';
+
+  /* ── Save bar: reposicionar encima del nav ── */
+  const saveBar = document.querySelector('.save-bar');
+  if (saveBar) {
+    saveBar.style.bottom   = '82px';
+    saveBar.style.left     = '5%';
+    saveBar.style.right    = '5%';
+    saveBar.style.borderRadius = '14px';
+    saveBar.style.display  = 'none';   // oculta hasta tab Prode
   }
 
-  // ── Ocultar elementos desktop ──
-  const dropdown = document.querySelector('.groups-dropdown-wrap');
-  if (dropdown) dropdown.style.display = 'none';
-  const adminLnk = document.getElementById('adminLink');
-  if (adminLnk) adminLnk.style.display = 'none';
+  /* ── Padding para que nada quede tapado ── */
+  document.body.style.paddingBottom = '140px';
 
-  // ── Save bar: subirla por encima del bottom nav ──
-  const savebar = document.querySelector('.save-bar');
-  if (savebar) {
-    savebar.style.bottom = '88px';   // encima del pill nav
-    savebar.style.borderRadius = '16px 16px 0 0';
-  }
+  /* ── Ocultar nav desktop ── */
+  const deskDrop = document.querySelector('.groups-dropdown-wrap');
+  if (deskDrop) deskDrop.style.display = 'none';
 
-  // ── Padding body para que el contenido no quede tapado ──
-  document.body.style.paddingBottom = '160px';
-
-  // ── Referencias a vistas ──
-  const views = {
+  /* ── Vistas y botones ── */
+  const V = {
     inicio: document.getElementById('mbPageInicio'),
-    prode:  document.getElementById('mainPage'),
-    tabla:  document.getElementById('mbPageTabla'),
+    prode : document.getElementById('mainPage'),
+    tabla : document.getElementById('mbPageTabla'),
     perfil: document.getElementById('mbPagePerfil'),
   };
-  const btns = { inicio: document.getElementById('bnI'), prode: document.getElementById('bnP'), tabla: document.getElementById('bnT'), perfil: document.getElementById('bnPf') };
-  const ACTIVE_STYLE   = 'background:rgba(201,168,76,.18);color:#c9a84c';
-  const INACTIVE_STYLE = 'background:transparent;color:#586070';
+  const B = {
+    inicio: document.getElementById('bnI'),
+    prode : document.getElementById('bnP'),
+    tabla : document.getElementById('bnT'),
+    perfil: document.getElementById('bnPf'),
+  };
 
-  // ── Ocultar todas las vistas excepto inicio ──
-  Object.entries(views).forEach(([k, el]) => {
-    if (!el) return;
-    el.style.display = k === 'inicio' ? 'block' : 'none';
-  });
+  let currentTab = '';
 
-  // ── Función de cambio de tab ──
+  /* ── Cambio de tab ── */
   window.mbTab = function(tab) {
-    // Mostrar vista correcta
-    Object.entries(views).forEach(([k, el]) => {
-      if (!el) return;
-      el.style.display = k === tab ? 'block' : 'none';
+    if (tab === currentTab) return;
+    currentTab = tab;
+
+    // Mostrar/ocultar vistas
+    Object.keys(V).forEach(k => {
+      const el = V[k];
+      if (el) el.style.display = k === tab ? 'block' : 'none';
     });
-    // Save bar: visible solo en prode tab
-    const sb = document.querySelector('.save-bar');
-    if (sb) sb.style.display = tab === 'prode' ? '' : 'none';
-    // Actualizar botones
-    Object.entries(btns).forEach(([k, btn]) => {
+
+    // Save bar solo en Prode
+    if (saveBar) saveBar.style.display = tab === 'prode' ? '' : 'none';
+
+    // Botones: active / inactive
+    Object.keys(B).forEach(k => {
+      const btn = B[k];
       if (!btn) return;
-      btn.style.cssText = btn.style.cssText.replace(/background:[^;]+;color:[^;]+/, k === tab ? ACTIVE_STYLE : INACTIVE_STYLE);
+      if (k === tab) {
+        btn.style.background = 'rgba(201,168,76,.18)';
+        btn.style.color      = '#c9a84c';
+      } else {
+        btn.style.background = 'transparent';
+        btn.style.color      = '#586070';
+      }
     });
   };
 
-  // ── Botón "Ver todos" → tabla ──
-  document.getElementById('mbVerTabla')?.addEventListener('click', e => { e.preventDefault(); window.mbTab('tabla'); });
-
-  // ── Group card → abre dropdown ──
-  document.getElementById('mbGroupCard')?.addEventListener('click', () => document.getElementById('groupsBtn')?.click());
-
-  // ── Perfil logout ──
-  document.getElementById('mbLogoutBtn')?.addEventListener('click', () => document.getElementById('btnLogout')?.click());
-
-  // ── Share ──
-  document.getElementById('mbShareBtn')?.addEventListener('click', () =>
-    navigator.share?.({ title:'Prode Mundial 2026', text:'Jugá el prode del mundial!', url:'https://prodemundial26.online' })
-  );
-
-  // ── Admin link perfil ──
-  document.getElementById('mbAdminBtn')?.addEventListener('click', () => { window.location.href = 'admin.html'; });
-
-  // Inicio activo por defecto
+  /* ── Iniciar en tab Inicio ── */
   window.mbTab('inicio');
+
+  /* ── Eventos de navegación ── */
+  document.getElementById('mbVerTabla')
+    ?.addEventListener('click', e => { e.preventDefault(); window.mbTab('tabla'); });
+
+  /* Group card: mostrar/ocultar el dropdown del desktop en mobile */
+  document.getElementById('mbGroupCard')?.addEventListener('click', () => {
+    if (deskDrop) {
+      deskDrop.style.display = deskDrop.style.display === 'none' ? 'flex' : 'none';
+    }
+  });
+
+  document.getElementById('mbLogoutBtn')
+    ?.addEventListener('click', () => document.getElementById('btnLogout')?.click());
+
+  document.getElementById('mbShareBtn')?.addEventListener('click', () => {
+    if (navigator.share) {
+      navigator.share({ title:'Prode Mundial 2026', text:'Jugá el prode del mundial!', url:'https://prodemundial26.online' });
+    }
+  });
+
+  document.getElementById('mbAdminBtn')
+    ?.addEventListener('click', () => { window.location.href = 'admin.html'; });
 
 
   /* ════ POPULATE MOBILE VIEWS ════ */
