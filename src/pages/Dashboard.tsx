@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   collection, doc, getDoc, getDocs, query,
-  setDoc, updateDoc, where, arrayUnion, serverTimestamp,
+  setDoc, updateDoc, where, arrayUnion, arrayRemove, serverTimestamp,
 } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 import { auth, db } from '../firebase';
@@ -312,6 +312,31 @@ export default function Dashboard() {
     loadLeaderboard(g);
   }
 
+  async function leaveGroup(g: Group) {
+    if (!currentUser) return;
+    if (!window.confirm(`¿Seguro que querés salir de "${g.name}"?`)) return;
+    setMenuOpen(false);
+    try {
+      const groupRef = doc(db, 'groups', g.code);
+      const groupSnap = await getDoc(groupRef);
+      if (!groupSnap.exists()) return;
+      const currentMembers: any[] = groupSnap.data().members || [];
+      const newMembers = currentMembers.filter((m: any) => m.uid !== currentUser.uid);
+      await updateDoc(groupRef, {
+        memberUids: arrayRemove(currentUser.uid),
+        members: newMembers,
+      });
+      const newGroups = allGroups.filter(x => x.code !== g.code);
+      setAllGroups(newGroups);
+      if (newGroups.length === 0) { navigate('/onboarding', { replace: true }); return; }
+      setActiveGroup(newGroups[0]);
+      loadLeaderboard(newGroups[0]);
+      showToast(`Saliste de "${g.name}"`, '');
+    } catch {
+      showToast('Error al salir del grupo. Intentá de nuevo.', 'error');
+    }
+  }
+
   // ── Data for renders ──
   const phases = buildPhases();
   const activePhase = phases.find(p => p.id === activePhaseId);
@@ -367,13 +392,20 @@ export default function Dashboard() {
         {menuOpen && (
           <div className="mob-groups-menu" onClick={e => e.stopPropagation()}>
             {allGroups.map(g => (
-              <div key={g.code} className={`mgm-item${activeGroup?.code === g.code ? ' active' : ''}`} onClick={() => selectGroup(g)}>
-                <div className="mgm-dot" />
-                <div className="mgm-info">
-                  <div className="mgm-name">{g.name}</div>
-                  <div className="mgm-meta">{g.code} · {g.memberUids?.length || 1} jugadores</div>
+              <div key={g.code} className={`mgm-item${activeGroup?.code === g.code ? ' active' : ''}`}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1, minWidth: 0 }} onClick={() => selectGroup(g)}>
+                  <div className="mgm-dot" />
+                  <div className="mgm-info">
+                    <div className="mgm-name">{g.name}</div>
+                    <div className="mgm-meta">{g.code} · {g.memberUids?.length || 1} jugadores</div>
+                  </div>
+                  {activeGroup?.code === g.code && <span style={{ color: 'var(--gold)', fontSize: '.8rem', flexShrink: 0 }}>✓</span>}
                 </div>
-                {activeGroup?.code === g.code && <span style={{ color: 'var(--gold)', fontSize: '.8rem' }}>✓</span>}
+                <button
+                  className="mgm-leave-btn"
+                  onClick={e => { e.stopPropagation(); leaveGroup(g); }}
+                  title={`Salir de "${g.name}"`}
+                >✕</button>
               </div>
             ))}
             <div className="mgm-divider" />
@@ -673,13 +705,20 @@ export default function Dashboard() {
             {menuOpen && (
               <div className="groups-menu open" onClick={e => e.stopPropagation()}>
                 {allGroups.map(g => (
-                  <div key={g.code} className={`gm-item${activeGroup?.code === g.code ? ' active' : ''}`} onClick={() => selectGroup(g)}>
-                    <div className="gm-icon">⚽</div>
-                    <div className="gm-info">
-                      <div className="gm-name">{g.name}</div>
-                      <div className="gm-meta">{g.code} · 👥 {g.memberUids?.length || 1}</div>
+                  <div key={g.code} className={`gm-item${activeGroup?.code === g.code ? ' active' : ''}`}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem', flex: 1, minWidth: 0 }} onClick={() => selectGroup(g)}>
+                      <div className="gm-icon">⚽</div>
+                      <div className="gm-info">
+                        <div className="gm-name">{g.name}</div>
+                        <div className="gm-meta">{g.code} · 👥 {g.memberUids?.length || 1}</div>
+                      </div>
+                      {activeGroup?.code === g.code && <span className="gm-check">✓</span>}
                     </div>
-                    {activeGroup?.code === g.code && <span className="gm-check">✓</span>}
+                    <button
+                      className="gm-leave-btn"
+                      onClick={e => { e.stopPropagation(); leaveGroup(g); }}
+                      title={`Salir de "${g.name}"`}
+                    >✕</button>
                   </div>
                 ))}
                 <div className="gm-divider" />

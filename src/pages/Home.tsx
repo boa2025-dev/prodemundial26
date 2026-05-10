@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 import './Home.css';
 
 const MUNDIAL_DATE = new Date('2026-06-11T19:00:00Z').getTime();
@@ -32,6 +33,8 @@ const TEAMS = [
 ];
 
 export default function Home() {
+  const { currentUser, loading } = useAuth();
+  const navigate = useNavigate();
   const [cd, setCd] = useState(calcCountdown());
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -41,6 +44,11 @@ export default function Home() {
   const heroRef = useRef<HTMLElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
   const ctaStarsRef = useRef<HTMLDivElement>(null);
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (!loading && currentUser) navigate('/dashboard', { replace: true });
+  }, [loading, currentUser, navigate]);
 
   // Countdown
   useEffect(() => {

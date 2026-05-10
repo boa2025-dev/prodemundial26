@@ -45,6 +45,36 @@ nav { background: rgba(8,9,15,.95); backdrop-filter: blur(20px); border-bottom: 
 .gm-action.create .gm-action-icon { background: rgba(201,168,76,.12); border: 1px solid var(--border); }
 .gm-action.join .gm-action-icon { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08); }
 
+/* Leave group buttons in dropdowns */
+.gm-leave-btn {
+  background: none;
+  border: none;
+  color: rgba(230,57,70,.5);
+  font-size: .8rem;
+  cursor: pointer;
+  padding: .3rem .4rem;
+  border-radius: 6px;
+  flex-shrink: 0;
+  transition: color .15s, background .15s;
+  line-height: 1;
+}
+.gm-leave-btn:hover { color: #ff6b75; background: rgba(230,57,70,.1); }
+
+.mgm-leave-btn {
+  background: none;
+  border: none;
+  color: rgba(230,57,70,.45);
+  font-size: .75rem;
+  cursor: pointer;
+  padding: .35rem .45rem;
+  border-radius: 6px;
+  flex-shrink: 0;
+  transition: color .15s, background .15s;
+  -webkit-tap-highlight-color: transparent;
+  line-height: 1;
+}
+.mgm-leave-btn:active { color: #ff6b75; background: rgba(230,57,70,.12); }
+
 /* PAGE */
 .page { width: 90%; max-width: 1200px; margin: 0 auto; padding: 2.5rem 0; }
 

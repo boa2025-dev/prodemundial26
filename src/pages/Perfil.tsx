@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
+import { arrayRemove, collection, doc, getDoc, getDocs, query, updateDoc, where } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 import { auth, db } from '../firebase';
 import { useAuth } from '../hooks/useAuth';
@@ -15,6 +15,8 @@ export default function Perfil() {
   const [groups, setGroups] = useState<any[]>([]);
   const [stats, setStats] = useState({ pts: 0, exactos: 0, resultados: 0 });
   const [loading, setLoading] = useState(true);
+  const [showGroups, setShowGroups] = useState(false);
+  const [leavingCode, setLeavingCode] = useState<string | null>(null);
 
   useEffect(() => {
     if (!currentUser) { navigate('/login', { replace: true }); return; }
@@ -45,6 +47,30 @@ export default function Perfil() {
       setGroups(groupSnap.docs.map(d => d.data()));
     } catch { /* ignore */ }
     finally { setLoading(false); }
+  }
+
+  async function leaveGroup(group: any) {
+    if (!currentUser) return;
+    if (!window.confirm(`¿Seguro que querés salir de "${group.name}"?`)) return;
+    setLeavingCode(group.code);
+    try {
+      const groupRef = doc(db, 'groups', group.code);
+      const groupSnap = await getDoc(groupRef);
+      if (!groupSnap.exists()) return;
+      const currentMembers: any[] = groupSnap.data().members || [];
+      const newMembers = currentMembers.filter((m: any) => m.uid !== currentUser.uid);
+      await updateDoc(groupRef, {
+        memberUids: arrayRemove(currentUser.uid),
+        members: newMembers,
+      });
+      const newGroups = groups.filter(g => g.code !== group.code);
+      setGroups(newGroups);
+      if (newGroups.length === 0) navigate('/onboarding', { replace: true });
+    } catch {
+      alert('Error al salir del grupo. Intentá de nuevo.');
+    } finally {
+      setLeavingCode(null);
+    }
   }
 
   const name = currentUser?.displayName || currentUser?.email || '';
@@ -104,11 +130,36 @@ export default function Perfil() {
 
       {/* Settings */}
       <div className="perfil-menu">
-        <div className="perfil-menu-item" onClick={() => navigate('/dashboard')}>
+        <div className="perfil-menu-item" onClick={() => setShowGroups(v => !v)}>
           <span className="pmi-icon">🔗</span>
           <span className="pmi-label">Mis grupos</span>
-          <span className="pmi-right">{groups.length} <span className="pmi-chevron">›</span></span>
+          <span className="pmi-right">{groups.length} <span className="pmi-chevron">{showGroups ? '↓' : '›'}</span></span>
         </div>
+
+        {/* Inline groups list */}
+        {showGroups && (
+          <div className="perfil-groups-list">
+            {groups.length === 0 && (
+              <div className="pgl-empty">No estás en ningún grupo todavía.</div>
+            )}
+            {groups.map(g => (
+              <div key={g.code} className="pgl-item">
+                <div className="pgl-avatar">{g.name.charAt(0).toUpperCase()}</div>
+                <div className="pgl-info">
+                  <div className="pgl-name">{g.name}</div>
+                  <div className="pgl-meta">{g.code} · {g.memberUids?.length || 1} jugadores</div>
+                </div>
+                <button
+                  className="pgl-leave"
+                  onClick={e => { e.stopPropagation(); leaveGroup(g); }}
+                  disabled={leavingCode === g.code}
+                >
+                  {leavingCode === g.code ? '...' : 'Salir'}
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
         <div className="perfil-menu-item" onClick={() => navigator.share?.({ title: 'Prode Mundial 2026', url: 'https://prodemundial26.online' }).catch(() => {})}>
           <span className="pmi-icon">↗</span>
           <span className="pmi-label">Compartir Prode</span>
