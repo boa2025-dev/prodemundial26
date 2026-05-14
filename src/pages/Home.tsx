@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import HeroScene from '../components/HeroScene';
 import './Home.css';
 
 const MUNDIAL_DATE = new Date('2026-06-11T19:00:00Z').getTime();
@@ -40,10 +41,17 @@ export default function Home() {
   const [scrolled, setScrolled] = useState(false);
   const [statsStarted, setStatsStarted] = useState(false);
   const [counts, setCounts] = useState({ a: 0, b: 0, c: 0, d: 0 });
+  const [isDesktop, setIsDesktop] = useState(() => typeof window !== 'undefined' && window.innerWidth > 768);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const heroRef = useRef<HTMLElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
   const ctaStarsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const check = () => setIsDesktop(window.innerWidth > 768);
+    window.addEventListener('resize', check, { passive: true });
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   // Redirect if already logged in
   useEffect(() => {
@@ -111,8 +119,9 @@ export default function Home() {
     return () => observer.disconnect();
   }, [statsStarted]);
 
-  // Canvas particles
+  // Canvas particles (mobile only — desktop uses Three.js HeroScene)
   useEffect(() => {
+    if (isDesktop) return; // Three.js handles desktop
     const canvas = canvasRef.current;
     const hero = heroRef.current;
     if (!canvas || !hero) return;
@@ -215,40 +224,40 @@ export default function Home() {
         {/* HERO */}
         <section id="hero" ref={heroRef}>
           <div id="heroBg" />
-          <canvas ref={canvasRef} id="heroCanvas" />
 
-          {/* 3D Ball */}
-          <div className="ball-wrap" aria-hidden="true">
-            <div className="ball-3d">
-              <svg className="ball-svg" viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                  <radialGradient id="bg" cx="40%" cy="35%" r="65%">
-                    <stop offset="0%" stopColor="#ffffff" /><stop offset="100%" stopColor="#cccccc" />
-                  </radialGradient>
-                  <radialGradient id="shadow" cx="50%" cy="50%" r="50%">
-                    <stop offset="60%" stopColor="transparent" /><stop offset="100%" stopColor="rgba(0,0,0,0.25)" />
-                  </radialGradient>
-                </defs>
-                <circle cx="80" cy="80" r="76" fill="url(#bg)" stroke="#aaa" strokeWidth=".5" />
-                <circle cx="80" cy="80" r="76" fill="url(#shadow)" />
-                <polygon points="80,10 95,22 90,40 70,40 65,22" fill="#222" opacity="0.9" />
-                <polygon points="16,55 33,48 46,60 40,77 22,76" fill="#222" opacity="0.9" />
-                <polygon points="144,55 127,48 114,60 120,77 138,76" fill="#222" opacity="0.9" />
-                <polygon points="28,118 42,106 58,112 56,130 38,135" fill="#222" opacity="0.9" />
-                <polygon points="132,118 118,106 102,112 104,130 122,135" fill="#222" opacity="0.9" />
-                <polygon points="80,148 66,136 70,118 90,118 94,136" fill="#222" opacity="0.9" />
-                <polygon points="80,52 97,65 91,84 69,84 63,65" fill="#111" opacity="0.95" />
-                <line x1="80" y1="40" x2="80" y2="52" stroke="#444" strokeWidth="1.2" />
-                <line x1="46" y1="60" x2="63" y2="65" stroke="#444" strokeWidth="1.2" />
-                <line x1="114" y1="60" x2="97" y2="65" stroke="#444" strokeWidth="1.2" />
-                <line x1="40" y1="77" x2="69" y2="84" stroke="#444" strokeWidth="1.2" />
-                <line x1="120" y1="77" x2="91" y2="84" stroke="#444" strokeWidth="1.2" />
-                <line x1="58" y1="112" x2="70" y2="118" stroke="#444" strokeWidth="1.2" />
-                <line x1="102" y1="112" x2="90" y2="118" stroke="#444" strokeWidth="1.2" />
-                <ellipse cx="62" cy="48" rx="10" ry="7" fill="rgba(255,255,255,0.55)" transform="rotate(-25,62,48)" />
-              </svg>
+          {/* Three.js 3D scene — desktop only */}
+          {isDesktop && <HeroScene />}
+
+          {/* Canvas particles — desktop only (Three.js handles it) */}
+          {!isDesktop && <canvas ref={canvasRef} id="heroCanvas" />}
+
+          {/* SVG ball — mobile only fallback */}
+          {!isDesktop && (
+            <div className="ball-wrap" aria-hidden="true">
+              <div className="ball-3d">
+                <svg className="ball-svg" viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <radialGradient id="bg" cx="40%" cy="35%" r="65%">
+                      <stop offset="0%" stopColor="#ffffff" /><stop offset="100%" stopColor="#cccccc" />
+                    </radialGradient>
+                    <radialGradient id="shadow" cx="50%" cy="50%" r="50%">
+                      <stop offset="60%" stopColor="transparent" /><stop offset="100%" stopColor="rgba(0,0,0,0.25)" />
+                    </radialGradient>
+                  </defs>
+                  <circle cx="80" cy="80" r="76" fill="url(#bg)" stroke="#aaa" strokeWidth=".5" />
+                  <circle cx="80" cy="80" r="76" fill="url(#shadow)" />
+                  <polygon points="80,10 95,22 90,40 70,40 65,22" fill="#222" opacity="0.9" />
+                  <polygon points="16,55 33,48 46,60 40,77 22,76" fill="#222" opacity="0.9" />
+                  <polygon points="144,55 127,48 114,60 120,77 138,76" fill="#222" opacity="0.9" />
+                  <polygon points="28,118 42,106 58,112 56,130 38,135" fill="#222" opacity="0.9" />
+                  <polygon points="132,118 118,106 102,112 104,130 122,135" fill="#222" opacity="0.9" />
+                  <polygon points="80,148 66,136 70,118 90,118 94,136" fill="#222" opacity="0.9" />
+                  <polygon points="80,52 97,65 91,84 69,84 63,65" fill="#111" opacity="0.95" />
+                  <ellipse cx="62" cy="48" rx="10" ry="7" fill="rgba(255,255,255,0.55)" transform="rotate(-25,62,48)" />
+                </svg>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Floating cards */}
           <div className="float-card c1">
@@ -367,7 +376,23 @@ export default function Home() {
                 { icon: '🔐', title: 'Login seguro', desc: 'Ingresá con tu cuenta de Google en un clic o registrate con email y contraseña.' },
                 { icon: '📱', title: '100% responsive', desc: 'Diseñado para funcionar perfecto en celular, tablet y escritorio. Cualquier dispositivo.' },
               ].map(({ icon, title, desc }, i) => (
-                <div key={title} className="feature-card reveal fade-up" style={{ '--delay': `${i * 80}ms` } as any}>
+                <div
+                  key={title}
+                  className="feature-card reveal fade-up"
+                  style={{ '--delay': `${i * 80}ms` } as any}
+                  onMouseMove={e => {
+                    const card = e.currentTarget;
+                    const rect = card.getBoundingClientRect();
+                    const x = (e.clientX - rect.left) / rect.width - 0.5;
+                    const y = (e.clientY - rect.top) / rect.height - 0.5;
+                    card.style.transform = `perspective(700px) rotateX(${-y * 10}deg) rotateY(${x * 10}deg) translateZ(6px)`;
+                    card.style.transition = 'transform 0.05s ease';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.transform = '';
+                    e.currentTarget.style.transition = 'transform 0.4s ease, border-color 0.3s, box-shadow 0.3s';
+                  }}
+                >
                   <div className="feature-icon">{icon}</div>
                   <h3>{title}</h3>
                   <p>{desc}</p>
