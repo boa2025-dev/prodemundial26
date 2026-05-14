@@ -507,25 +507,9 @@ section { padding: 8rem 0; }
       linear-gradient(180deg, var(--bg) 0%, #050608 100%);
   }
 
-  /* Hero content sits above Three.js scene */
+  /* ── Hero content sits above Three.js scene ── */
   .hero-content { position: relative; z-index: 5; }
-  .float-card { z-index: 5; }
-
-  /* ── Subtle scanlines overlay on hero ── */
-  #hero::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(0, 0, 0, 0.03) 2px,
-      rgba(0, 0, 0, 0.03) 4px
-    );
-    pointer-events: none;
-    z-index: 3;
-  }
+  .float-card   { z-index: 5; }
 
   /* ── Features section: dot-grid background ── */
   #features {
@@ -537,7 +521,7 @@ section { padding: 8rem 0; }
     content: '';
     position: absolute;
     inset: 0;
-    background-image: radial-gradient(circle, rgba(201, 168, 76, 0.12) 1px, transparent 1px);
+    background-image: radial-gradient(circle, rgba(201, 168, 76, 0.1) 1px, transparent 1px);
     background-size: 32px 32px;
     pointer-events: none;
     mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
@@ -550,147 +534,62 @@ section { padding: 8rem 0; }
     overflow: hidden;
   }
 
-  #how-it-works::before {
+  #how-it-works::after {
     content: '';
     position: absolute;
     bottom: 0;
     left: -20%;
     right: -20%;
-    height: 300px;
+    height: 260px;
     background:
-      linear-gradient(rgba(201, 168, 76, 0.08) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(201, 168, 76, 0.08) 1px, transparent 1px);
+      linear-gradient(rgba(201, 168, 76, 0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(201, 168, 76, 0.07) 1px, transparent 1px);
     background-size: 50px 50px;
     transform: perspective(400px) rotateX(70deg);
     transform-origin: bottom center;
     pointer-events: none;
-    mask-image: linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 70%);
-    -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 70%);
+    mask-image: linear-gradient(to top, rgba(0,0,0,0.4) 0%, transparent 70%);
+    -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,0.4) 0%, transparent 70%);
   }
 
-  /* ── Feature cards: enhanced 3D for tilt effect ── */
+  /* ── Feature cards: only will-change (no preserve-3d — avoids distortion) ── */
   .feature-card {
-    transform-style: preserve-3d;
     will-change: transform;
   }
 
-  .feature-card::before {
-    transition: opacity 0.3s;
-  }
-
-  /* Shine effect on tilt */
-  .feature-card::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      105deg,
-      transparent 40%,
-      rgba(201, 168, 76, 0.08) 50%,
-      transparent 60%
-    );
-    border-radius: 20px;
-    opacity: 0;
-    transition: opacity 0.3s;
-    pointer-events: none;
-  }
-
-  .feature-card:hover::after { opacity: 1; }
-
-  /* ── Hero title: gold gradient text effect ── */
+  /* ── Hero title: glow on year ── */
   .hero-title .year {
     text-shadow:
-      0 0 40px rgba(201, 168, 76, 0.4),
-      0 0 80px rgba(201, 168, 76, 0.2);
+      0 0 40px rgba(201, 168, 76, 0.35),
+      0 0 80px rgba(201, 168, 76, 0.15);
   }
 
   /* ── Hero eyebrow: blinking cursor ── */
   .hero-eyebrow::after {
     content: '_';
-    animation: blink 1s step-end infinite;
+    animation: cursorBlink 1s step-end infinite;
     opacity: 0.7;
   }
 
-  @keyframes blink {
+  @keyframes cursorBlink {
     0%, 100% { opacity: 0.7; }
     50%       { opacity: 0; }
   }
 
-  /* ── Leaderboard section: dark grid ── */
-  #leaderboard {
-    position: relative;
-  }
+  /* ── Leaderboard section: subtle grid ── */
+  #leaderboard { position: relative; }
 
-  #leaderboard::before {
+  #leaderboard::after {
     content: '';
     position: absolute;
     inset: 0;
     background:
-      linear-gradient(rgba(201, 168, 76, 0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(201, 168, 76, 0.04) 1px, transparent 1px);
+      linear-gradient(rgba(201, 168, 76, 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(201, 168, 76, 0.035) 1px, transparent 1px);
     background-size: 60px 60px;
     pointer-events: none;
     mask-image: radial-gradient(ellipse 70% 70% at 20% 50%, black 20%, transparent 100%);
     -webkit-mask-image: radial-gradient(ellipse 70% 70% at 20% 50%, black 20%, transparent 100%);
-  }
-
-  /* ── CTA section: enhanced glow ring ── */
-  #cta::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 500px;
-    height: 500px;
-    border-radius: 50%;
-    border: 1px solid rgba(201, 168, 76, 0.12);
-    animation: ctaRingPulse 4s ease-in-out infinite;
-    pointer-events: none;
-  }
-
-  @keyframes ctaRingPulse {
-    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
-    50%       { transform: translate(-50%, -50%) scale(1.08); opacity: 1; }
-  }
-
-  /* ── Leaderboard table: terminal style ── */
-  .lb-table {
-    position: relative;
-    overflow: hidden;
-  }
-
-  .lb-table::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--gold), transparent);
-    animation: scanLine 3s linear infinite;
-  }
-
-  @keyframes scanLine {
-    from { top: 0; opacity: 1; }
-    to   { top: 100%; opacity: 0; }
-  }
-
-  /* ── Section reveal: enhanced 3D entrance ── */
-  .reveal.fade-up {
-    transform: translateY(40px) translateZ(-20px);
-  }
-
-  .reveal.fade-left {
-    transform: translateX(-50px) translateZ(-20px);
-  }
-
-  .reveal.fade-right {
-    transform: translateX(50px) translateZ(-20px);
-  }
-
-  .reveal.visible {
-    transform: translateY(0) translateX(0) translateZ(0) !important;
   }
 
   /* ── Floating cards: glassmorphism boost ── */
@@ -701,6 +600,6 @@ section { padding: 8rem 0; }
     -webkit-backdrop-filter: blur(20px) saturate(150%);
     box-shadow:
       0 8px 32px rgba(0, 0, 0, 0.5),
-      0 0 0 1px rgba(201, 168, 76, 0.08) inset;
+      0 0 0 1px rgba(201, 168, 76, 0.06) inset;
   }
 }
