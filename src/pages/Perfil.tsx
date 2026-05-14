@@ -149,6 +149,14 @@ export default function Perfil() {
                   <div className="pgl-name">{g.name}</div>
                   <div className="pgl-meta">{g.code} · {g.memberUids?.length || 1} jugadores</div>
                 </div>
+                <a
+                  href={`https://wa.me/?text=${encodeURIComponent(`¡Sumate a mi prode del Mundial 2026! 🏆\n\nEstoy en el grupo *${g.name}* y necesitamos más participantes.\n\nEntrá por acá: https://prodemundial26.online/join?code=${g.code}\n\n¡Es gratis y sin instalar nada! ⚽`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="pgl-share"
+                  onClick={e => e.stopPropagation()}
+                  title="Compartir por WhatsApp"
+                >🔗</a>
                 <button
                   className="pgl-leave"
                   onClick={e => { e.stopPropagation(); leaveGroup(g); }}

@@ -8,6 +8,7 @@ import Dashboard from './pages/Dashboard';
 import Predictions from './pages/Predictions';
 import Admin from './pages/Admin';
 import Perfil from './pages/Perfil';
+import Join from './pages/Join';
 import Acerca from './pages/Acerca';
 import Contacto from './pages/Contacto';
 import Privacidad from './pages/Privacidad';
@@ -23,6 +24,7 @@ export default function App() {
       <Route path="/contacto" element={<Contacto />} />
       <Route path="/privacidad" element={<Privacidad />} />
       <Route path="/aviso-legal" element={<AvisoLegal />} />
+      <Route path="/join" element={<Join />} />
       <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/predictions" element={<ProtectedRoute><Predictions /></ProtectedRoute>} />

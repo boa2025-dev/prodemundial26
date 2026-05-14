@@ -40,6 +40,15 @@ export default function Onboarding() {
         const snap = await getDocs(q);
         if (!snap.empty) { navigate('/dashboard', { replace: true }); return; }
       } catch { /* show onboarding normally */ }
+
+      // Check for pending invite from a share link
+      const pendingInvite = localStorage.getItem('pendingInvite');
+      if (pendingInvite) {
+        localStorage.removeItem('pendingInvite');
+        setJoinCode(pendingInvite);
+        setMode('join');
+      }
+
       setCheckingGroups(false);
     }
     check();

@@ -261,3 +261,19 @@
 
 .pgl-leave:hover { background: rgba(230, 57, 70, 0.18); }
 .pgl-leave:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.pgl-share {
+  background: rgba(37, 211, 102, 0.1);
+  border: 1px solid rgba(37, 211, 102, 0.25);
+  color: #25D366;
+  font-size: 14px;
+  padding: 5px 10px;
+  border-radius: 50px;
+  cursor: pointer;
+  flex-shrink: 0;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  transition: background 0.15s;
+}
+.pgl-share:hover { background: rgba(37, 211, 102, 0.18); }
