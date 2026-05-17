@@ -49,7 +49,7 @@ export default function Admin() {
         getDoc(doc(db, 'results', 'matches')),
         getDoc(doc(db, 'knockout', 'bracket')),
         getDoc(doc(db, 'knockout', 'phases')),
-        getDoc(doc(db, 'settings', 'matchLocks')),
+        getDoc(doc(db, 'results', 'matchLocks')),
       ]);
       const results = resSnap.exists() ? (resSnap.data().scores || {}) : {};
       const knockout = koSnap.exists() ? koSnap.data() : {};
@@ -177,7 +177,7 @@ export default function Admin() {
     const updated = { ...matchLocks, [matchId]: locked };
     setMatchLocks(updated);
     try {
-      await setDoc(doc(db, 'settings', 'matchLocks'), updated);
+      await setDoc(doc(db, 'results', 'matchLocks'), updated);
       showToast(locked ? `🔒 Partido bloqueado` : `🔓 Partido desbloqueado`, 'success');
     } catch {
       setMatchLocks(matchLocks); // revert on error

@@ -120,7 +120,7 @@ export default function Dashboard() {
 
   async function loadMatchLocks() {
     try {
-      const snap = await getDoc(doc(db, 'settings', 'matchLocks'));
+      const snap = await getDoc(doc(db, 'results', 'matchLocks'));
       setManualLocks(snap.exists() ? snap.data() : {});
     } catch { setManualLocks({}); }
   }
