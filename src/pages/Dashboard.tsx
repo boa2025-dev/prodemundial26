@@ -74,7 +74,7 @@ export default function Dashboard() {
   const [sheetMatch, setSheetMatch] = useState<Match | null>(null);
   const [shareGroup, setShareGroup] = useState<Group | null>(null);
   const [linkCopied, setLinkCopied] = useState(false);
-  const [mobileGroupFilter, setMobileGroupFilter] = useState('A');
+  const [showOnlyPending, setShowOnlyPending] = useState(false);
   const autoSaveRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const saveLoading = useRef(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -548,17 +548,35 @@ export default function Dashboard() {
   const MobileProde = () => {
     const mPhases = buildPhases().filter(p => !p.locked || p.id === 'grupos');
     const mPhase = mPhases.find(p => p.id === activePhaseId) || mPhases[0];
-    const groupIds = GRUPOS_DEF.map(g => g.id);
-    const currentGroupMatches = mPhase?.id === 'grupos'
-      ? mPhase.matches.filter(m => m.grupo === mobileGroupFilter)
-      : mPhase?.matches || [];
 
-    // Group by jornada for grupo phase
-    const byJornada: Record<number, Match[]> = {};
+    // All matches for current phase, sorted by date (already sorted for grupos)
+    const allMatches = mPhase?.matches || [];
+
+    // Pending = no prediction set
+    const pendingCount = mPhase?.id === 'grupos'
+      ? MATCHES.filter(m => {
+          const h = getPredInput(m.id, 'home');
+          const a = getPredInput(m.id, 'away');
+          return h === '' || a === '';
+        }).length
+      : 0;
+
+    // Apply pending filter
+    const visibleMatches = showOnlyPending && mPhase?.id === 'grupos'
+      ? allMatches.filter(m => {
+          const h = getPredInput(m.id, 'home');
+          const a = getPredInput(m.id, 'away');
+          return h === '' || a === '';
+        })
+      : allMatches;
+
+    // Group by date for grupos phase
+    const byDate: Record<string, Match[]> = {};
     if (mPhase?.id === 'grupos') {
-      currentGroupMatches.forEach(m => {
-        if (!byJornada[m.jornada]) byJornada[m.jornada] = [];
-        byJornada[m.jornada].push(m);
+      visibleMatches.forEach(m => {
+        const key = m.kickoff.toLocaleDateString('en-CA', { timeZone: TZ });
+        if (!byDate[key]) byDate[key] = [];
+        byDate[key].push(m);
       });
     }
 
@@ -577,18 +595,23 @@ export default function Dashboard() {
           ))}
         </div>
 
-        {/* Group pills (only in grupos phase) */}
+        {/* Counter + toggle — only for grupos phase */}
         {mPhase?.id === 'grupos' && (
-          <div className="mob-group-pills">
-            {groupIds.map(id => (
+          <div className="mob-pred-header">
+            <div className="mob-pred-counter">
+              {pendingCount === 0
+                ? <><span className="mob-pred-counter-check">✓</span> Todas completadas</>
+                : <><strong className="mob-pred-counter-num">{pendingCount}</strong> de {MATCHES.length} partidos sin completar</>
+              }
+            </div>
+            <div className="mob-pred-toggle-row">
+              <span className="mob-pred-toggle-label">Solo pendientes</span>
               <button
-                key={id}
-                className={`mob-group-pill${mobileGroupFilter === id ? ' active' : ''}`}
-                onClick={() => setMobileGroupFilter(id)}
-              >
-                {id}
-              </button>
-            ))}
+                className={`mob-pred-switch${showOnlyPending ? ' on' : ''}`}
+                onClick={() => setShowOnlyPending(v => !v)}
+                aria-pressed={showOnlyPending}
+              />
+            </div>
           </div>
         )}
 
@@ -608,19 +631,23 @@ export default function Dashboard() {
             <div style={{ color: 'var(--muted)', fontSize: 13 }}>El admin todavía no habilitó esta fase.</div>
           </div>
         ) : mPhase?.id === 'grupos' ? (
-          Object.entries(byJornada).map(([jornada, matches]) => (
-            <div key={jornada} className="mob-matchday">
-              <div className="mob-matchday-label">
-                Jornada {jornada} · {formatDateTime(matches[0].kickoff)}
+          Object.keys(byDate).length === 0
+            ? <div className="mob-phase-locked" style={{ marginTop: 8 }}>
+                <div style={{ fontSize: '1.5rem', marginBottom: 8 }}>✅</div>
+                <div style={{ fontFamily: 'var(--fh)', fontWeight: 700 }}>¡Todo al día!</div>
+                <div style={{ color: 'var(--muted)', fontSize: 13, marginTop: 4 }}>No quedan partidos pendientes.</div>
               </div>
-              {matches.map(m => <MobileMatchCard key={m.id} match={m} />)}
-            </div>
-          ))
+            : Object.entries(byDate).map(([, matches]) => (
+              <div key={matches[0].kickoff.toISOString()} className="mob-matchday">
+                <div className="mob-matchday-label">{formatDateFull(matches[0].kickoff)}</div>
+                {matches.map(m => <MobileMatchCard key={m.id} match={m} />)}
+              </div>
+            ))
         ) : (
           <div className="mob-matchday">
-            {mPhase?.matches.length === 0
+            {allMatches.length === 0
               ? <div className="mob-phase-locked" style={{ marginTop: 16 }}>⏳ Equipos sin definir todavía</div>
-              : (mPhase?.matches || []).map(m => <MobileMatchCard key={m.id} match={m} />)}
+              : allMatches.map(m => <MobileMatchCard key={m.id} match={m} />)}
           </div>
         )}
 
@@ -824,12 +851,40 @@ export default function Dashboard() {
           <PhaseCounter phase={activePhase} savedPreds={savedPreds} predInputs={predInputs} getPredInput={getPredInput} />
         </div>
 
+        {/* Counter + toggle for grupos phase (desktop) */}
+        {activePhaseId === 'grupos' && (() => {
+          const pending = MATCHES.filter(m => {
+            const h = getPredInput(m.id, 'home');
+            const a = getPredInput(m.id, 'away');
+            return h === '' || a === '';
+          }).length;
+          return (
+            <div className="pred-info-bar">
+              <div className="pred-info-counter">
+                {pending === 0
+                  ? <><span style={{ color: 'var(--green)' }}>✓</span> Todas las predicciones completadas</>
+                  : <><strong style={{ color: 'var(--white)' }}>{pending}</strong> de {MATCHES.length} partidos sin completar</>
+                }
+              </div>
+              <div className="pred-info-toggle">
+                <span className="pred-toggle-label">Solo pendientes</span>
+                <button
+                  className={`pred-switch${showOnlyPending ? ' on' : ''}`}
+                  onClick={() => setShowOnlyPending(v => !v)}
+                  aria-pressed={showOnlyPending}
+                />
+              </div>
+            </div>
+          );
+        })()}
+
         <PredictionsContent
           phase={activePhase}
           savedPreds={savedPreds}
           predInputs={predInputs}
           onInput={handleScoreInput}
           getPredInput={getPredInput}
+          showOnlyPending={showOnlyPending}
         />
       </div>
 
@@ -991,12 +1046,13 @@ function PhaseCounter({ phase, savedPreds, predInputs, getPredInput }: {
   );
 }
 
-function PredictionsContent({ phase, savedPreds, predInputs, onInput, getPredInput }: {
+function PredictionsContent({ phase, savedPreds, predInputs, onInput, getPredInput, showOnlyPending }: {
   phase?: Phase;
   savedPreds: Record<string, any>;
   predInputs: Record<string, { home: string; away: string }>;
   onInput: (id: string, side: 'home' | 'away', v: string) => void;
   getPredInput: (id: string, side: 'home' | 'away') => string;
+  showOnlyPending?: boolean;
 }) {
   if (!phase) return null;
   if (phase.locked) return (
@@ -1014,12 +1070,28 @@ function PredictionsContent({ phase, savedPreds, predInputs, onInput, getPredInp
 
   const now = Date.now();
   if (phase.id === 'grupos') {
+    // Apply pending filter
+    const visibleMatches = showOnlyPending
+      ? phase.matches.filter(m => {
+          const h = getPredInput(m.id, 'home');
+          const a = getPredInput(m.id, 'away');
+          return h === '' || a === '';
+        })
+      : phase.matches;
+
     const byDate: Record<string, typeof phase.matches> = {};
-    phase.matches.forEach(m => {
+    visibleMatches.forEach(m => {
       const key = m.kickoff.toLocaleDateString('en-CA', { timeZone: TZ });
       if (!byDate[key]) byDate[key] = [];
       byDate[key].push(m);
     });
+
+    if (visibleMatches.length === 0) return (
+      <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--muted)', fontSize: '.88rem', background: 'rgba(255,255,255,.02)', border: '1px dashed rgba(255,255,255,.07)', borderRadius: 16 }}>
+        ✅ No quedan predicciones pendientes
+      </div>
+    );
+
     return (
       <div id="predsContent">
         {Object.values(byDate).map((matches, idx) => (
