@@ -136,12 +136,15 @@ export default function Dashboard() {
     if (!currentUser) return;
     try {
       const [predSnap, realSnap] = await Promise.all([
-        getDoc(doc(db, 'predictions', currentUser.uid + '_bonus')),
+        // Bonus lives inside the same doc as match predictions — guaranteed to work
+        getDoc(doc(db, 'predictions', GLOBAL_PRED_KEY(currentUser.uid))),
         getDoc(doc(db, 'results', 'bonusResults')),
       ]);
       if (predSnap.exists()) {
         const d = predSnap.data();
-        setBonusPreds({ p1: d.p1?.n || '', p2: d.p2?.n || '', p3: d.p3?.n || '' });
+        if (d.bonus) {
+          setBonusPreds({ p1: d.bonus.p1?.n || '', p2: d.bonus.p2?.n || '', p3: d.bonus.p3?.n || '' });
+        }
       }
       if (realSnap.exists()) setBonusRealResults(realSnap.data() as BonusResults);
     } catch { /* ignore */ }
@@ -153,12 +156,16 @@ export default function Dashboard() {
     try {
       const toObj = (name: string): TeamBonus | null =>
         ALL_TEAMS.find(t => t.n === name) || null;
-      await setDoc(doc(db, 'predictions', currentUser.uid + '_bonus'), {
-        p1: toObj(preds.p1), p2: toObj(preds.p2), p3: toObj(preds.p3),
-        updatedAt: serverTimestamp(),
-      });
+      // Merge bonus field into the existing predictions doc — same doc, same permissions
+      await setDoc(
+        doc(db, 'predictions', GLOBAL_PRED_KEY(currentUser.uid)),
+        { bonus: { p1: toObj(preds.p1), p2: toObj(preds.p2), p3: toObj(preds.p3) } },
+        { merge: true }
+      );
       showToast('✓ Podio guardado', 'success');
-    } catch { showToast('Error al guardar', 'error'); }
+    } catch (err: any) {
+      showToast('Error al guardar: ' + err.message, 'error');
+    }
     finally { setBonusSaving(false); }
   }
 
@@ -196,14 +203,12 @@ export default function Dashboard() {
 
       const allPreds = await Promise.all(
         members.map(async m => {
-          const [predSnap, bonusSnap] = await Promise.all([
-            getDoc(doc(db, 'predictions', GLOBAL_PRED_KEY(m.uid))).catch(() => null),
-            getDoc(doc(db, 'predictions', m.uid + '_bonus')).catch(() => null),
-          ]);
+          const predSnap = await getDoc(doc(db, 'predictions', GLOBAL_PRED_KEY(m.uid))).catch(() => null);
+          const data = predSnap?.exists() ? predSnap.data() : null;
           return {
             member: m,
-            preds: predSnap?.exists() ? (predSnap.data().matches || {}) : {},
-            bonus: bonusSnap?.exists() ? bonusSnap.data() : null,
+            preds: data?.matches || {},
+            bonus: data?.bonus || null,
           };
         })
       );
