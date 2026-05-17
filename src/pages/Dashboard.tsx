@@ -136,7 +136,7 @@ export default function Dashboard() {
     if (!currentUser) return;
     try {
       const [predSnap, realSnap] = await Promise.all([
-        getDoc(doc(db, 'bonuses', currentUser.uid)),
+        getDoc(doc(db, 'predictions', currentUser.uid + '_bonus')),
         getDoc(doc(db, 'results', 'bonusResults')),
       ]);
       if (predSnap.exists()) {
@@ -153,7 +153,7 @@ export default function Dashboard() {
     try {
       const toObj = (name: string): TeamBonus | null =>
         ALL_TEAMS.find(t => t.n === name) || null;
-      await setDoc(doc(db, 'bonuses', currentUser.uid), {
+      await setDoc(doc(db, 'predictions', currentUser.uid + '_bonus'), {
         p1: toObj(preds.p1), p2: toObj(preds.p2), p3: toObj(preds.p3),
         updatedAt: serverTimestamp(),
       });
@@ -198,7 +198,7 @@ export default function Dashboard() {
         members.map(async m => {
           const [predSnap, bonusSnap] = await Promise.all([
             getDoc(doc(db, 'predictions', GLOBAL_PRED_KEY(m.uid))).catch(() => null),
-            getDoc(doc(db, 'bonuses', m.uid)).catch(() => null),
+            getDoc(doc(db, 'predictions', m.uid + '_bonus')).catch(() => null),
           ]);
           return {
             member: m,
