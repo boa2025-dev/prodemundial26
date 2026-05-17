@@ -35,24 +35,42 @@ export default function Onboarding() {
   useEffect(() => {
     if (!currentUser) return;
     async function check() {
+      // Auto-join from invite link — happens before showing anything
+      const pendingInvite = localStorage.getItem('pendingInvite');
+      if (pendingInvite) {
+        localStorage.removeItem('pendingInvite');
+        await autoJoin(pendingInvite);
+        return;
+      }
+
       try {
         const q = query(collection(db, 'groups'), where('memberUids', 'array-contains', currentUser!.uid));
         const snap = await getDocs(q);
         if (!snap.empty) { navigate('/dashboard', { replace: true }); return; }
       } catch { /* show onboarding normally */ }
 
-      // Check for pending invite from a share link
-      const pendingInvite = localStorage.getItem('pendingInvite');
-      if (pendingInvite) {
-        localStorage.removeItem('pendingInvite');
-        setJoinCode(pendingInvite);
-        setMode('join');
-      }
-
       setCheckingGroups(false);
     }
     check();
   }, [currentUser, navigate]);
+
+  async function autoJoin(code: string) {
+    try {
+      const groupSnap = await getDoc(doc(db, 'groups', code));
+      if (groupSnap.exists()) {
+        const data = groupSnap.data();
+        if (!data.memberUids?.includes(currentUser!.uid)) {
+          await updateDoc(doc(db, 'groups', code), {
+            memberUids: arrayUnion(currentUser!.uid),
+            members: arrayUnion({ uid: currentUser!.uid, displayName: currentUser!.displayName || currentUser!.email }),
+          });
+        }
+        navigate('/dashboard', { replace: true });
+        return;
+      }
+    } catch { /* fall through to normal onboarding */ }
+    setCheckingGroups(false);
+  }
 
   function selectCreate() {
     const code = genCode();
