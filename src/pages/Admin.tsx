@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, setDoc, serverTimestamp } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 import { auth, db } from '../firebase';
 import { useAuth } from '../hooks/useAuth';
@@ -10,6 +10,22 @@ import { formatDate, formatDateTime } from '../lib/utils';
 import './Admin.css';
 
 const ADMIN_EMAIL = 'bautistaoteroalen2008@gmail.com';
+
+interface GroupPreview {
+  name: string;
+  code: string;
+  memberUids: string[];
+  members?: { uid: string; displayName: string }[];
+  createdAt?: { seconds: number };
+}
+
+interface ScoreEntry {
+  name: string;
+  uid: string;
+  pts: number;
+  exact: number;
+  outcome: number;
+}
 
 interface KoEntry {
   slot1?: Team | null;
@@ -23,7 +39,8 @@ interface KoEntry {
 export default function Admin() {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
-  const [phase, setPhase] = useState<'groups' | 'knockout'>('groups');
+  const [phase, setPhase] = useState<'groups' | 'knockout' | 'preview'>('groups');
+  const [allGroups, setAllGroups] = useState<GroupPreview[]>([]);
   const [activeGroup, setActiveGroup] = useState(GROUP_IDS[0]);
   const [savedResults, setSavedResults] = useState<Record<string, { home: number; away: number }>>({});
   const [savedKnockout, setSavedKnockout] = useState<Record<string, KoEntry>>({});
@@ -45,11 +62,12 @@ export default function Admin() {
 
   async function loadAll() {
     try {
-      const [resSnap, koSnap, phasesSnap, locksSnap] = await Promise.all([
+      const [resSnap, koSnap, phasesSnap, locksSnap, groupsSnap] = await Promise.all([
         getDoc(doc(db, 'results', 'matches')),
         getDoc(doc(db, 'knockout', 'bracket')),
         getDoc(doc(db, 'knockout', 'phases')),
         getDoc(doc(db, 'results', 'matchLocks')),
+        getDocs(collection(db, 'groups')),
       ]);
       const results = resSnap.exists() ? (resSnap.data().scores || {}) : {};
       const knockout = koSnap.exists() ? koSnap.data() : {};
@@ -60,6 +78,9 @@ export default function Admin() {
       setSavedKnockout(knockout);
       setSavedPhases(phases);
       setMatchLocks(locks);
+      const groups = groupsSnap.docs.map(d => d.data() as GroupPreview);
+      groups.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+      setAllGroups(groups);
 
       // Init group inputs from saved results
       const gi: typeof groupInputs = {};
@@ -311,6 +332,7 @@ export default function Admin() {
         <div className="phase-tabs">
           <div className={`phase-tab${phase === 'groups' ? ' active' : ''}`} onClick={() => { if (isDirty && !confirm('Cambios sin guardar. ¿Cambiar?')) return; setIsDirty(false); setPhase('groups'); }}>⚽ Fase de Grupos</div>
           <div className={`phase-tab${phase === 'knockout' ? ' active' : ''}`} onClick={() => { if (isDirty && !confirm('Cambios sin guardar. ¿Cambiar?')) return; setIsDirty(false); setPhase('knockout'); }}>⚔️ Eliminatorias</div>
+          <div className={`phase-tab${phase === 'preview' ? ' active' : ''}`} onClick={() => { if (isDirty && !confirm('Cambios sin guardar. ¿Cambiar?')) return; setIsDirty(false); setPhase('preview'); }}>👥 Grupos</div>
         </div>
       </div>
 
@@ -345,6 +367,8 @@ export default function Admin() {
             }}
             onToggleLock={toggleMatchLock}
           />
+        ) : phase === 'preview' ? (
+          <AllGroupsPreview groups={allGroups} savedResults={savedResults} />
         ) : (
           <KnockoutPhase
             savedResults={savedResults}
@@ -360,8 +384,8 @@ export default function Admin() {
         )}
       </main>
 
-      {/* Save bar */}
-      <div className="save-bar">
+      {/* Save bar — hidden in preview mode */}
+      <div className="save-bar" style={phase === 'preview' ? { display: 'none' } : {}}>
         <div className="save-bar-inner">
           <div className="save-info">
             {phase === 'groups'
@@ -547,6 +571,139 @@ function KnockoutPhase({ savedResults, savedKnockout, savedPhases, inputs, onInp
                 </div>
               );
             })}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────
+// GROUPS PREVIEW
+// ─────────────────────────────────────────
+function AllGroupsPreview({
+  groups,
+  savedResults,
+}: {
+  groups: GroupPreview[];
+  savedResults: Record<string, { home: number; away: number }>;
+}) {
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const [groupScores, setGroupScores] = useState<Record<string, ScoreEntry[]>>({});
+  const [loadingScores, setLoadingScores] = useState<Record<string, boolean>>({});
+
+  async function loadScores(group: GroupPreview) {
+    if (groupScores[group.code] || loadingScores[group.code]) return;
+    setLoadingScores(prev => ({ ...prev, [group.code]: true }));
+    try {
+      const members = group.members || group.memberUids.map(uid => ({ uid, displayName: uid }));
+      const allPreds = await Promise.all(
+        members.map(m =>
+          getDoc(doc(db, 'predictions', `${m.uid}_global`))
+            .then(snap => ({ member: m, preds: snap.exists() ? (snap.data().matches || {}) : {} }))
+            .catch(() => ({ member: m, preds: {} as Record<string, any> }))
+        )
+      );
+      const scores: ScoreEntry[] = allPreds.map(({ member, preds }) => {
+        let pts = 0, exact = 0, outcome = 0;
+        for (const [matchId, res] of Object.entries(savedResults)) {
+          const pred = preds[matchId];
+          if (!pred || pred.home == null || pred.away == null) continue;
+          if (pred.home === res.home && pred.away === res.away) { pts += 3; exact++; }
+          else if (Math.sign(pred.home - pred.away) === Math.sign(res.home - res.away)) { pts += 1; outcome++; }
+        }
+        return { name: member.displayName || member.uid, uid: member.uid, pts, exact, outcome };
+      });
+      scores.sort((a, b) => b.pts - a.pts || b.exact - a.exact);
+      setGroupScores(prev => ({ ...prev, [group.code]: scores }));
+    } catch { /* ignore */ }
+    finally { setLoadingScores(prev => ({ ...prev, [group.code]: false })); }
+  }
+
+  function toggle(group: GroupPreview) {
+    if (expanded === group.code) { setExpanded(null); return; }
+    setExpanded(group.code);
+    loadScores(group);
+  }
+
+  const medals = ['🥇', '🥈', '🥉'];
+
+  return (
+    <div>
+      <div className="section-hdr">
+        <div className="section-hdr-left">
+          <h2>Vista de Grupos</h2>
+          <p>
+            {groups.length === 0
+              ? 'No hay grupos creados todavía'
+              : `${groups.length} grupo${groups.length !== 1 ? 's' : ''} en el prode · Clic para ver el ranking`}
+          </p>
+        </div>
+      </div>
+
+      {groups.length === 0 && (
+        <div className="loading-state" style={{ padding: '3rem' }}>
+          <div style={{ fontSize: '2rem', marginBottom: 8 }}>👥</div>
+          <div style={{ color: 'var(--muted)', fontSize: 14 }}>Ningún usuario ha creado un grupo todavía</div>
+        </div>
+      )}
+
+      {groups.map(group => {
+        const isOpen = expanded === group.code;
+        const scores = groupScores[group.code];
+        const loading = loadingScores[group.code];
+
+        return (
+          <div key={group.code} className={`preview-group-card${isOpen ? ' open' : ''}`}>
+            <div className="pgc-header" onClick={() => toggle(group)}>
+              <div className="pgc-avatar">{group.name.charAt(0).toUpperCase()}</div>
+              <div className="pgc-info">
+                <div className="pgc-name">{group.name}</div>
+                <div className="pgc-meta">
+                  <span className="pgc-code">{group.code}</span>
+                  <span>·</span>
+                  <span>👥 {group.memberUids.length} jugador{group.memberUids.length !== 1 ? 'es' : ''}</span>
+                  {group.createdAt && (
+                    <>
+                      <span>·</span>
+                      <span>{new Date(group.createdAt.seconds * 1000).toLocaleDateString('es-AR', { day: 'numeric', month: 'short' })}</span>
+                    </>
+                  )}
+                </div>
+              </div>
+              <span className={`pgc-chevron${isOpen ? ' up' : ''}`}>›</span>
+            </div>
+
+            {isOpen && (
+              <div className="pgc-body">
+                {loading ? (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '1rem 0', color: 'var(--muted)', fontSize: 13 }}>
+                    <div className="spin-sm" /> Calculando puntos...
+                  </div>
+                ) : scores && scores.length > 0 ? (
+                  <table className="lb-table">
+                    <thead>
+                      <tr><th>#</th><th>Jugador</th><th>Pts</th><th>Exactos</th><th>Result.</th></tr>
+                    </thead>
+                    <tbody>
+                      {scores.map((s, i) => (
+                        <tr key={s.uid}>
+                          <td className={`lb-pos${i < 3 ? ` ${['first','second','third'][i]}` : ''}`}>{medals[i] || i + 1}</td>
+                          <td className="lb-name" style={{ fontSize: '.84rem' }}>{s.name}</td>
+                          <td className={`lb-pts${i === 0 ? ' leader' : ''}`}>{s.pts}</td>
+                          <td className="lb-exact">{s.exact}</td>
+                          <td className="lb-outcome">{s.outcome}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <div style={{ padding: '.5rem 0 1rem', color: 'var(--muted)', fontSize: 13 }}>
+                    Los puntos aparecerán cuando haya resultados de partidos cargados.
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         );
       })}
