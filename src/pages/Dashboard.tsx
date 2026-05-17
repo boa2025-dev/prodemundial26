@@ -328,18 +328,19 @@ export default function Dashboard() {
     setLinkCopied(false);
   }
 
-  function getInviteLink(code: string) {
-    return `https://prodemundial26.online/join?code=${code}`;
+  function getInviteLink(code: string, name?: string) {
+    const base = `https://prodemundial26.online/join?code=${code}`;
+    return name ? `${base}&name=${encodeURIComponent(name)}` : base;
   }
 
   function getWhatsAppLink(g: Group) {
-    const link = getInviteLink(g.code);
+    const link = getInviteLink(g.code, g.name);
     const msg = `¡Sumate a mi prode del Mundial 2026! 🏆\n\nEstoy en el grupo *${g.name}* y necesitamos más participantes.\n\nEntrá por acá: ${link}\n\n¡Es gratis y sin instalar nada! ⚽`;
     return `https://wa.me/?text=${encodeURIComponent(msg)}`;
   }
 
   function copyInviteLink(code: string) {
-    navigator.clipboard.writeText(getInviteLink(code));
+    navigator.clipboard.writeText(getInviteLink(code, shareGroup?.name));
     setLinkCopied(true);
     setTimeout(() => setLinkCopied(false), 2000);
   }
@@ -1001,7 +1002,7 @@ export default function Dashboard() {
               {/* Link preview */}
               <div className="share-link-box">
                 <span className="share-link-text">
-                  prodemundial26.online/join?code={shareGroup.code}
+                  prodemundial26.online/join?code={shareGroup.code}&name=...
                 </span>
                 <button
                   className={`btn-copy${linkCopied ? ' copied' : ''}`}
