@@ -75,6 +75,7 @@ export default function Dashboard() {
   const [shareGroup, setShareGroup] = useState<Group | null>(null);
   const [linkCopied, setLinkCopied] = useState(false);
   const [showOnlyPending, setShowOnlyPending] = useState(false);
+  const [manualLocks, setManualLocks] = useState<Record<string, boolean>>({});
   const autoSaveRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const saveLoading = useRef(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -87,7 +88,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (!currentUser) return;
-    Promise.all([loadGroups(), loadPredictions(), loadKnockoutBracket()]);
+    Promise.all([loadGroups(), loadPredictions(), loadKnockoutBracket(), loadMatchLocks()]);
   }, [currentUser]);
 
   useEffect(() => {
@@ -115,6 +116,13 @@ export default function Dashboard() {
       setKnockoutBracket(bracketSnap.exists() ? bracketSnap.data() : {});
       setKnockoutPhases(phasesSnap.exists() ? phasesSnap.data() : {});
     } catch { setKnockoutBracket({}); setKnockoutPhases({}); }
+  }
+
+  async function loadMatchLocks() {
+    try {
+      const snap = await getDoc(doc(db, 'settings', 'matchLocks'));
+      setManualLocks(snap.exists() ? snap.data() : {});
+    } catch { setManualLocks({}); }
   }
 
   async function loadGroups() {
@@ -657,14 +665,15 @@ export default function Dashboard() {
   };
 
   const MobileMatchCard = ({ match }: { match: Match }) => {
-    const locked = now >= match.kickoff.getTime();
-    const isLive = locked && now < match.kickoff.getTime() + 1.5 * 3600 * 1000;
+    const autoLocked = now >= match.kickoff.getTime();
+    const locked = autoLocked || !!manualLocks[match.id];
+    const isLive = autoLocked && now < match.kickoff.getTime() + 1.5 * 3600 * 1000;
     const homeVal = getPredInput(match.id, 'home');
     const awayVal = getPredInput(match.id, 'away');
     const hasPred = homeVal !== '' && awayVal !== '';
 
     function handleTap() {
-      if (locked) { showToast('Este partido ya está cerrado 🔒', ''); return; }
+      if (locked) { showToast('Este partido está cerrado 🔒', ''); return; }
       setSheetMatch(match);
     }
 
@@ -885,6 +894,7 @@ export default function Dashboard() {
           onInput={handleScoreInput}
           getPredInput={getPredInput}
           showOnlyPending={showOnlyPending}
+          manualLocks={manualLocks}
         />
       </div>
 
@@ -1046,13 +1056,14 @@ function PhaseCounter({ phase, savedPreds, predInputs, getPredInput }: {
   );
 }
 
-function PredictionsContent({ phase, savedPreds, predInputs, onInput, getPredInput, showOnlyPending }: {
+function PredictionsContent({ phase, savedPreds, predInputs, onInput, getPredInput, showOnlyPending, manualLocks = {} }: {
   phase?: Phase;
   savedPreds: Record<string, any>;
   predInputs: Record<string, { home: string; away: string }>;
   onInput: (id: string, side: 'home' | 'away', v: string) => void;
   getPredInput: (id: string, side: 'home' | 'away') => string;
   showOnlyPending?: boolean;
+  manualLocks?: Record<string, boolean>;
 }) {
   if (!phase) return null;
   if (phase.locked) return (
@@ -1097,7 +1108,7 @@ function PredictionsContent({ phase, savedPreds, predInputs, onInput, getPredInp
         {Object.values(byDate).map((matches, idx) => (
           <div key={idx} className="date-group">
             <div className="date-label">{formatDateFull(matches[0].kickoff)}</div>
-            {matches.map(m => <MatchRow key={m.id} match={m} now={now} homeVal={getPredInput(m.id, 'home')} awayVal={getPredInput(m.id, 'away')} onInput={onInput} />)}
+            {matches.map(m => <MatchRow key={m.id} match={m} now={now} homeVal={getPredInput(m.id, 'home')} awayVal={getPredInput(m.id, 'away')} onInput={onInput} manualLocks={manualLocks} />)}
           </div>
         ))}
       </div>
@@ -1105,17 +1116,19 @@ function PredictionsContent({ phase, savedPreds, predInputs, onInput, getPredInp
   }
   return (
     <div id="predsContent">
-      {phase.matches.map(m => <MatchRow key={m.id} match={m} now={now} homeVal={getPredInput(m.id, 'home')} awayVal={getPredInput(m.id, 'away')} onInput={onInput} />)}
+      {phase.matches.map(m => <MatchRow key={m.id} match={m} now={now} homeVal={getPredInput(m.id, 'home')} awayVal={getPredInput(m.id, 'away')} onInput={onInput} manualLocks={manualLocks} />)}
     </div>
   );
 }
 
-function MatchRow({ match, now, homeVal, awayVal, onInput }: {
+function MatchRow({ match, now, homeVal, awayVal, onInput, manualLocks = {} }: {
   match: Match; now: number; homeVal: string; awayVal: string;
   onInput: (id: string, side: 'home' | 'away', v: string) => void;
+  manualLocks?: Record<string, boolean>;
 }) {
-  const locked = now >= match.kickoff.getTime();
-  const isLive = locked && now < match.kickoff.getTime() + 1.5 * 3600 * 1000;
+  const autoLocked = now >= match.kickoff.getTime();
+  const locked = autoLocked || !!manualLocks[match.id];
+  const isLive = autoLocked && now < match.kickoff.getTime() + 1.5 * 3600 * 1000;
   const hasPred = homeVal !== '' && awayVal !== '';
   return (
     <div className={`match-row${hasPred ? ' has-prediction' : ''}${locked ? ' locked' : ''}`} data-id={match.id}>

@@ -33,6 +33,7 @@ export default function Admin() {
   const [toast, setToast] = useState({ msg: '', type: '', show: false });
   const [loaded, setLoaded] = useState(false);
   const [accessDenied, setAccessDenied] = useState(false);
+  const [matchLocks, setMatchLocks] = useState<Record<string, boolean>>({});
   const [groupInputs, setGroupInputs] = useState<Record<string, { home: string; away: string }>>({});
   const [koInputs, setKoInputs] = useState<Record<string, { s1f: string; s1n: string; s2f: string; s2n: string; kickoff: string; sede: string; home: string; away: string }>>({});
 
@@ -44,18 +45,21 @@ export default function Admin() {
 
   async function loadAll() {
     try {
-      const [resSnap, koSnap, phasesSnap] = await Promise.all([
+      const [resSnap, koSnap, phasesSnap, locksSnap] = await Promise.all([
         getDoc(doc(db, 'results', 'matches')),
         getDoc(doc(db, 'knockout', 'bracket')),
         getDoc(doc(db, 'knockout', 'phases')),
+        getDoc(doc(db, 'settings', 'matchLocks')),
       ]);
       const results = resSnap.exists() ? (resSnap.data().scores || {}) : {};
       const knockout = koSnap.exists() ? koSnap.data() : {};
       const phases = phasesSnap.exists() ? phasesSnap.data() : {};
+      const locks = locksSnap.exists() ? locksSnap.data() : {};
 
       setSavedResults(results);
       setSavedKnockout(knockout);
       setSavedPhases(phases);
+      setMatchLocks(locks);
 
       // Init group inputs from saved results
       const gi: typeof groupInputs = {};
@@ -167,6 +171,18 @@ export default function Admin() {
     if (entry.slot1?.n) out.slot1 = { n: entry.slot1.n, f: entry.slot1.f || '' };
     if (entry.slot2?.n) out.slot2 = { n: entry.slot2.n, f: entry.slot2.f || '' };
     return out;
+  }
+
+  async function toggleMatchLock(matchId: string, locked: boolean) {
+    const updated = { ...matchLocks, [matchId]: locked };
+    setMatchLocks(updated);
+    try {
+      await setDoc(doc(db, 'settings', 'matchLocks'), updated);
+      showToast(locked ? `🔒 Partido bloqueado` : `🔓 Partido desbloqueado`, 'success');
+    } catch {
+      setMatchLocks(matchLocks); // revert on error
+      showToast('Error al guardar el bloqueo', 'error');
+    }
   }
 
   async function save() {
@@ -322,10 +338,12 @@ export default function Admin() {
             gid={activeGroup}
             savedResults={savedResults}
             inputs={groupInputs}
+            matchLocks={matchLocks}
             onInput={(matchId, side, val) => {
               setGroupInputs((prev) => ({ ...prev, [matchId]: { ...prev[matchId], [side]: val } }));
               setIsDirty(true);
             }}
+            onToggleLock={toggleMatchLock}
           />
         ) : (
           <KnockoutPhase
@@ -363,22 +381,25 @@ export default function Admin() {
   );
 }
 
-function GroupPhase({ gid, savedResults, inputs, onInput }: {
+function GroupPhase({ gid, savedResults, inputs, matchLocks, onInput, onToggleLock }: {
   gid: string;
   savedResults: Record<string, { home: number; away: number }>;
   inputs: Record<string, { home: string; away: string }>;
+  matchLocks: Record<string, boolean>;
   onInput: (matchId: string, side: 'home' | 'away', val: string) => void;
+  onToggleLock: (matchId: string, locked: boolean) => void;
 }) {
   const matches = MATCHES.filter((m) => m.grupo === gid);
   const byMatchday: Record<number, typeof matches> = {};
   matches.forEach((m) => { if (!byMatchday[m.jornada]) byMatchday[m.jornada] = []; byMatchday[m.jornada].push(m); });
+  const now = Date.now();
 
   return (
     <div>
       <div className="section-hdr">
         <div className="section-hdr-left">
           <h2>Grupo {gid}</h2>
-          <p>Ingresá el marcador final de cada partido jugado</p>
+          <p>Ingresá el marcador final · El candado manual bloquea predicciones antes del inicio</p>
         </div>
       </div>
       {[1, 2, 3].map((j) => {
@@ -391,8 +412,11 @@ function GroupPhase({ gid, savedResults, inputs, onInput }: {
               const hv = inputs[m.id]?.home ?? (savedResults[m.id]?.home != null ? String(savedResults[m.id].home) : '');
               const av = inputs[m.id]?.away ?? (savedResults[m.id]?.away != null ? String(savedResults[m.id].away) : '');
               const done = hv !== '' && av !== '';
+              const autoLocked = now >= m.kickoff.getTime();
+              const manualLocked = !!matchLocks[m.id];
+              const isLocked = autoLocked || manualLocked;
               return (
-                <div key={m.id} className={`match-row${done ? ' has-result' : ''}`}>
+                <div key={m.id} className={`match-row${done ? ' has-result' : ''}${isLocked ? ' admin-locked' : ''}`}>
                   <div className="match-teams">
                     <div className="team local"><span className="team-flag">{m.local.f}</span><span className="team-name">{m.local.n}</span></div>
                     <div className="score-inputs">
@@ -404,8 +428,31 @@ function GroupPhase({ gid, savedResults, inputs, onInput }: {
                     </div>
                     <div className="team away"><span className="team-flag">{m.visitante.f}</span><span className="team-name">{m.visitante.n}</span></div>
                   </div>
-                  <div className="match-meta">
+                  <div className="match-meta admin-match-meta">
                     <span>{formatDateTime(m.kickoff)}</span>
+
+                    {/* Lock toggle */}
+                    <div className={`match-lock-toggle${isLocked ? ' locked' : ''}`}>
+                      {autoLocked ? (
+                        <span className="lock-auto-badge">🔒 Auto</span>
+                      ) : (
+                        <label className="match-lock-label">
+                          <span className={`lock-label-text${manualLocked ? ' on' : ''}`}>
+                            {manualLocked ? '🔒 Bloqueado' : '🔓 Abierto'}
+                          </span>
+                          <div className="match-lock-switch-wrap">
+                            <input
+                              type="checkbox"
+                              checked={manualLocked}
+                              onChange={(e) => onToggleLock(m.id, e.target.checked)}
+                              className="match-lock-checkbox"
+                            />
+                            <span className="match-lock-track" />
+                          </div>
+                        </label>
+                      )}
+                    </div>
+
                     <span>{done ? <span className="result-badge">✓ Guardado</span> : <span style={{ fontSize: '.7rem', color: 'var(--muted)' }}>Pendiente</span>}</span>
                   </div>
                 </div>
