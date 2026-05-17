@@ -1237,6 +1237,9 @@ function MatchRow({ match, now, homeVal, awayVal, onInput, manualLocks = {} }: {
 }
 
 // ── Bonus section component ──
+// Primer partido del Mundial — cierre automático de predicciones bonus
+const BONUS_LOCK_DATE = new Date('2026-06-11T19:00:00Z');
+
 function BonusSection({ bonusPreds, bonusRealResults, saving, onSave }: {
   bonusPreds: BonusPreds;
   bonusRealResults: BonusResults | null;
@@ -1247,6 +1250,10 @@ function BonusSection({ bonusPreds, bonusRealResults, saving, onSave }: {
 
   // Sync if parent state updates (e.g. initial load)
   useState(() => { setLocal(bonusPreds); });
+
+  const autoLocked = Date.now() >= BONUS_LOCK_DATE.getTime();
+  // Locked if: the Mundial already started OR the admin published real results
+  const isLocked = autoLocked || !!bonusRealResults;
 
   const positions = [
     { key: 'p1' as const, medal: '🥇', label: 'Campeón' },
@@ -1265,7 +1272,12 @@ function BonusSection({ bonusPreds, bonusRealResults, saving, onSave }: {
     <div className="bonus-section">
       <div className="bonus-header">
         <div className="bonus-title">🏅 Podio Mundial</div>
-        <div className="bonus-sub">Predecí los 3 mejores equipos del Mundial. Cada posición correcta suma <strong>+10 puntos</strong>.</div>
+        <div className="bonus-sub">
+          Predecí los 3 mejores equipos del Mundial. Cada posición correcta suma <strong>+10 puntos</strong>.
+          {autoLocked && !bonusRealResults && (
+            <span className="bonus-locked-badge">🔒 Cerrado — el Mundial ya empezó</span>
+          )}
+        </div>
       </div>
 
       {positions.map(({ key, medal, label }) => {
@@ -1282,7 +1294,7 @@ function BonusSection({ bonusPreds, bonusRealResults, saving, onSave }: {
             </div>
             <div className="bonus-row-right">
               {realTeam?.n ? (
-                // Results are set — show comparison
+                // Admin published results — show verdict
                 <div className="bonus-result-view">
                   <div className="bonus-user-pick">
                     {userPick
@@ -1297,8 +1309,15 @@ function BonusSection({ bonusPreds, bonusRealResults, saving, onSave }: {
                     {realTeam.f} {realTeam.n}
                   </div>
                 </div>
+              ) : isLocked ? (
+                // Auto-locked (Mundial started) but no results yet — show pick read-only
+                <div className="bonus-user-pick" style={{ opacity: 0.7 }}>
+                  {userPick
+                    ? <><span>{ALL_TEAMS.find(t => t.n === userPick)?.f}</span> {userPick}</>
+                    : <span style={{ color: 'var(--muted)', fontSize: 13 }}>Sin predecir</span>}
+                </div>
               ) : (
-                // No results yet — show selector
+                // Open — editable selector
                 <select
                   className="bonus-select"
                   value={local[key]}
@@ -1324,7 +1343,8 @@ function BonusSection({ bonusPreds, bonusRealResults, saving, onSave }: {
         </div>
       )}
 
-      {!bonusRealResults && (
+      {/* Save button only when open */}
+      {!isLocked && (
         <button
           className={`bonus-save-btn${saving ? ' loading' : ''}`}
           disabled={saving || (!local.p1 && !local.p2 && !local.p3)}
