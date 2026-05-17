@@ -46,7 +46,7 @@ export default function Privacidad() {
 
           <div className="privacy-block">
             <h3>4. Tus derechos</h3>
-            <p>Podés solicitar la eliminación de tu cuenta y datos en cualquier momento escribiéndonos a bautistaoteroalen2008@gmail.com.</p>
+            <p>Podés solicitar la eliminación de tu cuenta y datos en cualquier momento a través de la página de <Link to="/contacto" style={{ color: 'var(--gold)' }}>Contacto</Link>.</p>
           </div>
 
           <div className="privacy-block">
@@ -56,7 +56,7 @@ export default function Privacidad() {
 
           <div className="cta">
             <h3>¿Tenés preguntas?</h3>
-            <p>Escribinos a bautistaoteroalen2008@gmail.com</p>
+            <p>Usá el formulario de contacto para cualquier consulta sobre privacidad.</p>
             <Link className="btn-gold" to="/contacto">Contactarnos</Link>
           </div>
         </div>

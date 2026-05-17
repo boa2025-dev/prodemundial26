@@ -40,7 +40,7 @@ export default function AvisoLegal() {
 
           <div className="privacy-block">
             <h3>5. Contacto</h3>
-            <p>Para cualquier consulta legal podés escribirnos a bautistaoteroalen2008@gmail.com</p>
+            <p>Para cualquier consulta legal podés usar el formulario de la página de <Link to="/contacto" style={{ color: 'var(--gold)' }}>Contacto</Link>.</p>
           </div>
         </div>
       </main>

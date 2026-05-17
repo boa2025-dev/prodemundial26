@@ -49,7 +49,7 @@ export default function Contacto() {
 
           <div className="section">
             <div className="section-title">Otras formas de contacto</div>
-            <p>También podés escribirnos directamente a <strong style={{ color: 'var(--gold)' }}>bautistaoteroalen2008@gmail.com</strong></p>
+            <p>También podés contactarnos a través del formulario de arriba y te responderemos a la brevedad.</p>
           </div>
         </div>
       </main>
