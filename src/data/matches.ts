@@ -139,6 +139,8 @@ export const MATCHES: Match[] = [
 
 export const GROUP_IDS = GRUPOS_DEF.map((g) => g.id);
 export { GRUPOS_DEF };
+export const ALL_TEAMS = GRUPOS_DEF.flatMap(g => g.equipos)
+  .sort((a, b) => a.n.localeCompare(b.n, 'es'));
 
 export const KNOCKOUT_ROUNDS: KnockoutRound[] = [
   { id: 'R32', name: 'Ronda de 32', short: '32avos', count: 16 },

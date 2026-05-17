@@ -1009,3 +1009,153 @@ nav { background: rgba(8,9,15,.95); backdrop-filter: blur(20px); border-bottom: 
 .mob-exact-num { color: var(--green); font-weight: 700; text-align: center; }
 .mob-pts-num { font-family: var(--fh); font-weight: 900; font-size: 14px; text-align: right; }
 .mob-pts-num.leader { color: var(--gold-l); }
+
+/* ── Bonus section (Podio Mundial) ── */
+.bonus-section {
+  padding: 1.5rem;
+  background: rgba(12, 18, 32, 0.6);
+  border: 1px solid rgba(201, 168, 76, 0.15);
+  border-radius: 20px;
+  margin-bottom: 1.5rem;
+}
+
+.bonus-header { margin-bottom: 1.5rem; }
+
+.bonus-title {
+  font-family: var(--fh);
+  font-size: 1.2rem;
+  font-weight: 900;
+  margin-bottom: 0.4rem;
+}
+
+.bonus-sub {
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.bonus-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  flex-wrap: wrap;
+}
+
+.bonus-row:last-of-type { border-bottom: none; }
+.bonus-row.correct { background: rgba(76, 201, 76, 0.04); border-radius: 10px; padding: 0.9rem 0.8rem; margin: 0 -0.8rem; }
+.bonus-row.wrong   { background: rgba(230, 57, 70, 0.04); border-radius: 10px; padding: 0.9rem 0.8rem; margin: 0 -0.8rem; }
+
+.bonus-row-left {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-shrink: 0;
+  min-width: 130px;
+}
+
+.bonus-medal { font-size: 1.4rem; }
+
+.bonus-position-label {
+  font-family: var(--fh);
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.bonus-row-right { flex: 1; min-width: 180px; }
+
+.bonus-select {
+  width: 100%;
+  max-width: 280px;
+  appearance: none;
+  -webkit-appearance: none;
+  background: rgba(255, 255, 255, 0.04) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a8898' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 0.8rem center;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  color: var(--white);
+  font-family: var(--fb);
+  font-size: 0.9rem;
+  padding: 0.65rem 2.2rem 0.65rem 0.9rem;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.bonus-select:focus { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(201,168,76,.12); }
+.bonus-select option { background: #111824; }
+
+.bonus-result-view {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.bonus-user-pick {
+  font-family: var(--fh);
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.bonus-verdict {
+  font-family: var(--fh);
+  font-size: 0.82rem;
+  font-weight: 800;
+  padding: 0.2rem 0.6rem;
+  border-radius: 50px;
+}
+
+.bonus-verdict.hit  { color: var(--green); background: rgba(76,201,76,.1); border: 1px solid rgba(76,201,76,.25); }
+.bonus-verdict.miss { color: #ff6b75; background: rgba(230,57,70,.1); border: 1px solid rgba(230,57,70,.25); }
+
+.bonus-real-team {
+  font-size: 0.82rem;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.bonus-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(201,168,76,.15);
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+.bonus-total strong { font-family: var(--fh); font-size: 1.1rem; }
+
+.bonus-save-btn {
+  width: 100%;
+  margin-top: 1.2rem;
+  padding: 0.9rem;
+  border-radius: 50px;
+  border: none;
+  background: linear-gradient(135deg, var(--gold), #a07830);
+  color: #000;
+  font-family: var(--fh);
+  font-weight: 800;
+  font-size: 0.92rem;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(201,168,76,.35);
+  transition: transform 0.15s, opacity 0.2s;
+}
+
+.bonus-save-btn:hover:not(:disabled) { transform: translateY(-2px); }
+.bonus-save-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.bonus-save-btn.loading { opacity: 0.7; }
+
+@media (max-width: 600px) {
+  .bonus-row { flex-direction: column; align-items: flex-start; gap: 0.6rem; }
+  .bonus-select { max-width: 100%; }
+}

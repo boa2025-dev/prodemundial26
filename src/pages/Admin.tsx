@@ -4,7 +4,7 @@ import { collection, doc, getDoc, getDocs, setDoc, serverTimestamp } from 'fireb
 import { signOut } from 'firebase/auth';
 import { auth, db } from '../firebase';
 import { useAuth } from '../hooks/useAuth';
-import { MATCHES, GROUP_IDS, GRUPOS_DEF, KNOCKOUT_ROUNDS, BRACKET_MAP } from '../data/matches';
+import { MATCHES, GROUP_IDS, GRUPOS_DEF, KNOCKOUT_ROUNDS, BRACKET_MAP, ALL_TEAMS } from '../data/matches';
 import type { Team } from '../data/matches';
 import { formatDate, formatDateTime } from '../lib/utils';
 import './Admin.css';
@@ -39,8 +39,10 @@ interface KoEntry {
 export default function Admin() {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
-  const [phase, setPhase] = useState<'groups' | 'knockout' | 'preview'>('groups');
+  const [phase, setPhase] = useState<'groups' | 'knockout' | 'preview' | 'bonus'>('groups');
   const [allGroups, setAllGroups] = useState<GroupPreview[]>([]);
+  const [bonusInputs, setBonusInputs] = useState<{ p1: string; p2: string; p3: string }>({ p1: '', p2: '', p3: '' });
+  const [bonusSaving, setBonusSaving] = useState(false);
   const [activeGroup, setActiveGroup] = useState(GROUP_IDS[0]);
   const [savedResults, setSavedResults] = useState<Record<string, { home: number; away: number }>>({});
   const [savedKnockout, setSavedKnockout] = useState<Record<string, KoEntry>>({});
@@ -62,12 +64,13 @@ export default function Admin() {
 
   async function loadAll() {
     try {
-      const [resSnap, koSnap, phasesSnap, locksSnap, groupsSnap] = await Promise.all([
+      const [resSnap, koSnap, phasesSnap, locksSnap, groupsSnap, bonusSnap] = await Promise.all([
         getDoc(doc(db, 'results', 'matches')),
         getDoc(doc(db, 'knockout', 'bracket')),
         getDoc(doc(db, 'knockout', 'phases')),
         getDoc(doc(db, 'results', 'matchLocks')),
         getDocs(collection(db, 'groups')),
+        getDoc(doc(db, 'results', 'bonusResults')),
       ]);
       const results = resSnap.exists() ? (resSnap.data().scores || {}) : {};
       const knockout = koSnap.exists() ? koSnap.data() : {};
@@ -81,6 +84,10 @@ export default function Admin() {
       const groups = groupsSnap.docs.map(d => d.data() as GroupPreview);
       groups.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
       setAllGroups(groups);
+      if (bonusSnap.exists()) {
+        const b = bonusSnap.data();
+        setBonusInputs({ p1: b.p1?.n || '', p2: b.p2?.n || '', p3: b.p3?.n || '' });
+      }
 
       // Init group inputs from saved results
       const gi: typeof groupInputs = {};
@@ -192,6 +199,21 @@ export default function Admin() {
     if (entry.slot1?.n) out.slot1 = { n: entry.slot1.n, f: entry.slot1.f || '' };
     if (entry.slot2?.n) out.slot2 = { n: entry.slot2.n, f: entry.slot2.f || '' };
     return out;
+  }
+
+  async function saveBonusResults() {
+    setBonusSaving(true);
+    try {
+      const toObj = (name: string) => ALL_TEAMS.find(t => t.n === name) || null;
+      await setDoc(doc(db, 'results', 'bonusResults'), {
+        p1: toObj(bonusInputs.p1),
+        p2: toObj(bonusInputs.p2),
+        p3: toObj(bonusInputs.p3),
+        updatedAt: serverTimestamp(),
+      });
+      showToast('✓ Podio guardado', 'success');
+    } catch { showToast('Error al guardar', 'error'); }
+    finally { setBonusSaving(false); }
   }
 
   async function toggleMatchLock(matchId: string, locked: boolean) {
@@ -333,6 +355,7 @@ export default function Admin() {
           <div className={`phase-tab${phase === 'groups' ? ' active' : ''}`} onClick={() => { if (isDirty && !confirm('Cambios sin guardar. ¿Cambiar?')) return; setIsDirty(false); setPhase('groups'); }}>⚽ Fase de Grupos</div>
           <div className={`phase-tab${phase === 'knockout' ? ' active' : ''}`} onClick={() => { if (isDirty && !confirm('Cambios sin guardar. ¿Cambiar?')) return; setIsDirty(false); setPhase('knockout'); }}>⚔️ Eliminatorias</div>
           <div className={`phase-tab${phase === 'preview' ? ' active' : ''}`} onClick={() => { if (isDirty && !confirm('Cambios sin guardar. ¿Cambiar?')) return; setIsDirty(false); setPhase('preview'); }}>👥 Grupos</div>
+          <div className={`phase-tab${phase === 'bonus' ? ' active' : ''}`} onClick={() => { if (isDirty && !confirm('Cambios sin guardar. ¿Cambiar?')) return; setIsDirty(false); setPhase('bonus'); }}>🏅 Podio</div>
         </div>
       </div>
 
@@ -369,6 +392,13 @@ export default function Admin() {
           />
         ) : phase === 'preview' ? (
           <AllGroupsPreview groups={allGroups} savedResults={savedResults} />
+        ) : phase === 'bonus' ? (
+          <AdminBonusSection
+            inputs={bonusInputs}
+            saving={bonusSaving}
+            onSave={() => saveBonusResults()}
+            onChange={setBonusInputs}
+          />
         ) : (
           <KnockoutPhase
             savedResults={savedResults}
@@ -385,7 +415,7 @@ export default function Admin() {
       </main>
 
       {/* Save bar — hidden in preview mode */}
-      <div className="save-bar" style={phase === 'preview' ? { display: 'none' } : {}}>
+      <div className="save-bar" style={(phase === 'preview' || phase === 'bonus') ? { display: 'none' } : {}}>
         <div className="save-bar-inner">
           <div className="save-info">
             {phase === 'groups'
@@ -707,6 +737,75 @@ function AllGroupsPreview({
           </div>
         );
       })}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────
+// ADMIN BONUS SECTION
+// ─────────────────────────────────────────
+function AdminBonusSection({ inputs, saving, onSave, onChange }: {
+  inputs: { p1: string; p2: string; p3: string };
+  saving: boolean;
+  onSave: () => void;
+  onChange: (v: { p1: string; p2: string; p3: string }) => void;
+}) {
+  const positions = [
+    { key: 'p1' as const, medal: '🥇', label: 'Campeón del Mundial' },
+    { key: 'p2' as const, medal: '🥈', label: 'Subcampeón' },
+    { key: 'p3' as const, medal: '🥉', label: 'Tercer Puesto' },
+  ];
+
+  return (
+    <div>
+      <div className="section-hdr">
+        <div className="section-hdr-left">
+          <h2>Podio Mundial</h2>
+          <p>Ingresá los 3 primeros puestos reales del Mundial. Acertar cada posición suma 10 pts al jugador.</p>
+        </div>
+      </div>
+
+      <div className="admin-bonus-card">
+        {positions.map(({ key, medal, label }) => (
+          <div key={key} className="admin-bonus-row">
+            <div className="admin-bonus-left">
+              <span style={{ fontSize: '1.6rem' }}>{medal}</span>
+              <div>
+                <div className="admin-bonus-label">{label}</div>
+                {inputs[key] && (
+                  <div className="admin-bonus-selected">
+                    {ALL_TEAMS.find(t => t.n === inputs[key])?.f} {inputs[key]}
+                  </div>
+                )}
+              </div>
+            </div>
+            <select
+              className="admin-bonus-select"
+              value={inputs[key]}
+              onChange={e => onChange({ ...inputs, [key]: e.target.value })}
+            >
+              <option value="">-- Sin definir --</option>
+              {ALL_TEAMS.map(t => (
+                <option key={t.n} value={t.n}>{t.f} {t.n}</option>
+              ))}
+            </select>
+          </div>
+        ))}
+
+        <button
+          className={`btn-save admin-save${saving ? ' loading' : ''}`}
+          style={{ marginTop: '1.5rem' }}
+          disabled={saving}
+          onClick={onSave}
+        >
+          <span className="s-text">Guardar Podio</span>
+          <div className="s-spinner" />
+        </button>
+
+        <p style={{ marginTop: '0.8rem', fontSize: '0.78rem', color: 'var(--muted)', lineHeight: 1.6 }}>
+          ⚠️ Una vez guardado, los usuarios verán el resultado y no podrán cambiar sus predicciones.
+        </p>
+      </div>
     </div>
   );
 }

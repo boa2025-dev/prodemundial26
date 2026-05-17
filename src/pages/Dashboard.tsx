@@ -7,7 +7,7 @@ import {
 import { signOut } from 'firebase/auth';
 import { auth, db } from '../firebase';
 import { useAuth } from '../hooks/useAuth';
-import { MATCHES, KNOCKOUT_ROUNDS, GRUPOS_DEF } from '../data/matches';
+import { MATCHES, KNOCKOUT_ROUNDS, GRUPOS_DEF, ALL_TEAMS } from '../data/matches';
 import type { Match, Team } from '../data/matches';
 import { formatDateFull, formatTime, formatDateTime, genCode, TZ } from '../lib/utils';
 import BottomNav from '../components/BottomNav';
@@ -34,8 +34,12 @@ interface KoBracketEntry {
 }
 
 interface LbScore {
-  name: string; uid: string; pts: number; exact: number; outcome: number;
+  name: string; uid: string; pts: number; exact: number; outcome: number; bonusPts: number;
 }
+
+interface TeamBonus { n: string; f: string; }
+interface BonusPreds { p1: string; p2: string; p3: string; }
+interface BonusResults { p1?: TeamBonus; p2?: TeamBonus; p3?: TeamBonus; }
 
 type Phase = {
   id: string; label: string; matches: Match[]; available: boolean; locked: boolean;
@@ -76,6 +80,9 @@ export default function Dashboard() {
   const [linkCopied, setLinkCopied] = useState(false);
   const [showOnlyPending, setShowOnlyPending] = useState(false);
   const [manualLocks, setManualLocks] = useState<Record<string, boolean>>({});
+  const [bonusPreds, setBonusPreds] = useState<BonusPreds>({ p1: '', p2: '', p3: '' });
+  const [bonusRealResults, setBonusRealResults] = useState<BonusResults | null>(null);
+  const [bonusSaving, setBonusSaving] = useState(false);
   const autoSaveRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const saveLoading = useRef(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -88,7 +95,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (!currentUser) return;
-    Promise.all([loadGroups(), loadPredictions(), loadKnockoutBracket(), loadMatchLocks()]);
+    Promise.all([loadGroups(), loadPredictions(), loadKnockoutBracket(), loadMatchLocks(), loadBonus()]);
   }, [currentUser]);
 
   useEffect(() => {
@@ -125,6 +132,36 @@ export default function Dashboard() {
     } catch { setManualLocks({}); }
   }
 
+  async function loadBonus() {
+    if (!currentUser) return;
+    try {
+      const [predSnap, realSnap] = await Promise.all([
+        getDoc(doc(db, 'bonuses', currentUser.uid)),
+        getDoc(doc(db, 'results', 'bonusResults')),
+      ]);
+      if (predSnap.exists()) {
+        const d = predSnap.data();
+        setBonusPreds({ p1: d.p1?.n || '', p2: d.p2?.n || '', p3: d.p3?.n || '' });
+      }
+      if (realSnap.exists()) setBonusRealResults(realSnap.data() as BonusResults);
+    } catch { /* ignore */ }
+  }
+
+  async function saveBonus(preds: BonusPreds) {
+    if (!currentUser) return;
+    setBonusSaving(true);
+    try {
+      const toObj = (name: string): TeamBonus | null =>
+        ALL_TEAMS.find(t => t.n === name) || null;
+      await setDoc(doc(db, 'bonuses', currentUser.uid), {
+        p1: toObj(preds.p1), p2: toObj(preds.p2), p3: toObj(preds.p3),
+        updatedAt: serverTimestamp(),
+      });
+      showToast('✓ Podio guardado', 'success');
+    } catch { showToast('Error al guardar', 'error'); }
+    finally { setBonusSaving(false); }
+  }
+
   async function loadGroups() {
     if (!currentUser) return;
     const q = query(collection(db, 'groups'), where('memberUids', 'array-contains', currentUser.uid));
@@ -148,28 +185,43 @@ export default function Dashboard() {
   async function loadLeaderboard(group: Group) {
     setLbLoading(true);
     try {
-      const resultsSnap = await getDoc(doc(db, 'results', 'matches'));
+      const [resultsSnap, bonusResultsSnap] = await Promise.all([
+        getDoc(doc(db, 'results', 'matches')),
+        getDoc(doc(db, 'results', 'bonusResults')),
+      ]);
       const results: Record<string, { home: number; away: number }> = resultsSnap.exists() ? (resultsSnap.data().scores || {}) : {};
+      const realBonus: BonusResults | null = bonusResultsSnap.exists() ? bonusResultsSnap.data() as BonusResults : null;
       const resolvedCount = Object.keys(results).length;
       const members = group.members || group.memberUids.map(uid => ({ uid, displayName: uid }));
 
       const allPreds = await Promise.all(
-        members.map(m =>
-          getDoc(doc(db, 'predictions', GLOBAL_PRED_KEY(m.uid)))
-            .then(snap => ({ member: m, preds: snap.exists() ? (snap.data().matches || {}) : {} }))
-            .catch(() => ({ member: m, preds: {} }))
-        )
+        members.map(async m => {
+          const [predSnap, bonusSnap] = await Promise.all([
+            getDoc(doc(db, 'predictions', GLOBAL_PRED_KEY(m.uid))).catch(() => null),
+            getDoc(doc(db, 'bonuses', m.uid)).catch(() => null),
+          ]);
+          return {
+            member: m,
+            preds: predSnap?.exists() ? (predSnap.data().matches || {}) : {},
+            bonus: bonusSnap?.exists() ? bonusSnap.data() : null,
+          };
+        })
       );
 
-      const scores = allPreds.map(({ member, preds }) => {
-        let pts = 0, exact = 0, outcome = 0;
+      const scores = allPreds.map(({ member, preds, bonus }) => {
+        let pts = 0, exact = 0, outcome = 0, bonusPts = 0;
         for (const [matchId, res] of Object.entries(results)) {
           const pred = preds[matchId];
           if (!pred || pred.home == null || pred.away == null) continue;
           if (pred.home === res.home && pred.away === res.away) { pts += 3; exact++; }
           else if (Math.sign(pred.home - pred.away) === Math.sign(res.home - res.away)) { pts += 1; outcome++; }
         }
-        return { name: member.displayName || member.uid, uid: member.uid, pts, exact, outcome };
+        if (realBonus && bonus) {
+          if (realBonus.p1?.n && bonus.p1?.n === realBonus.p1.n) bonusPts += 10;
+          if (realBonus.p2?.n && bonus.p2?.n === realBonus.p2.n) bonusPts += 10;
+          if (realBonus.p3?.n && bonus.p3?.n === realBonus.p3.n) bonusPts += 10;
+        }
+        return { name: member.displayName || member.uid, uid: member.uid, pts: pts + bonusPts, exact, outcome, bonusPts };
       });
       scores.sort((a, b) => b.pts - a.pts || b.exact - a.exact);
       setLbScores(scores);
@@ -196,6 +248,7 @@ export default function Dashboard() {
       }
       phases.push({ id: round.id, label: `⚔️ ${round.name}`, matches, available: enabled && matches.length > 0, locked: !enabled });
     });
+    phases.push({ id: 'bonus', label: '🏅 Podio Mundial', matches: [], available: true, locked: false });
     return phases;
   }
 
@@ -632,8 +685,21 @@ export default function Dashboard() {
           </span>
         </div>
 
+        {/* Bonus section — mobile */}
+        {mPhase?.id === 'bonus' && (
+          <div style={{ padding: '0 16px' }}>
+            <BonusSection
+              bonusPreds={bonusPreds}
+              bonusRealResults={bonusRealResults}
+              saving={bonusSaving}
+              onSave={preds => { setBonusPreds(preds); saveBonus(preds); }}
+            />
+            <div style={{ height: 100 }} />
+          </div>
+        )}
+
         {/* Match cards */}
-        {mPhase?.locked ? (
+        {mPhase?.id !== 'bonus' && (mPhase?.locked ? (
           <div className="mob-phase-locked">
             <div style={{ fontSize: '2rem', marginBottom: 8 }}>🔒</div>
             <div style={{ fontFamily: 'var(--fh)', fontWeight: 700, marginBottom: 4 }}>Fase no disponible</div>
@@ -658,9 +724,9 @@ export default function Dashboard() {
               ? <div className="mob-phase-locked" style={{ marginTop: 16 }}>⏳ Equipos sin definir todavía</div>
               : allMatches.map(m => <MobileMatchCard key={m.id} match={m} />)}
           </div>
-        )}
+        ))}
 
-        <div style={{ height: 100 }} />
+        {mPhase?.id !== 'bonus' && <div style={{ height: 100 }} />}
       </div>
     );
   };
@@ -861,6 +927,16 @@ export default function Dashboard() {
           <PhaseCounter phase={activePhase} savedPreds={savedPreds} predInputs={predInputs} getPredInput={getPredInput} />
         </div>
 
+        {/* Bonus section — desktop */}
+        {activePhaseId === 'bonus' && (
+          <BonusSection
+            bonusPreds={bonusPreds}
+            bonusRealResults={bonusRealResults}
+            saving={bonusSaving}
+            onSave={preds => { setBonusPreds(preds); saveBonus(preds); }}
+          />
+        )}
+
         {/* Counter + toggle for grupos phase (desktop) */}
         {activePhaseId === 'grupos' && (() => {
           const pending = MATCHES.filter(m => {
@@ -888,15 +964,17 @@ export default function Dashboard() {
           );
         })()}
 
-        <PredictionsContent
-          phase={activePhase}
-          savedPreds={savedPreds}
-          predInputs={predInputs}
-          onInput={handleScoreInput}
-          getPredInput={getPredInput}
-          showOnlyPending={showOnlyPending}
-          manualLocks={manualLocks}
-        />
+        {activePhaseId !== 'bonus' && (
+          <PredictionsContent
+            phase={activePhase}
+            savedPreds={savedPreds}
+            predInputs={predInputs}
+            onInput={handleScoreInput}
+            getPredInput={getPredInput}
+            showOnlyPending={showOnlyPending}
+            manualLocks={manualLocks}
+          />
+        )}
       </div>
 
       {/* Desktop save bar */}
@@ -1154,6 +1232,107 @@ function MatchRow({ match, now, homeVal, awayVal, onInput, manualLocks = {} }: {
         <span>{formatTime(match.kickoff)} hs{locked && ' · '}{locked && <span className={`lock-badge${isLive ? ' live' : ''}`}>{isLive ? '🔴 En vivo' : '🔒 Cerrado'}</span>}</span>
         <span className="match-venue">{match.sede}</span>
       </div>
+    </div>
+  );
+}
+
+// ── Bonus section component ──
+function BonusSection({ bonusPreds, bonusRealResults, saving, onSave }: {
+  bonusPreds: BonusPreds;
+  bonusRealResults: BonusResults | null;
+  saving: boolean;
+  onSave: (preds: BonusPreds) => void;
+}) {
+  const [local, setLocal] = useState<BonusPreds>(bonusPreds);
+
+  // Sync if parent state updates (e.g. initial load)
+  useState(() => { setLocal(bonusPreds); });
+
+  const positions = [
+    { key: 'p1' as const, medal: '🥇', label: 'Campeón' },
+    { key: 'p2' as const, medal: '🥈', label: 'Subcampeón' },
+    { key: 'p3' as const, medal: '🥉', label: 'Tercer Puesto' },
+  ];
+
+  const bonusPtsTotal = bonusRealResults
+    ? positions.reduce((acc, { key }) => {
+        const correct = bonusRealResults[key]?.n && local[key] === bonusRealResults[key]?.n;
+        return acc + (correct ? 10 : 0);
+      }, 0)
+    : null;
+
+  return (
+    <div className="bonus-section">
+      <div className="bonus-header">
+        <div className="bonus-title">🏅 Podio Mundial</div>
+        <div className="bonus-sub">Predecí los 3 mejores equipos del Mundial. Cada posición correcta suma <strong>+10 puntos</strong>.</div>
+      </div>
+
+      {positions.map(({ key, medal, label }) => {
+        const realTeam = bonusRealResults?.[key];
+        const userPick = local[key];
+        const isCorrect = realTeam?.n && userPick === realTeam.n;
+        const isWrong = realTeam?.n && userPick && userPick !== realTeam.n;
+
+        return (
+          <div key={key} className={`bonus-row${isCorrect ? ' correct' : isWrong ? ' wrong' : ''}`}>
+            <div className="bonus-row-left">
+              <span className="bonus-medal">{medal}</span>
+              <span className="bonus-position-label">{label}</span>
+            </div>
+            <div className="bonus-row-right">
+              {realTeam?.n ? (
+                // Results are set — show comparison
+                <div className="bonus-result-view">
+                  <div className="bonus-user-pick">
+                    {userPick
+                      ? <><span>{ALL_TEAMS.find(t => t.n === userPick)?.f}</span> {userPick}</>
+                      : <span style={{ color: 'var(--muted)', fontSize: 13 }}>Sin predecir</span>}
+                  </div>
+                  <div className={`bonus-verdict${isCorrect ? ' hit' : ' miss'}`}>
+                    {isCorrect ? '✓ +10 pts' : isWrong ? '✗' : '—'}
+                  </div>
+                  <div className="bonus-real-team">
+                    <span style={{ fontSize: 11, color: 'var(--muted)' }}>Real:</span>
+                    {realTeam.f} {realTeam.n}
+                  </div>
+                </div>
+              ) : (
+                // No results yet — show selector
+                <select
+                  className="bonus-select"
+                  value={local[key]}
+                  onChange={e => setLocal(prev => ({ ...prev, [key]: e.target.value }))}
+                >
+                  <option value="">-- Seleccioná --</option>
+                  {ALL_TEAMS.map(t => (
+                    <option key={t.n} value={t.n}>{t.f} {t.n}</option>
+                  ))}
+                </select>
+              )}
+            </div>
+          </div>
+        );
+      })}
+
+      {bonusPtsTotal !== null && (
+        <div className="bonus-total">
+          <span>Puntos bonus ganados:</span>
+          <strong style={{ color: bonusPtsTotal > 0 ? 'var(--gold-l)' : 'var(--muted)' }}>
+            +{bonusPtsTotal} pts
+          </strong>
+        </div>
+      )}
+
+      {!bonusRealResults && (
+        <button
+          className={`bonus-save-btn${saving ? ' loading' : ''}`}
+          disabled={saving || (!local.p1 && !local.p2 && !local.p3)}
+          onClick={() => onSave(local)}
+        >
+          {saving ? 'Guardando...' : 'Guardar Podio'}
+        </button>
+      )}
     </div>
   );
 }
