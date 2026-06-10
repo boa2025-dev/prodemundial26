@@ -25,6 +25,7 @@ interface ScoreEntry {
   pts: number;
   exact: number;
   outcome: number;
+  predictedPct: number;
 }
 
 interface KoEntry {
@@ -642,7 +643,12 @@ function AllGroupsPreview({
           if (pred.home === res.home && pred.away === res.away) { pts += 3; exact++; }
           else if (Math.sign(pred.home - pred.away) === Math.sign(res.home - res.away)) { pts += 1; outcome++; }
         }
-        return { name: member.displayName || member.uid, uid: member.uid, pts, exact, outcome };
+        const predictedCount = MATCHES.filter(m => {
+          const pred = preds[m.id];
+          return pred && pred.home != null && pred.away != null;
+        }).length;
+        const predictedPct = Math.round((predictedCount / MATCHES.length) * 100);
+        return { name: member.displayName || member.uid, uid: member.uid, pts, exact, outcome, predictedPct };
       });
       scores.sort((a, b) => b.pts - a.pts || b.exact - a.exact);
       setGroupScores(prev => ({ ...prev, [group.code]: scores }));
@@ -713,7 +719,7 @@ function AllGroupsPreview({
                 ) : scores && scores.length > 0 ? (
                   <table className="lb-table">
                     <thead>
-                      <tr><th>#</th><th>Jugador</th><th>Pts</th><th>Exactos</th><th>Result.</th></tr>
+                      <tr><th>#</th><th>Jugador</th><th>Pts</th><th>Exactos</th><th>Result.</th><th>Pronosticado</th></tr>
                     </thead>
                     <tbody>
                       {scores.map((s, i) => (
@@ -723,6 +729,7 @@ function AllGroupsPreview({
                           <td className={`lb-pts${i === 0 ? ' leader' : ''}`}>{s.pts}</td>
                           <td className="lb-exact">{s.exact}</td>
                           <td className="lb-outcome">{s.outcome}</td>
+                          <td className={`lb-pct${s.predictedPct === 100 ? ' complete' : ''}`}>{s.predictedPct}%</td>
                         </tr>
                       ))}
                     </tbody>

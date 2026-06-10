@@ -186,6 +186,15 @@
   margin-top: 12px;
 }
 
+.lb-pct {
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.lb-pct.complete {
+  color: var(--green);
+}
+
 /* ── Admin Bonus Section ── */
 .admin-bonus-card {
   background: rgba(12, 18, 32, 0.6);
