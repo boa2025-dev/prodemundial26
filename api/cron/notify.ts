@@ -3,9 +3,9 @@ import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
 import { Resend } from 'resend';
-import { MATCHES, KNOCKOUT_ROUNDS } from '../../src/data/matches';
-import { TZ } from '../../src/lib/utils';
-import { emailShell, matchRow, type CandidateMatch } from '../../src/lib/emailTemplates';
+import { MATCHES, KNOCKOUT_ROUNDS } from '../_lib/matches';
+import { TZ } from '../_lib/utils';
+import { emailShell, matchRow, type CandidateMatch } from '../_lib/emailTemplates';
 
 const FROM = process.env.RESEND_FROM_EMAIL || 'Prode Mundial 2026 <notificaciones@prodemundial26.online>';
 
