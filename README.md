@@ -113,7 +113,7 @@ npm run build
 
 ## Notificaciones por email
 
-Un cron job (`api/cron/notify.ts`) corre cada hora vía **Vercel Cron** y envía mails con **Resend**:
+Una función serverless (`api/cron/notify.ts`) envía mails con **Resend** y se ejecuta cada hora vía un workflow de **GitHub Actions** (`.github/workflows/notify-cron.yml`), que es gratuito y soporta cron horario (los Cron Jobs de Vercel en el plan Hobby están limitados a 1 ejecución diaria):
 
 - **Partido por arrancar**: si a un usuario le faltan menos de 3hs para el kickoff de un partido (no bloqueado) y todavía no cargó su pronóstico, recibe un recordatorio.
 - **Nueva fase disponible**: cuando el admin habilita una fase de eliminatorias con el bracket ya armado, los usuarios con predicciones pendientes de esa fase reciben un aviso.
@@ -122,16 +122,22 @@ Cada combinación partido/usuario y fase se notifica una sola vez (se guarda en 
 
 ### Configuración
 
-Variables de entorno necesarias en Vercel → **Project Settings → Environment Variables** (ver `.env.example`):
+**1. Variables de entorno en Vercel** → Project Settings → Environment Variables (ver `.env.example`):
 
 | Variable | Descripción |
 |---|---|
 | `FIREBASE_SERVICE_ACCOUNT_KEY` | JSON completo de la cuenta de servicio (Firebase Console → Configuración del proyecto → Cuentas de servicio → Generar nueva clave privada) |
 | `RESEND_API_KEY` | API key de [Resend](https://resend.com/api-keys) |
 | `RESEND_FROM_EMAIL` | Remitente verificado, ej. `Prode Mundial 2026 <notificaciones@prodemundial26.online>` |
-| `CRON_SECRET` | Secreto random — Vercel lo envía automáticamente como `Authorization: Bearer <CRON_SECRET>` en cada ejecución programada |
+| `CRON_SECRET` | Secreto random — el workflow de GitHub Actions lo envía como `Authorization: Bearer <CRON_SECRET>` |
 
-El cron está declarado en `vercel.json` (`crons`) con frecuencia horaria.
+**2. Secret en GitHub** → repo Settings → Secrets and variables → Actions → New repository secret:
+
+| Secret | Valor |
+|---|---|
+| `CRON_SECRET` | El mismo valor que pusiste en Vercel |
+
+El workflow corre cada hora en punto y también puede dispararse manualmente desde la pestaña **Actions** del repo ("Run workflow").
 
 ---
 

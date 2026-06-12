@@ -4,9 +4,6 @@
   "functions": {
     "api/cron/notify.ts": { "maxDuration": 60 }
   },
-  "crons": [
-    { "path": "/api/cron/notify", "schedule": "0 * * * *" }
-  ],
   "rewrites": [
     { "source": "/(.*)", "destination": "/" }
   ],
