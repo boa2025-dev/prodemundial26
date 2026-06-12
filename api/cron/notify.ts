@@ -4,23 +4,14 @@ import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
 import { Resend } from 'resend';
 import { MATCHES, KNOCKOUT_ROUNDS } from '../../src/data/matches';
-import type { Team } from '../../src/data/matches';
-import { formatDateTime, TZ } from '../../src/lib/utils';
+import { TZ } from '../../src/lib/utils';
+import { emailShell, matchRow, type CandidateMatch } from '../../src/lib/emailTemplates';
 
-const SITE_URL = 'https://prodemundial26.online';
 const FROM = process.env.RESEND_FROM_EMAIL || 'Prode Mundial 2026 <notificaciones@prodemundial26.online>';
 
 // Remind users between 2h and 3h before kickoff (cron runs hourly)
 const WINDOW_START_MS = 2 * 60 * 60 * 1000;
 const WINDOW_END_MS = 3 * 60 * 60 * 1000;
-
-interface CandidateMatch {
-  id: string;
-  local: Team;
-  visitante: Team;
-  kickoff: Date;
-  label: string;
-}
 
 function getAdminApp() {
   if (getApps().length) return getApps()[0];
@@ -36,30 +27,6 @@ function toDate(v: any): Date | null {
 function hasPrediction(preds: any, matchId: string): boolean {
   const p = preds?.matches?.[matchId];
   return !!p && p.home != null && p.away != null;
-}
-
-function matchRow(m: CandidateMatch): string {
-  return `<tr>
-    <td style="padding:6px 0;color:#fff;font-size:14px;">${m.local.f} ${m.local.n} <span style="color:#888;">vs</span> ${m.visitante.f} ${m.visitante.n}</td>
-    <td style="padding:6px 0 6px 12px;color:#c9a84c;font-size:13px;text-align:right;white-space:nowrap;">${formatDateTime(m.kickoff)} hs</td>
-  </tr>`;
-}
-
-function emailShell(title: string, intro: string, rows: string): string {
-  return `
-  <div style="background:#08090f;padding:32px 16px;font-family:Arial,Helvetica,sans-serif;">
-    <div style="max-width:520px;margin:0 auto;background:#11141d;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:28px;">
-      <div style="font-family:Georgia,serif;font-weight:800;font-size:20px;color:#fff;margin-bottom:4px;">PRODE <span style="color:#c9a84c;">2026</span></div>
-      <h1 style="font-size:17px;color:#fff;margin:18px 0 8px;">${title}</h1>
-      <p style="color:#aaa;font-size:14px;line-height:1.5;margin:0 0 16px;">${intro}</p>
-      <table style="width:100%;border-collapse:collapse;border-top:1px solid rgba(255,255,255,.08);">
-        ${rows}
-      </table>
-      <div style="text-align:center;margin-top:24px;">
-        <a href="${SITE_URL}/dashboard?tab=prode" style="display:inline-block;background:#c9a84c;color:#08090f;font-weight:700;text-decoration:none;padding:12px 28px;border-radius:10px;font-size:14px;">Completar pronóstico</a>
-      </div>
-    </div>
-  </div>`;
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
