@@ -2,8 +2,8 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "functions": {
-    "api/cron/notify.ts": { "maxDuration": 60 },
-    "api/cron/test-email.ts": { "maxDuration": 30 }
+    "api/cron/notify.ts": { "maxDuration": 10 },
+    "api/cron/test-email.ts": { "maxDuration": 10 }
   },
   "rewrites": [
     { "source": "/(.*)", "destination": "/" }
