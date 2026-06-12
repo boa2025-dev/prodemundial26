@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
+import { getFirestore, FieldValue } from 'firebase-admin/firestore';
+import { getAuth } from 'firebase-admin/auth';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
@@ -9,8 +10,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       initializeApp({ credential: cert(serviceAccount) });
     }
     const db = getFirestore();
+    const auth = getAuth();
     const snap = await db.doc('results/matchLocks').get();
-    return res.status(200).json({ ok: true, exists: snap.exists });
+    return res.status(200).json({ ok: true, exists: snap.exists, hasFieldValue: !!FieldValue, hasAuth: !!auth });
   } catch (err: any) {
     return res.status(500).json({ error: err.message, stack: err.stack });
   }
