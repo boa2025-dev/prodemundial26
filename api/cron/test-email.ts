@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { Resend } from 'resend';
-import { emailShell, matchRow, type CandidateMatch } from '../_lib/emailTemplates';
+import { emailShell, matchRow, type CandidateMatch } from '../_lib/emailTemplates.js';
 
 const FROM = process.env.RESEND_FROM_EMAIL || 'Prode Mundial 2026 <notificaciones@prodemundial26.online>';
 

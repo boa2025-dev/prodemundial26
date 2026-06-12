@@ -1,5 +1,5 @@
-import type { Team } from './matches';
-import { formatDateTime } from './utils';
+import type { Team } from './matches.js';
+import { formatDateTime } from './utils.js';
 
 export const SITE_URL = 'https://prodemundial26.online';
 

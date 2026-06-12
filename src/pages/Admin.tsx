@@ -447,6 +447,7 @@ function GroupPhase({ gid, savedResults, inputs, matchLocks, onInput, onToggleLo
   const matches = MATCHES.filter((m) => m.grupo === gid);
   const byMatchday: Record<number, typeof matches> = {};
   matches.forEach((m) => { if (!byMatchday[m.jornada]) byMatchday[m.jornada] = []; byMatchday[m.jornada].push(m); });
+  Object.values(byMatchday).forEach((ms) => ms.sort((a, b) => a.kickoff.getTime() - b.kickoff.getTime()));
   const now = Date.now();
 
   return (
