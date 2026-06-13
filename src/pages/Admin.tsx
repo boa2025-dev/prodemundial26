@@ -4,7 +4,7 @@ import { collection, doc, getDoc, getDocs, setDoc, serverTimestamp } from 'fireb
 import { signOut } from 'firebase/auth';
 import { auth, db } from '../firebase';
 import { useAuth } from '../hooks/useAuth';
-import { MATCHES, GROUP_IDS, GRUPOS_DEF, KNOCKOUT_ROUNDS, BRACKET_MAP, ALL_TEAMS } from '../data/matches';
+import { MATCHES, GRUPOS_DEF, KNOCKOUT_ROUNDS, BRACKET_MAP, ALL_TEAMS } from '../data/matches';
 import type { Team } from '../data/matches';
 import { formatDate, formatDateTime } from '../lib/utils';
 import './Admin.css';
@@ -44,7 +44,6 @@ export default function Admin() {
   const [allGroups, setAllGroups] = useState<GroupPreview[]>([]);
   const [bonusInputs, setBonusInputs] = useState<{ p1: string; p2: string; p3: string }>({ p1: '', p2: '', p3: '' });
   const [bonusSaving, setBonusSaving] = useState(false);
-  const [activeGroup, setActiveGroup] = useState(GROUP_IDS[0]);
   const [savedResults, setSavedResults] = useState<Record<string, { home: number; away: number }>>({});
   const [savedKnockout, setSavedKnockout] = useState<Record<string, KoEntry>>({});
   const [savedPhases, setSavedPhases] = useState<Record<string, boolean>>({});
@@ -360,28 +359,11 @@ export default function Admin() {
         </div>
       </div>
 
-      {/* Group tabs (only in groups phase) */}
-      {phase === 'groups' && (
-        <div className="group-tabs-wrap">
-          <div className="group-tabs">
-            {GROUP_IDS.map((id) => {
-              const done = MATCHES.filter((m) => m.grupo === id).some((m) => savedResults[m.id] != null);
-              return (
-                <div key={id} className={`g-tab${id === activeGroup ? ' active' : ''}${done ? ' done' : ''}`} onClick={() => setActiveGroup(id)}>
-                  Grupo {id}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
       <main>
         {!loaded ? (
           <div className="loading-state"><div className="spinner-lg" /></div>
         ) : phase === 'groups' ? (
           <GroupPhase
-            gid={activeGroup}
             savedResults={savedResults}
             inputs={groupInputs}
             matchLocks={matchLocks}
@@ -436,34 +418,34 @@ export default function Admin() {
   );
 }
 
-function GroupPhase({ gid, savedResults, inputs, matchLocks, onInput, onToggleLock }: {
-  gid: string;
+function GroupPhase({ savedResults, inputs, matchLocks, onInput, onToggleLock }: {
   savedResults: Record<string, { home: number; away: number }>;
   inputs: Record<string, { home: string; away: string }>;
   matchLocks: Record<string, boolean>;
   onInput: (matchId: string, side: 'home' | 'away', val: string) => void;
   onToggleLock: (matchId: string, locked: boolean) => void;
 }) {
-  const matches = MATCHES.filter((m) => m.grupo === gid);
-  const byMatchday: Record<number, typeof matches> = {};
-  matches.forEach((m) => { if (!byMatchday[m.jornada]) byMatchday[m.jornada] = []; byMatchday[m.jornada].push(m); });
-  Object.values(byMatchday).forEach((ms) => ms.sort((a, b) => a.kickoff.getTime() - b.kickoff.getTime()));
+  const matches = [...MATCHES].sort((a, b) => a.kickoff.getTime() - b.kickoff.getTime());
+  const byDay: Record<string, typeof matches> = {};
+  matches.forEach((m) => {
+    const key = formatDate(m.kickoff);
+    if (!byDay[key]) byDay[key] = [];
+    byDay[key].push(m);
+  });
   const now = Date.now();
 
   return (
     <div>
       <div className="section-hdr">
         <div className="section-hdr-left">
-          <h2>Grupo {gid}</h2>
+          <h2>Fase de Grupos</h2>
           <p>Ingresá el marcador final · El candado manual bloquea predicciones antes del inicio</p>
         </div>
       </div>
-      {[1, 2, 3].map((j) => {
-        const ms = byMatchday[j] || [];
-        if (!ms.length) return null;
+      {Object.entries(byDay).map(([day, ms]) => {
         return (
-          <div key={j} className="matchday">
-            <div className="matchday-label">Jornada {j} · {formatDate(ms[0].kickoff)}</div>
+          <div key={day} className="matchday">
+            <div className="matchday-label">{day}</div>
             {ms.map((m) => {
               const hv = inputs[m.id]?.home ?? (savedResults[m.id]?.home != null ? String(savedResults[m.id].home) : '');
               const av = inputs[m.id]?.away ?? (savedResults[m.id]?.away != null ? String(savedResults[m.id].away) : '');
@@ -474,6 +456,7 @@ function GroupPhase({ gid, savedResults, inputs, matchLocks, onInput, onToggleLo
               return (
                 <div key={m.id} className={`match-row${done ? ' has-result' : ''}${isLocked ? ' admin-locked' : ''}`}>
                   <div className="match-teams">
+                    <span className="group-badge">Grupo {m.grupo}</span>
                     <div className="team local"><span className="team-flag">{m.local.f}</span><span className="team-name">{m.local.n}</span></div>
                     <div className="score-inputs">
                       <input className="score-in admin-score" type="number" min={0} max={99} value={hv} placeholder="–"

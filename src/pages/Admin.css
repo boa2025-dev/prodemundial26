@@ -24,14 +24,7 @@
 .phase-tab:hover { color: var(--white); }
 .phase-tab.active { color: var(--gold-l); border-color: var(--gold); }
 
-.group-tabs-wrap { background: rgba(10,14,24,.8); border-bottom: 1px solid rgba(255,255,255,.04); overflow-x: auto; scrollbar-width: none; }
-.group-tabs-wrap::-webkit-scrollbar { display: none; }
-.group-tabs { display: flex; width: max-content; min-width: 100%; padding: 0 5%; }
-.g-tab { flex-shrink: 0; padding: .6rem 1rem; font-family: var(--fh); font-weight: 700; font-size: .78rem; letter-spacing: .06em; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; }
-.g-tab:hover { color: var(--white); }
-.g-tab.active { color: var(--gold-l); border-color: var(--gold); }
-.g-tab.done { color: var(--green); }
-.g-tab.done.active { border-color: var(--green); }
+.group-badge { flex-shrink: 0; font-family: var(--fh); font-size: .65rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08); border-radius: 6px; padding: .25rem .5rem; }
 
 .admin-page main { width: 90%; max-width: 960px; margin: 0 auto; padding: 2rem 0; }
 
