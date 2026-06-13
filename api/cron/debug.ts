@@ -92,6 +92,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       now: new Date(now).toISOString(),
       members,
       next6h,
+      rawState: state,
     });
   } catch (err: any) {
     console.error(err);
