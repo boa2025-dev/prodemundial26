@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
+import { getFirestore, FieldValue, FieldPath } from 'firebase-admin/firestore';
 import { MATCHES, KNOCKOUT_ROUNDS } from '../_lib/matches.js';
 
 function getAdminApp() {
@@ -31,6 +31,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const app = getAdminApp();
     const db = getFirestore(app);
     const now = Date.now();
+
+    if (req.query.cleanup) {
+      await db.doc('notifications/state').update(new FieldPath('remindedMatches.C1'), FieldValue.delete());
+      return res.status(200).json({ cleaned: true });
+    }
 
     const [matchLocksSnap, bracketSnap, groupsSnap, stateSnap] = await Promise.all([
       db.doc('results/matchLocks').get(),
