@@ -3,8 +3,7 @@
   "outputDirectory": "dist",
   "functions": {
     "api/cron/notify.ts": { "maxDuration": 10 },
-    "api/cron/test-email.ts": { "maxDuration": 10 },
-    "api/cron/debug.ts": { "maxDuration": 10 }
+    "api/cron/test-email.ts": { "maxDuration": 10 }
   },
   "rewrites": [
     { "source": "/(.*)", "destination": "/" }
