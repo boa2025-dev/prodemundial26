@@ -62,7 +62,7 @@ export default function Onboarding() {
         if (!data.memberUids?.includes(currentUser!.uid)) {
           await updateDoc(doc(db, 'groups', code), {
             memberUids: arrayUnion(currentUser!.uid),
-            members: arrayUnion({ uid: currentUser!.uid, displayName: currentUser!.displayName || currentUser!.email }),
+            members: arrayUnion({ uid: currentUser!.uid, displayName: currentUser!.displayName || currentUser!.email, email: currentUser!.email }),
           });
         }
         navigate('/dashboard', { replace: true });
@@ -101,7 +101,7 @@ export default function Onboarding() {
         name: groupName.trim(),
         code,
         createdBy: currentUser!.uid,
-        members: [{ uid: currentUser!.uid, displayName: currentUser!.displayName || currentUser!.email }],
+        members: [{ uid: currentUser!.uid, displayName: currentUser!.displayName || currentUser!.email, email: currentUser!.email }],
         memberUids: [currentUser!.uid],
         createdAt: serverTimestamp(),
       });
@@ -126,7 +126,7 @@ export default function Onboarding() {
       if (!data.memberUids?.includes(currentUser!.uid)) {
         await updateDoc(doc(db, 'groups', code), {
           memberUids: arrayUnion(currentUser!.uid),
-          members: arrayUnion({ uid: currentUser!.uid, displayName: currentUser!.displayName || currentUser!.email }),
+          members: arrayUnion({ uid: currentUser!.uid, displayName: currentUser!.displayName || currentUser!.email, email: currentUser!.email }),
         });
       }
       setSuccess({ icon: '🙌', title: `¡Te uniste a "${data.name}"!`, sub: 'Redirigiendo al dashboard...' });

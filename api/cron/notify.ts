@@ -1,7 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
-import { getAuth } from 'firebase-admin/auth';
 import { Resend } from 'resend';
 import { MATCHES, KNOCKOUT_ROUNDS } from '../_lib/matches.js';
 import { TZ } from '../_lib/utils.js';
@@ -40,7 +39,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     const app = getAdminApp();
     const db = getFirestore(app);
-    const auth = getAuth(app);
     const resend = new Resend(process.env.RESEND_API_KEY);
     const now = Date.now();
 
@@ -59,12 +57,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const notifiedPhases: string[] = state.notifiedPhases || [];
 
     // Unique users across all groups
-    const usersMap = new Map<string, string>(); // uid -> displayName
+    const emailByUid = new Map<string, string>();
     groupsSnap.docs.forEach(d => {
-      const members = (d.data().members || []) as { uid: string; displayName?: string }[];
-      members.forEach(m => { if (m.uid) usersMap.set(m.uid, m.displayName || ''); });
+      const members = (d.data().members || []) as { uid: string; email?: string }[];
+      members.forEach(m => { if (m.uid && m.email) emailByUid.set(m.uid, m.email); });
     });
-    const uids = Array.from(usersMap.keys());
+    const uids = Array.from(emailByUid.keys());
     if (uids.length === 0) return res.status(200).json({ reminders: 0, phaseEmails: 0, note: 'no users' });
 
     // Predictions for all users
@@ -127,14 +125,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
-    // ── Resolve emails for all involved users ──
+    // ── Send emails for all involved users ──
     const involvedUids = Array.from(new Set([...reminderByUid.keys(), ...phaseByUid.keys()]));
     let reminders = 0, phaseEmails = 0;
 
     if (involvedUids.length > 0) {
-      const { users } = await auth.getUsers(involvedUids.map(uid => ({ uid })));
-      const emailByUid = new Map(users.filter(u => u.email).map(u => [u.uid, u.email!]));
-
       const jobs: Promise<any>[] = [];
 
       for (const [uid, matches] of reminderByUid) {
