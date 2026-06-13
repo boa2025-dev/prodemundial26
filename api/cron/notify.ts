@@ -8,8 +8,9 @@ import { emailShell, matchRow, type CandidateMatch } from '../_lib/emailTemplate
 
 const FROM = process.env.RESEND_FROM_EMAIL || 'Prode Mundial 2026 <notificaciones@prodemundial26.online>';
 
-// Remind users between 2h and 3h before kickoff (cron runs hourly)
-const WINDOW_START_MS = 2 * 60 * 60 * 1000;
+// Remind users up to 3h before kickoff. The GitHub Actions cron runs roughly
+// hourly but with significant drift, so we don't use a lower bound — the
+// remindedMatches dedup ensures each user only gets one reminder per match.
 const WINDOW_END_MS = 3 * 60 * 60 * 1000;
 
 function getAdminApp() {
@@ -87,7 +88,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const upcoming = candidates.filter(m => {
       const diff = m.kickoff.getTime() - now;
-      if (diff < WINDOW_START_MS || diff >= WINDOW_END_MS) return false;
+      if (diff <= 0 || diff >= WINDOW_END_MS) return false;
       return !matchLocks[m.id];
     });
 
