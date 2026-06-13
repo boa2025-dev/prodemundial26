@@ -165,8 +165,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // ── Persist dedupe state ──
     const stateUpdate: Record<string, any> = {};
-    for (const [matchId, newUids] of Object.entries(matchReminderUpdates)) {
-      stateUpdate[`remindedMatches.${matchId}`] = FieldValue.arrayUnion(...newUids);
+    if (Object.keys(matchReminderUpdates).length > 0) {
+      stateUpdate.remindedMatches = {};
+      for (const [matchId, newUids] of Object.entries(matchReminderUpdates)) {
+        stateUpdate.remindedMatches[matchId] = FieldValue.arrayUnion(...newUids);
+      }
     }
     if (newlyNotifiedPhaseIds.length > 0) {
       stateUpdate.notifiedPhases = FieldValue.arrayUnion(...newlyNotifiedPhaseIds);
