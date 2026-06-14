@@ -72,7 +72,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const predsByUid = new Map<string, any>();
     uids.forEach((uid, i) => predsByUid.set(uid, predsSnaps[i].exists ? predsSnaps[i].data() : {}));
 
-    // ── 1) Upcoming matches starting in [2h, 3h) without manual lock ──
+    // ── 1) Upcoming matches starting within 3h, without manual lock ──
     const candidates: CandidateMatch[] = [];
     MATCHES.forEach(m => candidates.push({ id: m.id, local: m.local, visitante: m.visitante, kickoff: m.kickoff, label: 'Fase de Grupos' }));
     KNOCKOUT_ROUNDS.forEach(round => {
@@ -92,7 +92,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return !matchLocks[m.id];
     });
 
-    const matchReminderUpdates: Record<string, string[]> = {};
     const reminderByUid = new Map<string, CandidateMatch[]>();
     for (const m of upcoming) {
       for (const uid of uids) {
@@ -100,7 +99,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if (hasPrediction(predsByUid.get(uid), m.id)) continue;
         if (!reminderByUid.has(uid)) reminderByUid.set(uid, []);
         reminderByUid.get(uid)!.push(m);
-        (matchReminderUpdates[m.id] ||= []).push(uid);
       }
     }
 
@@ -126,44 +124,62 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
-    // ── Send emails for all involved users ──
-    const involvedUids = Array.from(new Set([...reminderByUid.keys(), ...phaseByUid.keys()]));
-    let reminders = 0, phaseEmails = 0;
+    // ── Send emails for all involved users via a single batch request ──
+    // (a single Resend call avoids per-recipient rate limits and stays well
+    // within the 10s function budget regardless of recipient count)
+    let reminders = 0, phaseEmails = 0, failures = 0;
+    const matchReminderUpdates: Record<string, string[]> = {};
 
-    if (involvedUids.length > 0) {
-      const jobs: Promise<any>[] = [];
+    type Job = { kind: 'reminder' | 'phase'; uid: string; matches: CandidateMatch[] };
+    const jobs: Job[] = [];
+    const payload: any[] = [];
 
-      for (const [uid, matches] of reminderByUid) {
-        const email = emailByUid.get(uid);
-        if (!email) continue;
-        const rows = matches.map(matchRow).join('');
-        const html = emailShell(
-          '⏰ ¡Partidos por arrancar!',
-          `Estos partidos comienzan en menos de 3 horas (horario de ${TZ.split('/').pop()?.replace('_', ' ')}) y todavía no cargaste tu pronóstico:`,
-          rows
-        );
-        jobs.push(resend.emails.send({ from: FROM, to: email, subject: '⏰ Tenés partidos sin pronosticar', html }));
-        reminders++;
-      }
-
-      for (const [uid, matches] of phaseByUid) {
-        const email = emailByUid.get(uid);
-        if (!email) continue;
-        const label = matches[0]?.label || 'una nueva fase';
-        const rows = matches.map(matchRow).join('');
-        const html = emailShell(
-          `🏆 ¡${label} ya está disponible!`,
-          `El administrador habilitó los pronósticos para ${label}. Completalos antes de que arranquen los partidos:`,
-          rows
-        );
-        jobs.push(resend.emails.send({ from: FROM, to: email, subject: `🏆 Nueva fase disponible: ${label}`, html }));
-        phaseEmails++;
-      }
-
-      await Promise.allSettled(jobs);
+    for (const [uid, matches] of reminderByUid) {
+      const email = emailByUid.get(uid);
+      if (!email) continue;
+      const rows = matches.map(matchRow).join('');
+      const html = emailShell(
+        '⏰ ¡Partidos por arrancar!',
+        `Estos partidos comienzan en menos de 3 horas (horario de ${TZ.split('/').pop()?.replace('_', ' ')}) y todavía no cargaste tu pronóstico:`,
+        rows
+      );
+      jobs.push({ kind: 'reminder', uid, matches });
+      payload.push({ from: FROM, to: email, subject: '⏰ Tenés partidos sin pronosticar', html });
     }
 
-    // ── Persist dedupe state ──
+    for (const [uid, matches] of phaseByUid) {
+      const email = emailByUid.get(uid);
+      if (!email) continue;
+      const label = matches[0]?.label || 'una nueva fase';
+      const rows = matches.map(matchRow).join('');
+      const html = emailShell(
+        `🏆 ¡${label} ya está disponible!`,
+        `El administrador habilitó los pronósticos para ${label}. Completalos antes de que arranquen los partidos:`,
+        rows
+      );
+      jobs.push({ kind: 'phase', uid, matches });
+      payload.push({ from: FROM, to: email, subject: `🏆 Nueva fase disponible: ${label}`, html });
+    }
+
+    if (payload.length > 0) {
+      try {
+        const { error } = await resend.batch.send(payload as any);
+        if (error) throw new Error(JSON.stringify(error));
+        for (const job of jobs) {
+          if (job.kind === 'reminder') {
+            reminders++;
+            for (const m of job.matches) (matchReminderUpdates[m.id] ||= []).push(job.uid);
+          } else {
+            phaseEmails++;
+          }
+        }
+      } catch (err) {
+        console.error('Error sending batch emails:', err);
+        failures = jobs.length;
+      }
+    }
+
+    // ── Persist dedupe state (only for successfully-sent reminders) ──
     const stateUpdate: Record<string, any> = {};
     if (Object.keys(matchReminderUpdates).length > 0) {
       stateUpdate.remindedMatches = {};
@@ -171,14 +187,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         stateUpdate.remindedMatches[matchId] = FieldValue.arrayUnion(...newUids);
       }
     }
-    if (newlyNotifiedPhaseIds.length > 0) {
+    if (newlyNotifiedPhaseIds.length > 0 && failures === 0) {
       stateUpdate.notifiedPhases = FieldValue.arrayUnion(...newlyNotifiedPhaseIds);
     }
     if (Object.keys(stateUpdate).length > 0) {
       await db.doc('notifications/state').set(stateUpdate, { merge: true });
     }
 
-    return res.status(200).json({ reminders, phaseEmails, newlyNotifiedPhases: newlyNotifiedPhaseIds });
+    return res.status(200).json({ reminders, phaseEmails, failures, newlyNotifiedPhases: newlyNotifiedPhaseIds });
   } catch (err: any) {
     console.error(err);
     return res.status(500).json({ error: err.message });
