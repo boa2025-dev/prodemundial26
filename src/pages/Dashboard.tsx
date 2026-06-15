@@ -989,6 +989,62 @@ export default function Dashboard() {
 
       {/* ─── DESKTOP CONTENT ─── */}
       <div className="page db-desktop-only db2-grid">
+        {/* Rail (top row) */}
+        <div className="db2-rail">
+          {myScore && (
+            <div className="db2-rank-card">
+              <div className="db2-rank-avatar">{myScore.name.charAt(0).toUpperCase()}</div>
+              <div className="db2-rank-info">
+                <div className="db2-rank-name">
+                  {myScore.name} <span className="you-tag">#{myRank} · vos</span>
+                </div>
+                <div className="db2-rank-meta">{myScore.exact} exactos · {myScore.outcome} resultados</div>
+              </div>
+              <div className="db2-rank-pts">
+                {myScore.pts}
+                <span className="db2-rank-pts-label">PTS</span>
+              </div>
+            </div>
+          )}
+
+          {activeGroup && (
+            <div className="lb-panel db2-lb">
+              <div className="lb-panel-header">
+                <span style={{ fontSize: '1.1rem' }}>🏆</span>
+                <span className="lb-panel-title">Tabla de Puntos</span>
+              </div>
+              <div className="lb-group-name" style={{ marginBottom: '.8rem' }}>{activeGroup.name}</div>
+              {lbPodiumJsx}
+            </div>
+          )}
+
+          {nextMatch && (
+            <div className={`db2-next-card${nextMatchMinsToClose < 120 ? ' urgent' : ''}`}>
+              <div className="db2-next-header">
+                <span>⏱ Próximo partido</span>
+                {nextMatchMinsToClose < 120 && (
+                  <span className="db2-next-urgent">CIERRA EN {nextMatchMinsToClose}M</span>
+                )}
+              </div>
+              <div className="db2-next-teams">
+                <div className="db2-next-team">
+                  <span className="db2-next-flag">{nextMatch.local.f}</span>
+                  <span className="db2-next-name">{nextMatch.local.n}</span>
+                </div>
+                <div className="db2-next-center">
+                  <div className={`db2-next-time${nextMatchMinsToClose < 120 ? ' urgent' : ''}`}>{formatTime(nextMatch.kickoff)} hs</div>
+                  <div className="db2-next-vs">VS</div>
+                </div>
+                <div className="db2-next-team right">
+                  <span className="db2-next-flag">{nextMatch.visitante.f}</span>
+                  <span className="db2-next-name">{nextMatch.visitante.n}</span>
+                </div>
+              </div>
+              <div className="db2-next-venue">{nextMatch.sede}</div>
+            </div>
+          )}
+        </div>
+
         <div className="db2-main">
           <div className="preds-header">
             <div className="preds-header-left">
@@ -1076,62 +1132,6 @@ export default function Dashboard() {
               manualLocks={manualLocks}
               getMatchPoints={getMatchPoints}
             />
-          )}
-        </div>
-
-        {/* Rail */}
-        <div className="db2-rail">
-          {myScore && (
-            <div className="db2-rank-card">
-              <div className="db2-rank-avatar">{myScore.name.charAt(0).toUpperCase()}</div>
-              <div className="db2-rank-info">
-                <div className="db2-rank-name">
-                  {myScore.name} <span className="you-tag">#{myRank} · vos</span>
-                </div>
-                <div className="db2-rank-meta">{myScore.exact} exactos · {myScore.outcome} resultados</div>
-              </div>
-              <div className="db2-rank-pts">
-                {myScore.pts}
-                <span className="db2-rank-pts-label">PTS</span>
-              </div>
-            </div>
-          )}
-
-          {activeGroup && (
-            <div className="lb-panel db2-lb">
-              <div className="lb-panel-header">
-                <span style={{ fontSize: '1.1rem' }}>🏆</span>
-                <span className="lb-panel-title">Tabla de Puntos</span>
-              </div>
-              <div className="lb-group-name" style={{ marginBottom: '.8rem' }}>{activeGroup.name}</div>
-              {lbPodiumJsx}
-            </div>
-          )}
-
-          {nextMatch && (
-            <div className={`db2-next-card${nextMatchMinsToClose < 120 ? ' urgent' : ''}`}>
-              <div className="db2-next-header">
-                <span>⏱ Próximo partido</span>
-                {nextMatchMinsToClose < 120 && (
-                  <span className="db2-next-urgent">CIERRA EN {nextMatchMinsToClose}M</span>
-                )}
-              </div>
-              <div className="db2-next-teams">
-                <div className="db2-next-team">
-                  <span className="db2-next-flag">{nextMatch.local.f}</span>
-                  <span className="db2-next-name">{nextMatch.local.n}</span>
-                </div>
-                <div className="db2-next-center">
-                  <div className={`db2-next-time${nextMatchMinsToClose < 120 ? ' urgent' : ''}`}>{formatTime(nextMatch.kickoff)} hs</div>
-                  <div className="db2-next-vs">VS</div>
-                </div>
-                <div className="db2-next-team right">
-                  <span className="db2-next-flag">{nextMatch.visitante.f}</span>
-                  <span className="db2-next-name">{nextMatch.visitante.n}</span>
-                </div>
-              </div>
-              <div className="db2-next-venue">{nextMatch.sede}</div>
-            </div>
           )}
         </div>
       </div>
