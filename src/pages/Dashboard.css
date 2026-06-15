@@ -826,6 +826,7 @@ nav { background: rgba(8,9,15,.95); backdrop-filter: blur(20px); border-bottom: 
 /* Mobile match card */
 .mob-match-card {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   background: rgba(12,18,32,.8);
   border: 1px solid rgba(255,255,255,.06);

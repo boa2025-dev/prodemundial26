@@ -56,6 +56,7 @@ export default function Dashboard() {
   const [savedPreds, setSavedPreds] = useState<Record<string, Pred>>({});
   const [knockoutBracket, setKnockoutBracket] = useState<Record<string, KoBracketEntry>>({});
   const [knockoutPhases, setKnockoutPhases] = useState<Record<string, boolean>>({});
+  const [matchResults, setMatchResults] = useState<Record<string, { home: number; away: number }>>({});
   const [isDirty, setIsDirty] = useState(false);
   const [activePhaseId, setActivePhaseId] = useState('grupos');
   const [predInputs, setPredInputs] = useState<Record<string, { home: string; away: string }>>({});
@@ -116,13 +117,15 @@ export default function Dashboard() {
 
   async function loadKnockoutBracket() {
     try {
-      const [bracketSnap, phasesSnap] = await Promise.all([
+      const [bracketSnap, phasesSnap, resultsSnap] = await Promise.all([
         getDoc(doc(db, 'knockout', 'bracket')),
         getDoc(doc(db, 'knockout', 'phases')),
+        getDoc(doc(db, 'results', 'matches')),
       ]);
       setKnockoutBracket(bracketSnap.exists() ? bracketSnap.data() : {});
       setKnockoutPhases(phasesSnap.exists() ? phasesSnap.data() : {});
-    } catch { setKnockoutBracket({}); setKnockoutPhases({}); }
+      setMatchResults(resultsSnap.exists() ? (resultsSnap.data().scores || {}) : {});
+    } catch { setKnockoutBracket({}); setKnockoutPhases({}); setMatchResults({}); }
   }
 
   async function loadMatchLocks() {
@@ -262,6 +265,26 @@ export default function Dashboard() {
     const saved = savedPreds[matchId];
     if (saved && saved[side] != null) return String(saved[side]);
     return '';
+  }
+
+  // Real result for a match, from group results or the knockout bracket
+  function getMatchResult(matchId: string): { home: number; away: number } | null {
+    const r = matchResults[matchId];
+    if (r && r.home != null && r.away != null) return r;
+    const bm = knockoutBracket[matchId];
+    if (bm && bm.home != null && bm.away != null) return { home: bm.home, away: bm.away };
+    return null;
+  }
+
+  // Points earned for a prediction, given the real result. Returns null if there's no result yet.
+  function getMatchPoints(matchId: string, homeVal: string, awayVal: string): number | null {
+    if (homeVal === '' || awayVal === '') return null;
+    const res = getMatchResult(matchId);
+    if (!res) return null;
+    const h = parseInt(homeVal), a = parseInt(awayVal);
+    if (h === res.home && a === res.away) return 3;
+    if (Math.sign(h - a) === Math.sign(res.home - res.away)) return 1;
+    return 0;
   }
 
   function handleScoreInput(matchId: string, side: 'home' | 'away', value: string) {
@@ -745,6 +768,7 @@ export default function Dashboard() {
     const homeVal = getPredInput(match.id, 'home');
     const awayVal = getPredInput(match.id, 'away');
     const hasPred = homeVal !== '' && awayVal !== '';
+    const points = getMatchPoints(match.id, homeVal, awayVal);
 
     function handleTap() {
       if (locked) { showToast('Este partido está cerrado 🔒', ''); return; }
@@ -783,6 +807,12 @@ export default function Dashboard() {
             <span className="mob-mc-name">{match.visitante.n}</span>
           </div>
         </div>
+
+        {points != null && (
+          <div className={`points-badge mob${points > 0 ? ' hit' : ' miss'}`}>
+            {points > 0 ? `✓ +${points} pts` : '0 pts'}
+          </div>
+        )}
       </div>
     );
   };
@@ -981,6 +1011,7 @@ export default function Dashboard() {
             getPredInput={getPredInput}
             showOnlyPending={showOnlyPending}
             manualLocks={manualLocks}
+            getMatchPoints={getMatchPoints}
           />
         )}
       </div>
@@ -1143,7 +1174,7 @@ function PhaseCounter({ phase, savedPreds, predInputs, getPredInput }: {
   );
 }
 
-function PredictionsContent({ phase, savedPreds, predInputs, onInput, getPredInput, showOnlyPending, manualLocks = {} }: {
+function PredictionsContent({ phase, savedPreds, predInputs, onInput, getPredInput, showOnlyPending, manualLocks = {}, getMatchPoints }: {
   phase?: Phase;
   savedPreds: Record<string, any>;
   predInputs: Record<string, { home: string; away: string }>;
@@ -1151,6 +1182,7 @@ function PredictionsContent({ phase, savedPreds, predInputs, onInput, getPredInp
   getPredInput: (id: string, side: 'home' | 'away') => string;
   showOnlyPending?: boolean;
   manualLocks?: Record<string, boolean>;
+  getMatchPoints: (matchId: string, homeVal: string, awayVal: string) => number | null;
 }) {
   if (!phase) return null;
   if (phase.locked) return (
@@ -1195,7 +1227,7 @@ function PredictionsContent({ phase, savedPreds, predInputs, onInput, getPredInp
         {Object.values(byDate).map((matches, idx) => (
           <div key={idx} className="date-group">
             <div className="date-label">{formatDateFull(matches[0].kickoff)}</div>
-            {matches.map(m => <MatchRow key={m.id} match={m} now={now} homeVal={getPredInput(m.id, 'home')} awayVal={getPredInput(m.id, 'away')} onInput={onInput} manualLocks={manualLocks} />)}
+            {matches.map(m => <MatchRow key={m.id} match={m} now={now} homeVal={getPredInput(m.id, 'home')} awayVal={getPredInput(m.id, 'away')} onInput={onInput} manualLocks={manualLocks} points={getMatchPoints(m.id, getPredInput(m.id, 'home'), getPredInput(m.id, 'away'))} />)}
           </div>
         ))}
       </div>
@@ -1203,15 +1235,16 @@ function PredictionsContent({ phase, savedPreds, predInputs, onInput, getPredInp
   }
   return (
     <div id="predsContent">
-      {phase.matches.map(m => <MatchRow key={m.id} match={m} now={now} homeVal={getPredInput(m.id, 'home')} awayVal={getPredInput(m.id, 'away')} onInput={onInput} manualLocks={manualLocks} />)}
+      {phase.matches.map(m => <MatchRow key={m.id} match={m} now={now} homeVal={getPredInput(m.id, 'home')} awayVal={getPredInput(m.id, 'away')} onInput={onInput} manualLocks={manualLocks} points={getMatchPoints(m.id, getPredInput(m.id, 'home'), getPredInput(m.id, 'away'))} />)}
     </div>
   );
 }
 
-function MatchRow({ match, now, homeVal, awayVal, onInput, manualLocks = {} }: {
+function MatchRow({ match, now, homeVal, awayVal, onInput, manualLocks = {}, points }: {
   match: Match; now: number; homeVal: string; awayVal: string;
   onInput: (id: string, side: 'home' | 'away', v: string) => void;
   manualLocks?: Record<string, boolean>;
+  points?: number | null;
 }) {
   const autoLocked = now >= match.kickoff.getTime();
   const locked = autoLocked || !!manualLocks[match.id];
@@ -1235,6 +1268,11 @@ function MatchRow({ match, now, homeVal, awayVal, onInput, manualLocks = {} }: {
           <span className="team-flag">{match.visitante.f}</span>
           <span className="team-name">{match.visitante.n}</span>
         </div>
+        {points != null && (
+          <span className={`points-badge${points > 0 ? ' hit' : ' miss'}`}>
+            {points > 0 ? `✓ +${points} pts` : '0 pts'}
+          </span>
+        )}
       </div>
       <div className="match-meta">
         <span>{formatTime(match.kickoff)} hs{locked && ' · '}{locked && <span className={`lock-badge${isLive ? ' live' : ''}`}>{isLive ? '🔴 En vivo' : '🔒 Cerrado'}</span>}</span>

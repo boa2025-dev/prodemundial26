@@ -287,6 +287,32 @@ ul {
   animation: pulse 1.5s ease-in-out infinite;
 }
 
+.points-badge {
+  flex-shrink: 0;
+  font-family: var(--fh);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  padding: 0.2rem 0.5rem;
+  border-radius: 50px;
+  white-space: nowrap;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--muted);
+}
+
+.points-badge.hit {
+  background: rgba(201, 168, 76, 0.12);
+  border-color: rgba(201, 168, 76, 0.35);
+  color: var(--gold-l);
+}
+
+.points-badge.mob {
+  flex-basis: 100%;
+  margin-top: 0.5rem;
+  align-self: flex-start;
+}
+
 /* ── Loading state ── */
 .loading-state {
   text-align: center;
