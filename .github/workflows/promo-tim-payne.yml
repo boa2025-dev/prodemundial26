@@ -1,0 +1,25 @@
+name: Promo email - Tim Payne
+
+on:
+  workflow_dispatch:
+    inputs:
+      dryRun:
+        description: 'Dry run (preview only, no emails sent)'
+        type: boolean
+        default: true
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call promo endpoint
+        run: |
+          if [ "${{ inputs.dryRun }}" = "true" ]; then
+            curl --fail --silent --show-error \
+              -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+              "https://prodemundial26.online/api/cron/promo-tim-payne?dryRun=1"
+          else
+            curl --fail --silent --show-error \
+              -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+              "https://prodemundial26.online/api/cron/promo-tim-payne"
+          fi
