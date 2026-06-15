@@ -45,6 +45,15 @@ type Phase = {
   id: string; label: string; matches: Match[]; available: boolean; locked: boolean;
 };
 
+// Short icon + label for the desktop phase pills
+const PHASE_PILL_META: Record<string, { icon: string; label: string }> = {
+  grupos: { icon: '⚽', label: 'Grupos' },
+  bonus: { icon: '🏅', label: 'Podio' },
+};
+KNOCKOUT_ROUNDS.forEach(r => {
+  PHASE_PILL_META[r.id] = { icon: r.id === 'F' || r.id === 'TP' ? '🏆' : '⚔️', label: r.short };
+});
+
 export default function Dashboard() {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
@@ -466,7 +475,7 @@ export default function Dashboard() {
   const nextMatch = MATCHES.filter(m => m.kickoff.getTime() > now).sort((a, b) => a.kickoff.getTime() - b.kickoff.getTime())[0];
   const nextMatchMinsToClose = nextMatch ? Math.floor((nextMatch.kickoff.getTime() - now) / 60000) : 0;
 
-  // Leaderboard table JSX (shared between desktop and mobile tabla tab)
+  // Leaderboard table JSX (mobile "tabla" tab)
   const lbTableJsx = lbLoading
     ? <div style={{ color: 'var(--muted)', fontSize: '.84rem', display: 'flex', alignItems: 'center', gap: '.6rem' }}><div className="spin-sm" />Calculando puntos...</div>
     : (
@@ -485,6 +494,55 @@ export default function Dashboard() {
             ))}
           </tbody>
         </table>
+        <p className="lb-note">
+          {lbResolved === 0
+            ? 'El torneo aún no comenzó · Los puntos se actualizarán cuando haya resultados'
+            : `Basado en ${lbResolved} partido${lbResolved !== 1 ? 's' : ''} · Exacto = 3pts · Resultado = 1pt`}
+        </p>
+      </>
+    );
+
+  // Podium (top 3) + compact rows (4+) — desktop rail "Tabla de Puntos"
+  const lbPodiumJsx = lbLoading
+    ? <div style={{ color: 'var(--muted)', fontSize: '.84rem', display: 'flex', alignItems: 'center', gap: '.6rem' }}><div className="spin-sm" />Calculando puntos...</div>
+    : lbScores.length === 0
+    ? <div className="lb-no-results">Sin jugadores todavía</div>
+    : (
+      <>
+        <div className="lb-podium">
+          {[1, 0, 2].map(idx => {
+            const s = lbScores[idx];
+            return (
+              <div key={idx} className={`lb-podium-slot place-${idx + 1}${!s ? ' empty' : ''}`}>
+                {s && (
+                  <>
+                    <div className="lb-podium-medal">{medals[idx]}</div>
+                    <div className="lb-podium-avatar">{s.name.charAt(0).toUpperCase()}</div>
+                    <div className="lb-podium-name">
+                      {s.name.split(' ')[0]}{s.uid === currentUser?.uid && <span className="you-tag">vos</span>}
+                    </div>
+                    <div className="lb-podium-bar">
+                      <div className="lb-podium-pts">{s.pts}</div>
+                    </div>
+                  </>
+                )}
+              </div>
+            );
+          })}
+        </div>
+        {lbScores.length > 3 && (
+          <div className="lb-rows">
+            {lbScores.slice(3).map((s, i) => (
+              <div key={s.uid} className={`lb-row${s.uid === currentUser?.uid ? ' me' : ''}`}>
+                <span className="lb-row-pos">{i + 4}</span>
+                <div className="lb-row-avatar">{s.name.charAt(0).toUpperCase()}</div>
+                <span className="lb-row-name">{s.name}{s.uid === currentUser?.uid && <span className="you-tag">vos</span>}</span>
+                <span className="lb-row-exact">{s.exact}</span>
+                <span className="lb-row-pts">{s.pts}</span>
+              </div>
+            ))}
+          </div>
+        )}
         <p className="lb-note">
           {lbResolved === 0
             ? 'El torneo aún no comenzó · Los puntos se actualizarán cuando haya resultados'
@@ -930,90 +988,152 @@ export default function Dashboard() {
       </div>
 
       {/* ─── DESKTOP CONTENT ─── */}
-      <div className="page db-desktop-only">
-        {activeGroup && (
-          <div className="lb-panel" style={{ display: 'block' }}>
-            <div className="lb-panel-header">
-              <span style={{ fontSize: '1.1rem' }}>🏆</span>
-              <span className="lb-panel-title">Tabla de Puntos</span>
-              <span className="lb-group-name">{activeGroup.name}</span>
+      <div className="page db-desktop-only db2-grid">
+        <div className="db2-main">
+          <div className="preds-header">
+            <div className="preds-header-left">
+              <h2>Mis Predicciones</h2>
+              <p>Tus pronósticos valen para todos tus grupos</p>
             </div>
-            <div>{lbTableJsx}</div>
+            <div className="save-status">
+              <div className={`save-dot ${saveStatus === 'saved' ? 'saved' : 'unsaved'}`} />
+              <span>{saveStatus === 'saved' ? 'Guardado automáticamente' : 'Guardando...'}</span>
+            </div>
           </div>
-        )}
 
-        <div className="preds-header">
-          <div className="preds-header-left">
-            <h2>Mis Predicciones</h2>
-            <p>Tus pronósticos valen para todos tus grupos</p>
+          <div className="phase-selector-wrap">
+            <div className="phase-pills">
+              {phases.map(p => {
+                const meta = PHASE_PILL_META[p.id] || { icon: '⚽', label: p.label };
+                return (
+                  <button
+                    key={p.id}
+                    className={`phase-pill${p.id === activePhaseId ? ' active' : ''}`}
+                    onClick={() => setActivePhaseId(p.id)}
+                  >
+                    <span>{meta.icon}</span> {meta.label}
+                    {p.locked && ' 🔒'}
+                  </button>
+                );
+              })}
+            </div>
+            <select className="phase-select" value={activePhaseId} onChange={e => setActivePhaseId(e.target.value)}>
+              {phases.map(p => (
+                <option key={p.id} value={p.id}>
+                  {p.label}{p.locked ? ' 🔒' : (!p.available && p.id !== 'grupos') ? ' (sin definir)' : ''}
+                </option>
+              ))}
+            </select>
+            <PhaseCounter phase={activePhase} savedPreds={savedPreds} predInputs={predInputs} getPredInput={getPredInput} />
           </div>
-          <div className="save-status">
-            <div className={`save-dot ${saveStatus === 'saved' ? 'saved' : 'unsaved'}`} />
-            <span>{saveStatus === 'saved' ? 'Guardado automáticamente' : 'Guardando...'}</span>
-          </div>
+
+          {/* Bonus section — desktop */}
+          {activePhaseId === 'bonus' && (
+            <BonusSection
+              bonusPreds={bonusPreds}
+              bonusRealResults={bonusRealResults}
+              bonusOpen={bonusOpen}
+              saving={bonusSaving}
+              onSave={preds => { setBonusPreds(preds); saveBonus(preds); }}
+            />
+          )}
+
+          {/* Counter + toggle for grupos phase (desktop) */}
+          {activePhaseId === 'grupos' && (() => {
+            const pending = MATCHES.filter(m => {
+              const h = getPredInput(m.id, 'home');
+              const a = getPredInput(m.id, 'away');
+              return h === '' || a === '';
+            }).length;
+            return (
+              <div className="pred-info-bar">
+                <div className="pred-info-counter">
+                  {pending === 0
+                    ? <><span style={{ color: 'var(--green)' }}>✓</span> Todas las predicciones completadas</>
+                    : <><strong style={{ color: 'var(--white)' }}>{pending}</strong> de {MATCHES.length} partidos sin completar</>
+                  }
+                </div>
+                <div className="pred-info-toggle">
+                  <span className="pred-toggle-label">Solo pendientes</span>
+                  <button
+                    className={`pred-switch${showOnlyPending ? ' on' : ''}`}
+                    onClick={() => setShowOnlyPending(v => !v)}
+                    aria-pressed={showOnlyPending}
+                  />
+                </div>
+              </div>
+            );
+          })()}
+
+          {activePhaseId !== 'bonus' && (
+            <PredictionsContent
+              phase={activePhase}
+              savedPreds={savedPreds}
+              predInputs={predInputs}
+              onInput={handleScoreInput}
+              getPredInput={getPredInput}
+              showOnlyPending={showOnlyPending}
+              manualLocks={manualLocks}
+              getMatchPoints={getMatchPoints}
+            />
+          )}
         </div>
 
-        <div className="phase-selector-wrap">
-          <select className="phase-select" value={activePhaseId} onChange={e => setActivePhaseId(e.target.value)}>
-            {phases.map(p => (
-              <option key={p.id} value={p.id}>
-                {p.label}{p.locked ? ' 🔒' : (!p.available && p.id !== 'grupos') ? ' (sin definir)' : ''}
-              </option>
-            ))}
-          </select>
-          <PhaseCounter phase={activePhase} savedPreds={savedPreds} predInputs={predInputs} getPredInput={getPredInput} />
-        </div>
-
-        {/* Bonus section — desktop */}
-        {activePhaseId === 'bonus' && (
-          <BonusSection
-            bonusPreds={bonusPreds}
-            bonusRealResults={bonusRealResults}
-            bonusOpen={bonusOpen}
-            saving={bonusSaving}
-            onSave={preds => { setBonusPreds(preds); saveBonus(preds); }}
-          />
-        )}
-
-        {/* Counter + toggle for grupos phase (desktop) */}
-        {activePhaseId === 'grupos' && (() => {
-          const pending = MATCHES.filter(m => {
-            const h = getPredInput(m.id, 'home');
-            const a = getPredInput(m.id, 'away');
-            return h === '' || a === '';
-          }).length;
-          return (
-            <div className="pred-info-bar">
-              <div className="pred-info-counter">
-                {pending === 0
-                  ? <><span style={{ color: 'var(--green)' }}>✓</span> Todas las predicciones completadas</>
-                  : <><strong style={{ color: 'var(--white)' }}>{pending}</strong> de {MATCHES.length} partidos sin completar</>
-                }
+        {/* Rail */}
+        <div className="db2-rail">
+          {myScore && (
+            <div className="db2-rank-card">
+              <div className="db2-rank-avatar">{myScore.name.charAt(0).toUpperCase()}</div>
+              <div className="db2-rank-info">
+                <div className="db2-rank-name">
+                  {myScore.name} <span className="you-tag">#{myRank} · vos</span>
+                </div>
+                <div className="db2-rank-meta">{myScore.exact} exactos · {myScore.outcome} resultados</div>
               </div>
-              <div className="pred-info-toggle">
-                <span className="pred-toggle-label">Solo pendientes</span>
-                <button
-                  className={`pred-switch${showOnlyPending ? ' on' : ''}`}
-                  onClick={() => setShowOnlyPending(v => !v)}
-                  aria-pressed={showOnlyPending}
-                />
+              <div className="db2-rank-pts">
+                {myScore.pts}
+                <span className="db2-rank-pts-label">PTS</span>
               </div>
             </div>
-          );
-        })()}
+          )}
 
-        {activePhaseId !== 'bonus' && (
-          <PredictionsContent
-            phase={activePhase}
-            savedPreds={savedPreds}
-            predInputs={predInputs}
-            onInput={handleScoreInput}
-            getPredInput={getPredInput}
-            showOnlyPending={showOnlyPending}
-            manualLocks={manualLocks}
-            getMatchPoints={getMatchPoints}
-          />
-        )}
+          {activeGroup && (
+            <div className="lb-panel db2-lb">
+              <div className="lb-panel-header">
+                <span style={{ fontSize: '1.1rem' }}>🏆</span>
+                <span className="lb-panel-title">Tabla de Puntos</span>
+              </div>
+              <div className="lb-group-name" style={{ marginBottom: '.8rem' }}>{activeGroup.name}</div>
+              {lbPodiumJsx}
+            </div>
+          )}
+
+          {nextMatch && (
+            <div className={`db2-next-card${nextMatchMinsToClose < 120 ? ' urgent' : ''}`}>
+              <div className="db2-next-header">
+                <span>⏱ Próximo partido</span>
+                {nextMatchMinsToClose < 120 && (
+                  <span className="db2-next-urgent">CIERRA EN {nextMatchMinsToClose}M</span>
+                )}
+              </div>
+              <div className="db2-next-teams">
+                <div className="db2-next-team">
+                  <span className="db2-next-flag">{nextMatch.local.f}</span>
+                  <span className="db2-next-name">{nextMatch.local.n}</span>
+                </div>
+                <div className="db2-next-center">
+                  <div className={`db2-next-time${nextMatchMinsToClose < 120 ? ' urgent' : ''}`}>{formatTime(nextMatch.kickoff)} hs</div>
+                  <div className="db2-next-vs">VS</div>
+                </div>
+                <div className="db2-next-team right">
+                  <span className="db2-next-flag">{nextMatch.visitante.f}</span>
+                  <span className="db2-next-name">{nextMatch.visitante.n}</span>
+                </div>
+              </div>
+              <div className="db2-next-venue">{nextMatch.sede}</div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Desktop save bar */}

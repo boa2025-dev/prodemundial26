@@ -354,3 +354,153 @@
   padding: 0.15rem 0.55rem;
   white-space: nowrap;
 }
+
+/* ── Stat cards ── */
+.admin-stats {
+  display: flex;
+  gap: .7rem;
+  overflow-x: auto;
+  padding-bottom: .3rem;
+  margin-bottom: 1.5rem;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.admin-stats::-webkit-scrollbar { display: none; }
+
+.admin-stat-card {
+  flex: 0 0 auto;
+  min-width: 140px;
+  background: rgba(12,18,32,.6);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: .9rem 1.1rem;
+}
+
+.admin-stat-value { font-family: var(--fh); font-size: 1.3rem; font-weight: 900; color: var(--gold-l); }
+.admin-stat-value.on { color: var(--green); }
+.admin-stat-label { font-size: .7rem; color: var(--muted); margin-top: .3rem; white-space: nowrap; }
+
+/* ── s-text variants (save button label) ── */
+.s-text-mobile { display: none; }
+
+/* ─────────────────────────────────────────
+   DESKTOP SIDEBAR LAYOUT (≥ 900px)
+───────────────────────────────────────── */
+@media (min-width: 900px) {
+  .admin-shell {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 2rem;
+    align-items: start;
+  }
+
+  .admin-page main {
+    width: auto;
+    max-width: none;
+    margin: 0;
+  }
+
+  .phase-switcher {
+    position: sticky;
+    top: 73px;
+    background: transparent;
+    border-bottom: none;
+    padding: 2rem 0 0;
+    z-index: 1;
+  }
+
+  .phase-tabs {
+    display: flex;
+    flex-direction: column;
+    gap: .25rem;
+    overflow: visible;
+  }
+
+  .phase-tab {
+    padding: .8rem 1.1rem;
+    border-radius: 10px;
+    border-bottom: none;
+    border-left: 2px solid transparent;
+  }
+
+  .phase-tab.active {
+    background: rgba(201,168,76,.08);
+    border-left-color: var(--gold);
+  }
+
+  /* Stat cards as a row */
+  .admin-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    overflow: visible;
+  }
+
+  .admin-stat-card { min-width: 0; }
+
+  /* 2-column results grid */
+  .matchday {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .8rem 1rem;
+  }
+
+  .matchday-label { grid-column: 1 / -1; }
+  .matchday .match-row { margin-bottom: 0; }
+
+  .ko-round {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .8rem 1rem;
+  }
+
+  .ko-round-hdr { grid-column: 1 / -1; }
+  .ko-round .ko-match { margin-bottom: 0; }
+
+  /* Contained save bar, aligned with main content column */
+  .admin-page .save-bar-inner { margin-left: 252px; }
+}
+
+/* ─────────────────────────────────────────
+   MOBILE-NATIVE ADMIN (< 900px)
+───────────────────────────────────────── */
+@media (max-width: 899px) {
+  .phase-switcher { padding: 0 4%; }
+
+  .phase-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .phase-tabs::-webkit-scrollbar { display: none; }
+
+  /* Bigger hit targets */
+  .toggle-switch, .match-lock-switch-wrap { width: 44px; height: 26px; }
+  .toggle-track::after, .match-lock-track::after { width: 18px; height: 18px; }
+  .toggle-switch input:checked + .toggle-track::after,
+  .match-lock-checkbox:checked + .match-lock-track::after { transform: translateX(18px); }
+
+  .match-lock-label { min-height: 44px; align-items: center; }
+
+  /* Floating save button */
+  .admin-page .save-bar {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    border-radius: 18px;
+    border: 1px solid var(--border);
+    padding: .7rem 1rem;
+    padding-bottom: calc(.7rem + env(safe-area-inset-bottom, 0px));
+    box-shadow: 0 8px 32px rgba(0,0,0,.5);
+  }
+
+  .admin-page .save-bar-inner { justify-content: center; }
+  .admin-page .save-info { display: none; }
+  .admin-page .btn-save { flex: 1; justify-content: center; padding: 1rem 1.5rem; min-height: 44px; }
+  .s-text-mobile { display: inline; }
+  .s-text-desktop { display: none; }
+}

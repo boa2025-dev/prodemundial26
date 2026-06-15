@@ -361,17 +361,26 @@ export default function Admin() {
         </div>
       </nav>
 
-      {/* Phase switcher */}
-      <div className="phase-switcher">
-        <div className="phase-tabs">
-          <div className={`phase-tab${phase === 'groups' ? ' active' : ''}`} onClick={() => { if (isDirty && !confirm('Cambios sin guardar. ¿Cambiar?')) return; setIsDirty(false); setPhase('groups'); }}>⚽ Fase de Grupos</div>
-          <div className={`phase-tab${phase === 'knockout' ? ' active' : ''}`} onClick={() => { if (isDirty && !confirm('Cambios sin guardar. ¿Cambiar?')) return; setIsDirty(false); setPhase('knockout'); }}>⚔️ Eliminatorias</div>
-          <div className={`phase-tab${phase === 'preview' ? ' active' : ''}`} onClick={() => { if (isDirty && !confirm('Cambios sin guardar. ¿Cambiar?')) return; setIsDirty(false); setPhase('preview'); }}>👥 Grupos</div>
-          <div className={`phase-tab${phase === 'bonus' ? ' active' : ''}`} onClick={() => { if (isDirty && !confirm('Cambios sin guardar. ¿Cambiar?')) return; setIsDirty(false); setPhase('bonus'); }}>🏅 Podio</div>
+      <div className="admin-shell">
+        {/* Phase switcher */}
+        <div className="phase-switcher">
+          <div className="phase-tabs">
+            <div className={`phase-tab${phase === 'groups' ? ' active' : ''}`} onClick={() => { if (isDirty && !confirm('Cambios sin guardar. ¿Cambiar?')) return; setIsDirty(false); setPhase('groups'); }}>⚽ Fase de Grupos</div>
+            <div className={`phase-tab${phase === 'knockout' ? ' active' : ''}`} onClick={() => { if (isDirty && !confirm('Cambios sin guardar. ¿Cambiar?')) return; setIsDirty(false); setPhase('knockout'); }}>⚔️ Eliminatorias</div>
+            <div className={`phase-tab${phase === 'preview' ? ' active' : ''}`} onClick={() => { if (isDirty && !confirm('Cambios sin guardar. ¿Cambiar?')) return; setIsDirty(false); setPhase('preview'); }}>👥 Grupos</div>
+            <div className={`phase-tab${phase === 'bonus' ? ' active' : ''}`} onClick={() => { if (isDirty && !confirm('Cambios sin guardar. ¿Cambiar?')) return; setIsDirty(false); setPhase('bonus'); }}>🏅 Podio</div>
+          </div>
         </div>
-      </div>
 
-      <main>
+        <main>
+        <AdminStats
+          totalGroupDone={totalGroupDone}
+          totalGroupMatches={MATCHES.length}
+          doneBracket={doneBracket}
+          totalKo={totalKo}
+          groupsCount={allGroups.length}
+          bonusOpen={savedPhases.bonusOpen !== false}
+        />
         {!loaded ? (
           <div className="loading-state"><div className="spinner-lg" /></div>
         ) : phase === 'groups' ? (
@@ -409,7 +418,8 @@ export default function Admin() {
             onTogglePhase={togglePhase}
           />
         )}
-      </main>
+        </main>
+      </div>
 
       {/* Save bar — hidden in preview mode */}
       <div className="save-bar" style={(phase === 'preview' || phase === 'bonus') ? { display: 'none' } : {}}>
@@ -421,13 +431,47 @@ export default function Admin() {
             }
           </div>
           <button className={`btn-save admin-save${saving ? ' loading' : ''}`} disabled={!isDirty || saving} onClick={save}>
-            <span className="s-text">Guardar</span>
+            <span className="s-text s-text-desktop">Guardar</span>
+            <span className="s-text s-text-mobile">Guardar Resultados</span>
             <div className="s-spinner" />
           </button>
         </div>
       </div>
 
       <div className={`toast ${toast.type}${toast.show ? ' show' : ''}`}>{toast.msg}</div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────
+// STAT CARDS
+// ─────────────────────────────────────────
+function AdminStats({ totalGroupDone, totalGroupMatches, doneBracket, totalKo, groupsCount, bonusOpen }: {
+  totalGroupDone: number;
+  totalGroupMatches: number;
+  doneBracket: number;
+  totalKo: number;
+  groupsCount: number;
+  bonusOpen: boolean;
+}) {
+  return (
+    <div className="admin-stats">
+      <div className="admin-stat-card">
+        <div className="admin-stat-value">{totalGroupDone}/{totalGroupMatches}</div>
+        <div className="admin-stat-label">Resultados de grupos</div>
+      </div>
+      <div className="admin-stat-card">
+        <div className="admin-stat-value">{doneBracket}/{totalKo}</div>
+        <div className="admin-stat-label">Partidos eliminatoria</div>
+      </div>
+      <div className="admin-stat-card">
+        <div className="admin-stat-value">{groupsCount}</div>
+        <div className="admin-stat-label">Grupos creados</div>
+      </div>
+      <div className="admin-stat-card">
+        <div className={`admin-stat-value${bonusOpen ? ' on' : ''}`}>{bonusOpen ? 'Abierto' : 'Cerrado'}</div>
+        <div className="admin-stat-label">Podio</div>
+      </div>
     </div>
   );
 }
