@@ -768,7 +768,7 @@ function AdminBonusSection({ inputs, saving, onSave, onChange, bonusOpen, onTogg
       <div className="section-hdr">
         <div className="section-hdr-left">
           <h2>Podio Mundial</h2>
-          <p>Ingresá los 3 primeros puestos reales del Mundial. Acertar cada posición suma 10 pts al jugador.</p>
+          <p>Ingresá los 3 primeros puestos reales del Mundial. Acertar cada posición suma 5 pts al jugador.</p>
         </div>
       </div>
 

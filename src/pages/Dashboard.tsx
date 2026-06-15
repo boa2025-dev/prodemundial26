@@ -222,9 +222,9 @@ export default function Dashboard() {
           else if (Math.sign(pred.home - pred.away) === Math.sign(res.home - res.away)) { pts += 1; outcome++; }
         }
         if (realBonus && bonus) {
-          if (realBonus.p1?.n && bonus.p1?.n === realBonus.p1.n) bonusPts += 10;
-          if (realBonus.p2?.n && bonus.p2?.n === realBonus.p2.n) bonusPts += 10;
-          if (realBonus.p3?.n && bonus.p3?.n === realBonus.p3.n) bonusPts += 10;
+          if (realBonus.p1?.n && bonus.p1?.n === realBonus.p1.n) bonusPts += 5;
+          if (realBonus.p2?.n && bonus.p2?.n === realBonus.p2.n) bonusPts += 5;
+          if (realBonus.p3?.n && bonus.p3?.n === realBonus.p3.n) bonusPts += 5;
         }
         return { name: member.displayName || member.uid, uid: member.uid, pts: pts + bonusPts, exact, outcome, bonusPts };
       });
@@ -1270,7 +1270,7 @@ function BonusSection({ bonusPreds, bonusRealResults, bonusOpen, saving, onSave 
   const bonusPtsTotal = bonusRealResults
     ? positions.reduce((acc, { key }) => {
         const correct = bonusRealResults[key]?.n && local[key] === bonusRealResults[key]?.n;
-        return acc + (correct ? 10 : 0);
+        return acc + (correct ? 5 : 0);
       }, 0)
     : null;
 
@@ -1279,7 +1279,7 @@ function BonusSection({ bonusPreds, bonusRealResults, bonusOpen, saving, onSave 
       <div className="bonus-header">
         <div className="bonus-title">🏅 Podio Mundial</div>
         <div className="bonus-sub">
-          Predecí los 3 mejores equipos del Mundial. Cada posición correcta suma <strong>+10 puntos</strong>.
+          Predecí los 3 mejores equipos del Mundial. Cada posición correcta suma <strong>+5 puntos</strong>.
           {autoLocked && !bonusRealResults && (
             <span className="bonus-locked-badge">🔒 Cerrado por el administrador</span>
           )}
@@ -1308,7 +1308,7 @@ function BonusSection({ bonusPreds, bonusRealResults, bonusOpen, saving, onSave 
                       : <span style={{ color: 'var(--muted)', fontSize: 13 }}>Sin predecir</span>}
                   </div>
                   <div className={`bonus-verdict${isCorrect ? ' hit' : ' miss'}`}>
-                    {isCorrect ? '✓ +10 pts' : isWrong ? '✗' : '—'}
+                    {isCorrect ? '✓ +5 pts' : isWrong ? '✗' : '—'}
                   </div>
                   <div className="bonus-real-team">
                     <span style={{ fontSize: 11, color: 'var(--muted)' }}>Real:</span>
