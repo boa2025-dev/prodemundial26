@@ -431,6 +431,7 @@ export default function Dashboard() {
   // ── Data for renders ──
   const phases = buildPhases();
   const activePhase = phases.find(p => p.id === activePhaseId);
+  const bonusOpen = knockoutPhases.bonusOpen !== false;
   const totalFilled = Object.values(savedPreds).filter(p => p.home != null && p.away != null).length;
   const medals = ['🥇', '🥈', '🥉'];
   const posClass = ['first', 'second', 'third'];
@@ -696,6 +697,7 @@ export default function Dashboard() {
             <BonusSection
               bonusPreds={bonusPreds}
               bonusRealResults={bonusRealResults}
+              bonusOpen={bonusOpen}
               saving={bonusSaving}
               onSave={preds => { setBonusPreds(preds); saveBonus(preds); }}
             />
@@ -937,6 +939,7 @@ export default function Dashboard() {
           <BonusSection
             bonusPreds={bonusPreds}
             bonusRealResults={bonusRealResults}
+            bonusOpen={bonusOpen}
             saving={bonusSaving}
             onSave={preds => { setBonusPreds(preds); saveBonus(preds); }}
           />
@@ -1242,12 +1245,10 @@ function MatchRow({ match, now, homeVal, awayVal, onInput, manualLocks = {} }: {
 }
 
 // ── Bonus section component ──
-// Primer partido del Mundial — cierre automático de predicciones bonus
-const BONUS_LOCK_DATE = new Date('2026-06-11T19:00:00Z');
-
-function BonusSection({ bonusPreds, bonusRealResults, saving, onSave }: {
+function BonusSection({ bonusPreds, bonusRealResults, bonusOpen, saving, onSave }: {
   bonusPreds: BonusPreds;
   bonusRealResults: BonusResults | null;
+  bonusOpen: boolean;
   saving: boolean;
   onSave: (preds: BonusPreds) => void;
 }) {
@@ -1256,8 +1257,8 @@ function BonusSection({ bonusPreds, bonusRealResults, saving, onSave }: {
   // Sync if parent state updates (e.g. initial load)
   useState(() => { setLocal(bonusPreds); });
 
-  const autoLocked = Date.now() >= BONUS_LOCK_DATE.getTime();
-  // Locked if: the Mundial already started OR the admin published real results
+  const autoLocked = !bonusOpen;
+  // Locked if: the admin cerró el podio O ya publicó los resultados reales
   const isLocked = autoLocked || !!bonusRealResults;
 
   const positions = [
@@ -1280,7 +1281,7 @@ function BonusSection({ bonusPreds, bonusRealResults, saving, onSave }: {
         <div className="bonus-sub">
           Predecí los 3 mejores equipos del Mundial. Cada posición correcta suma <strong>+10 puntos</strong>.
           {autoLocked && !bonusRealResults && (
-            <span className="bonus-locked-badge">🔒 Cerrado — el Mundial ya empezó</span>
+            <span className="bonus-locked-badge">🔒 Cerrado por el administrador</span>
           )}
         </div>
       </div>

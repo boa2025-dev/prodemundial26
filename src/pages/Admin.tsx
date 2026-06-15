@@ -315,6 +315,18 @@ export default function Admin() {
     }
   }
 
+  async function toggleBonusOpen(enabled: boolean) {
+    const updated = { ...savedPhases, bonusOpen: enabled };
+    setSavedPhases(updated);
+    try {
+      await setDoc(doc(db, 'knockout', 'phases'), updated, { merge: false });
+      showToast(enabled ? '🔓 Podio abierto' : '🔒 Podio cerrado', 'success');
+    } catch (err: any) {
+      setSavedPhases({ ...updated, bonusOpen: !enabled });
+      showToast('Error al guardar: ' + err.message, 'error');
+    }
+  }
+
   if (accessDenied) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)' }}>
@@ -381,6 +393,8 @@ export default function Admin() {
             saving={bonusSaving}
             onSave={() => saveBonusResults()}
             onChange={setBonusInputs}
+            bonusOpen={savedPhases.bonusOpen !== false}
+            onToggleBonus={toggleBonusOpen}
           />
         ) : (
           <KnockoutPhase
@@ -735,11 +749,13 @@ function AllGroupsPreview({
 // ─────────────────────────────────────────
 // ADMIN BONUS SECTION
 // ─────────────────────────────────────────
-function AdminBonusSection({ inputs, saving, onSave, onChange }: {
+function AdminBonusSection({ inputs, saving, onSave, onChange, bonusOpen, onToggleBonus }: {
   inputs: { p1: string; p2: string; p3: string };
   saving: boolean;
   onSave: () => void;
   onChange: (v: { p1: string; p2: string; p3: string }) => void;
+  bonusOpen: boolean;
+  onToggleBonus: (enabled: boolean) => void;
 }) {
   const positions = [
     { key: 'p1' as const, medal: '🥇', label: 'Campeón del Mundial' },
@@ -757,6 +773,19 @@ function AdminBonusSection({ inputs, saving, onSave, onChange }: {
       </div>
 
       <div className="admin-bonus-card">
+        <div className="ko-round-hdr" style={{ marginTop: 0, marginBottom: '1.2rem' }}>
+          <span style={{ fontSize: '1rem' }}>🏅</span>
+          <span className="ko-round-title">Predicción de podio para usuarios</span>
+          <div className="ko-round-line" />
+          <div className="phase-toggle-wrap">
+            <span className={`phase-toggle-label${bonusOpen ? ' on' : ''}`}>{bonusOpen ? 'Abierto' : 'Cerrado'}</span>
+            <label className="toggle-switch">
+              <input type="checkbox" checked={bonusOpen} onChange={(e) => onToggleBonus(e.target.checked)} />
+              <span className="toggle-track" />
+            </label>
+          </div>
+        </div>
+
         {positions.map(({ key, medal, label }) => (
           <div key={key} className="admin-bonus-row">
             <div className="admin-bonus-left">
