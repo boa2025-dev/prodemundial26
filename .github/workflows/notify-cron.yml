@@ -11,6 +11,6 @@ jobs:
     steps:
       - name: Call notify endpoint
         run: |
-          curl --fail --silent --show-error \
+          curl --fail --silent --show-error -L \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
-            "https://prodemundial26.online/api/cron/notify"
+            "https://www.prodemundial26.online/api/cron/notify"
