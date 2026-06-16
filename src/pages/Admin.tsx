@@ -1022,42 +1022,48 @@ function UserMatchDetail({ preds, savedResults, savedKnockout }: {
   savedResults: Record<string, { home: number; away: number }>;
   savedKnockout: Record<string, KoEntry>;
 }) {
-  type MatchRow = { id: string; local: Team; visitante: Team; res: { home: number; away: number } | null; pred: any; pts: number | null; hasPred: boolean };
+  type MatchRow = { id: string; local: Team; visitante: Team; kickoff: Date; res: { home: number; away: number } | null; pred: any; pts: number | null; hasPred: boolean };
 
-  // All group matches grouped by grupo
-  const byGroup: Record<string, MatchRow[]> = {};
+  const TZ = 'America/Argentina/Buenos_Aires';
+  const dateKey = (d: Date) => d.toLocaleDateString('en-CA', { timeZone: TZ }); // YYYY-MM-DD for sorting
+  const dateLabel = (d: Date) => d.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long', timeZone: TZ });
+
+  // All matches (groups + configured KO) sorted by kickoff, grouped by date
+  const allRows: MatchRow[] = [];
+
   MATCHES.forEach(m => {
     const res = savedResults[m.id] ?? null;
     const pred = preds[m.id];
     const hasPred = pred && pred.home != null && pred.away != null;
     const pts = (res && hasPred) ? calcPts(pred, res.home, res.away) : null;
-    if (!byGroup[m.grupo]) byGroup[m.grupo] = [];
-    byGroup[m.grupo].push({ id: m.id, local: m.local, visitante: m.visitante, res, pred, pts, hasPred });
+    allRows.push({ id: m.id, local: m.local, visitante: m.visitante, kickoff: m.kickoff, res, pred, pts, hasPred });
   });
 
-  // All configured KO matches grouped by round
-  type KoSection = { label: string; rows: MatchRow[] };
-  const koSections: KoSection[] = [];
   KNOCKOUT_ROUNDS.forEach(round => {
-    const rows: MatchRow[] = [];
     for (let i = 1; i <= round.count; i++) {
       const id = `${round.id}-${i}`;
       const m = savedKnockout[id];
       if (!m?.slot1?.n || !m?.slot2?.n) continue;
+      const kickoff = m.kickoff ? (m.kickoff instanceof Date ? m.kickoff : (m.kickoff as any).toDate?.() ?? new Date(m.kickoff)) : new Date(0);
       const res = (m.home != null && m.away != null) ? { home: m.home!, away: m.away! } : null;
       const pred = preds[id];
       const hasPred = pred && pred.home != null && pred.away != null;
       const pts = (res && hasPred) ? calcPts(pred, res.home, res.away) : null;
-      rows.push({ id, local: m.slot1 as Team, visitante: m.slot2 as Team, res, pred, pts, hasPred });
+      allRows.push({ id, local: m.slot1 as Team, visitante: m.slot2 as Team, kickoff, res, pred, pts, hasPred });
     }
-    if (rows.length) koSections.push({ label: round.name, rows });
+  });
+
+  allRows.sort((a, b) => a.kickoff.getTime() - b.kickoff.getTime());
+
+  const byDate: Record<string, MatchRow[]> = {};
+  allRows.forEach(r => {
+    const key = dateKey(r.kickoff);
+    if (!byDate[key]) byDate[key] = [];
+    byDate[key].push(r);
   });
 
   const totalPred = MATCHES.filter(m => { const p = preds[m.id]; return p && p.home != null && p.away != null; }).length;
-  const totalEarned = [
-    ...Object.values(byGroup).flat(),
-    ...koSections.flatMap(s => s.rows),
-  ].reduce((s, r) => s + (r.pts ?? 0), 0);
+  const totalEarned = allRows.reduce((s, r) => s + (r.pts ?? 0), 0);
 
   const renderRow = (row: MatchRow) => (
     <div key={row.id} className={`ud-row${row.res ? (row.pts === 3 ? ' hit-exact' : row.pts === 1 ? ' hit-result' : row.hasPred ? ' hit-miss' : '') : ''}`}>
@@ -1104,19 +1110,10 @@ function UserMatchDetail({ preds, savedResults, savedKnockout }: {
         <strong style={{ color: 'var(--gold-l)' }}> {totalEarned} pts</strong> ganados
       </div>
 
-      {/* Group phase sections */}
-      {Object.entries(byGroup).map(([grupo, rows]) => (
-        <div key={grupo} className="ud-section">
-          <div className="ud-section-label">Grupo {grupo}</div>
+      {Object.entries(byDate).map(([key, rows]) => (
+        <div key={key} className="ud-section">
+          <div className="ud-section-label">{dateLabel(rows[0].kickoff)}</div>
           {rows.map(renderRow)}
-        </div>
-      ))}
-
-      {/* Knockout sections */}
-      {koSections.map(sec => (
-        <div key={sec.label} className="ud-section">
-          <div className="ud-section-label">⚔️ {sec.label}</div>
-          {sec.rows.map(renderRow)}
         </div>
       ))}
     </div>
