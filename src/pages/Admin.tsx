@@ -40,7 +40,7 @@ interface KoEntry {
 export default function Admin() {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
-  const [phase, setPhase] = useState<'groups' | 'knockout' | 'preview' | 'bonus'>('groups');
+  const [phase, setPhase] = useState<'groups' | 'knockout' | 'preview' | 'bonus' | 'global'>('groups');
   const [allGroups, setAllGroups] = useState<GroupPreview[]>([]);
   const [bonusInputs, setBonusInputs] = useState<{ p1: string; p2: string; p3: string }>({ p1: '', p2: '', p3: '' });
   const [bonusSaving, setBonusSaving] = useState(false);
@@ -369,6 +369,7 @@ export default function Admin() {
             <div className={`phase-tab${phase === 'knockout' ? ' active' : ''}`} onClick={() => { if (isDirty && !confirm('Cambios sin guardar. ¿Cambiar?')) return; setIsDirty(false); setPhase('knockout'); }}>⚔️ Eliminatorias</div>
             <div className={`phase-tab${phase === 'preview' ? ' active' : ''}`} onClick={() => { if (isDirty && !confirm('Cambios sin guardar. ¿Cambiar?')) return; setIsDirty(false); setPhase('preview'); }}>👥 Grupos</div>
             <div className={`phase-tab${phase === 'bonus' ? ' active' : ''}`} onClick={() => { if (isDirty && !confirm('Cambios sin guardar. ¿Cambiar?')) return; setIsDirty(false); setPhase('bonus'); }}>🏅 Podio</div>
+            <div className={`phase-tab${phase === 'global' ? ' active' : ''}`} onClick={() => { if (isDirty && !confirm('Cambios sin guardar. ¿Cambiar?')) return; setIsDirty(false); setPhase('global'); }}>🌍 Podio Global</div>
           </div>
         </div>
 
@@ -405,6 +406,12 @@ export default function Admin() {
             bonusOpen={savedPhases.bonusOpen !== false}
             onToggleBonus={toggleBonusOpen}
           />
+        ) : phase === 'global' ? (
+          <AdminGlobalPodium
+            savedResults={savedResults}
+            savedKnockout={savedKnockout}
+            allGroups={allGroups}
+          />
         ) : (
           <KnockoutPhase
             savedResults={savedResults}
@@ -422,7 +429,7 @@ export default function Admin() {
       </div>
 
       {/* Save bar — hidden in preview mode */}
-      <div className="save-bar" style={(phase === 'preview' || phase === 'bonus') ? { display: 'none' } : {}}>
+      <div className="save-bar" style={(phase === 'preview' || phase === 'bonus' || phase === 'global') ? { display: 'none' } : {}}>
         <div className="save-bar-inner">
           <div className="save-info">
             {phase === 'groups'
@@ -870,6 +877,210 @@ function AdminBonusSection({ inputs, saving, onSave, onChange, bonusOpen, onTogg
           ⚠️ Una vez guardado, los usuarios verán el resultado y no podrán cambiar sus predicciones.
         </p>
       </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────
+// GLOBAL PODIUM
+// ─────────────────────────────────────────
+interface GlobalScore {
+  uid: string;
+  name: string;
+  pts: number;
+  exact: number;
+  outcome: number;
+  predictedPct: number;
+  preds: Record<string, any>;
+}
+
+function calcPts(pred: any, home: number, away: number): number {
+  if (!pred || pred.home == null || pred.away == null) return 0;
+  if (pred.home === home && pred.away === away) return 3;
+  if (Math.sign(pred.home - pred.away) === Math.sign(home - away)) return 1;
+  return 0;
+}
+
+function AdminGlobalPodium({ savedResults, savedKnockout, allGroups }: {
+  savedResults: Record<string, { home: number; away: number }>;
+  savedKnockout: Record<string, KoEntry>;
+  allGroups: GroupPreview[];
+}) {
+  const [loading, setLoading] = useState(true);
+  const [scores, setScores] = useState<GlobalScore[]>([]);
+  const [expandedUid, setExpandedUid] = useState<string | null>(null);
+  const medals = ['🥇', '🥈', '🥉'];
+
+  useEffect(() => { loadAll(); }, []);
+
+  async function loadAll() {
+    const userMap = new Map<string, string>();
+    allGroups.forEach(g => {
+      const members = g.members || g.memberUids.map(uid => ({ uid, displayName: uid }));
+      members.forEach((m: { uid: string; displayName: string }) => {
+        if (!userMap.has(m.uid)) userMap.set(m.uid, m.displayName || m.uid);
+      });
+    });
+    const uids = Array.from(userMap.keys());
+    if (!uids.length) { setLoading(false); return; }
+
+    const data = await Promise.all(
+      uids.map(uid =>
+        getDoc(doc(db, 'predictions', `${uid}_global`))
+          .then(snap => ({ uid, name: userMap.get(uid)!, preds: snap.exists() ? (snap.data().matches || {}) : {} }))
+          .catch(() => ({ uid, name: userMap.get(uid)!, preds: {} as Record<string, any> }))
+      )
+    );
+
+    const result: GlobalScore[] = data.map(({ uid, name, preds }) => {
+      let pts = 0, exact = 0, outcome = 0;
+      for (const [id, res] of Object.entries(savedResults)) {
+        const p = calcPts(preds[id], res.home, res.away);
+        pts += p; if (p === 3) exact++; else if (p === 1) outcome++;
+      }
+      for (const [id, m] of Object.entries(savedKnockout)) {
+        if (m.home == null || m.away == null) continue;
+        const p = calcPts(preds[id], m.home!, m.away!);
+        pts += p; if (p === 3) exact++; else if (p === 1) outcome++;
+      }
+      const predictedPct = Math.round(
+        (MATCHES.filter(m => { const p = preds[m.id]; return p && p.home != null && p.away != null; }).length / MATCHES.length) * 100
+      );
+      return { uid, name, pts, exact, outcome, predictedPct, preds };
+    });
+
+    result.sort((a, b) => b.pts - a.pts || b.exact - a.exact);
+    setScores(result);
+    setLoading(false);
+  }
+
+  if (loading) return <div className="loading-state"><div className="spinner-lg" /></div>;
+
+  const top3 = scores.slice(0, 3);
+  const playedCount = Object.keys(savedResults).length;
+
+  return (
+    <div>
+      <div className="section-hdr">
+        <div className="section-hdr-left">
+          <h2>Podio Global</h2>
+          <p>{scores.length} jugadores en total · {playedCount} partido{playedCount !== 1 ? 's' : ''} con resultado</p>
+        </div>
+      </div>
+
+      {/* Visual podium top 3 */}
+      {top3.length > 0 && (
+        <div className="gp-podium">
+          {([1, 0, 2] as const).map(idx => {
+            const s = scores[idx];
+            if (!s) return <div key={idx} className="gp-podium-slot" />;
+            return (
+              <div key={idx} className={`gp-podium-slot place-${idx + 1}`} onClick={() => setExpandedUid(expandedUid === s.uid ? null : s.uid)}>
+                <div className="gp-medal">{medals[idx]}</div>
+                <div className={`gp-avatar${expandedUid === s.uid ? ' active' : ''}`}>{s.name.charAt(0).toUpperCase()}</div>
+                <div className="gp-name">{s.name.split(' ')[0]}</div>
+                <div className={`gp-bar bar-${idx + 1}`}>
+                  <div className="gp-bar-pts">{s.pts} pts</div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Full ranked list */}
+      <div className="gp-list">
+        {scores.map((s, i) => (
+          <div key={s.uid}>
+            <div
+              className={`gp-row${expandedUid === s.uid ? ' expanded' : ''}`}
+              onClick={() => setExpandedUid(expandedUid === s.uid ? null : s.uid)}
+            >
+              <span className={`gp-row-pos${i < 3 ? ` pos-${['first','second','third'][i]}` : ''}`}>
+                {medals[i] || i + 1}
+              </span>
+              <div className="gp-row-avatar">{s.name.charAt(0).toUpperCase()}</div>
+              <span className="gp-row-name">{s.name}</span>
+              <span className="gp-row-stat">{s.exact} exactos</span>
+              <span className="gp-row-stat muted">{s.outcome} result.</span>
+              <span className="gp-row-pct">{s.predictedPct}%</span>
+              <span className="gp-row-pts">{s.pts} pts</span>
+              <span className="gp-row-chevron">{expandedUid === s.uid ? '▲' : '›'}</span>
+            </div>
+            {expandedUid === s.uid && (
+              <UserMatchDetail preds={s.preds} savedResults={savedResults} savedKnockout={savedKnockout} />
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function UserMatchDetail({ preds, savedResults, savedKnockout }: {
+  preds: Record<string, any>;
+  savedResults: Record<string, { home: number; away: number }>;
+  savedKnockout: Record<string, KoEntry>;
+}) {
+  // Group matches: only those with a result
+  const groupRows = MATCHES
+    .filter(m => savedResults[m.id])
+    .map(m => {
+      const res = savedResults[m.id];
+      const pred = preds[m.id];
+      const pts = calcPts(pred, res.home, res.away);
+      const hasPred = pred && pred.home != null && pred.away != null;
+      return { id: m.id, local: m.local, visitante: m.visitante, res, pred, pts, hasPred };
+    });
+
+  // KO matches with result
+  const koRows: Array<{ id: string; local: Team; visitante: Team; res: { home: number; away: number }; pred: any; pts: number; hasPred: boolean }> = [];
+  KNOCKOUT_ROUNDS.forEach(round => {
+    for (let i = 1; i <= round.count; i++) {
+      const id = `${round.id}-${i}`;
+      const m = savedKnockout[id];
+      if (!m?.slot1?.n || !m?.slot2?.n || m.home == null || m.away == null) continue;
+      const res = { home: m.home!, away: m.away! };
+      const pred = preds[id];
+      const pts = calcPts(pred, res.home, res.away);
+      const hasPred = pred && pred.home != null && pred.away != null;
+      koRows.push({ id, local: m.slot1 as Team, visitante: m.slot2 as Team, res, pred, pts, hasPred });
+    }
+  });
+
+  const allRows = [...groupRows, ...koRows];
+  if (!allRows.length) return (
+    <div className="ud-empty">Todavía no hay partidos con resultado.</div>
+  );
+
+  const totalEarned = allRows.reduce((s, r) => s + (r.hasPred ? r.pts : 0), 0);
+
+  return (
+    <div className="ud-panel">
+      <div className="ud-summary">
+        {allRows.length} partido{allRows.length !== 1 ? 's' : ''} con resultado ·
+        <strong> {totalEarned} pts ganados</strong>
+      </div>
+      {allRows.map(row => (
+        <div key={row.id} className={`ud-row pts-${row.hasPred ? row.pts : 'none'}`}>
+          <div className="ud-teams">
+            <span className="ud-flag">{row.local.f}</span>
+            <span className="ud-tname">{row.local.n}</span>
+            <span className="ud-result">{row.res.home}:{row.res.away}</span>
+            <span className="ud-tname right">{row.visitante.n}</span>
+            <span className="ud-flag">{row.visitante.f}</span>
+          </div>
+          <div className="ud-pred">
+            {row.hasPred
+              ? <><span className="ud-pred-label">Tu pred:</span> <span className="ud-pred-score">{row.pred.home}:{row.pred.away}</span></>
+              : <span className="ud-pred-label">Sin predicción</span>
+            }
+          </div>
+          <div className={`ud-pts pts-badge-${row.hasPred ? row.pts : 'none'}`}>
+            {row.hasPred ? `+${row.pts}` : '–'}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
