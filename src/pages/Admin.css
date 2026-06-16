@@ -634,7 +634,7 @@
   border: 1px solid rgba(201,168,76,.15);
   border-top: none;
   border-radius: 0 0 12px 12px;
-  padding: 1rem 1.2rem 1.2rem;
+  padding: 1rem 1rem 1.2rem;
   margin-bottom: .3rem;
 }
 
@@ -648,74 +648,98 @@
 
 .ud-summary strong { color: var(--gold-l); }
 
+/* Match card */
 .ud-row {
-  display: flex;
-  align-items: center;
-  gap: .8rem;
-  padding: .5rem 0;
-  border-bottom: 1px solid rgba(255,255,255,.04);
-  flex-wrap: wrap;
+  background: rgba(255,255,255,.02);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 12px;
+  padding: .7rem .9rem;
+  margin-bottom: .5rem;
 }
 
-.ud-row:last-child { border-bottom: none; }
+.ud-row.hit-exact { border-color: rgba(76,201,76,.2); background: rgba(76,201,76,.04); }
+.ud-row.hit-result { border-color: rgba(201,168,76,.2); background: rgba(201,168,76,.03); }
+.ud-row.hit-miss { border-color: rgba(214,69,69,.15); background: rgba(214,69,69,.02); }
 
-.ud-teams {
+/* Teams row */
+.ud-match-teams {
   display: flex;
   align-items: center;
-  gap: .5rem;
-  flex: 1;
-  min-width: 0;
-  font-size: .83rem;
+  justify-content: space-between;
+  gap: .4rem;
+  margin-bottom: .55rem;
 }
+
+.ud-team { display: flex; align-items: center; gap: .35rem; flex: 1; min-width: 0; }
+.ud-team.right { flex-direction: row-reverse; }
 
 .ud-flag { font-size: 1rem; flex-shrink: 0; }
-.ud-tname { font-family: var(--fh); font-weight: 700; font-size: .78rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
-.ud-tname.right { text-align: right; }
-.ud-result { font-family: var(--fh); font-weight: 900; font-size: .9rem; color: var(--white); flex-shrink: 0; padding: 0 .3rem; }
+.ud-tname { font-family: var(--fh); font-weight: 700; font-size: .78rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ud-vs { font-family: var(--fh); font-weight: 800; font-size: .65rem; color: var(--muted); letter-spacing: .06em; flex-shrink: 0; }
 
-.ud-pred {
+/* Scores row: pred | divider | result | pts */
+.ud-scores {
   display: flex;
   align-items: center;
-  gap: .35rem;
-  flex-shrink: 0;
-  font-size: .76rem;
+  justify-content: center;
+  gap: .8rem;
 }
 
-.ud-pred-label { color: var(--muted); }
-.ud-pred-score { font-family: var(--fh); font-weight: 800; color: var(--gold); }
+.ud-score-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .15rem;
+  flex: 1;
+}
+
+.ud-score-label {
+  font-family: var(--fh);
+  font-size: .58rem;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.ud-score-val {
+  font-family: var(--fh);
+  font-weight: 900;
+  font-size: 1.15rem;
+  letter-spacing: .04em;
+}
+
+.ud-score-val.pred { color: var(--gold); }
+.ud-score-val.result { color: var(--white); }
+.ud-score-val.empty { font-size: .78rem; font-weight: 500; color: var(--muted); font-style: italic; }
+
+.ud-score-divider { width: 1px; height: 2.2rem; background: rgba(255,255,255,.1); flex-shrink: 0; }
 
 .ud-pts {
   font-family: var(--fh);
   font-weight: 900;
-  font-size: .85rem;
+  font-size: .95rem;
   flex-shrink: 0;
   min-width: 36px;
-  text-align: right;
+  text-align: center;
 }
 
 .ud-pts.pts-badge-3 { color: var(--green); }
 .ud-pts.pts-badge-1 { color: var(--gold); }
 .ud-pts.pts-badge-0 { color: var(--red); }
-.ud-pts.pts-badge-none, .ud-pts.pts-badge-pending { color: var(--muted); }
+.ud-pts.pts-badge-none, .ud-pts.pts-badge-pending { color: var(--muted); font-size: .8rem; }
 
-.ud-row.hit-exact { background: rgba(76,201,76,.04); border-radius: 6px; }
-.ud-row.hit-result { background: rgba(201,168,76,.04); border-radius: 6px; }
-.ud-row.hit-miss { background: rgba(214,69,69,.03); border-radius: 6px; }
-
-.ud-result.pending { color: var(--muted); }
-.ud-pred-label.no-pred { font-style: italic; }
-
-.ud-section { margin-bottom: .8rem; }
+.ud-section { margin-bottom: .6rem; }
 .ud-section-label {
   font-family: var(--fh);
-  font-size: .65rem;
+  font-size: .63rem;
   font-weight: 800;
   letter-spacing: .14em;
   text-transform: uppercase;
   color: var(--muted);
-  padding: .5rem 0 .3rem;
+  padding: .5rem 0 .4rem;
   border-bottom: 1px solid rgba(255,255,255,.06);
-  margin-bottom: .3rem;
+  margin-bottom: .4rem;
 }
 
 .ud-empty {

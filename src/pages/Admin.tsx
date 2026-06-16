@@ -1061,24 +1061,38 @@ function UserMatchDetail({ preds, savedResults, savedKnockout }: {
 
   const renderRow = (row: MatchRow) => (
     <div key={row.id} className={`ud-row${row.res ? (row.pts === 3 ? ' hit-exact' : row.pts === 1 ? ' hit-result' : row.hasPred ? ' hit-miss' : '') : ''}`}>
-      <div className="ud-teams">
-        <span className="ud-flag">{row.local.f}</span>
-        <span className="ud-tname">{row.local.n}</span>
-        {row.res
-          ? <span className="ud-result">{row.res.home}:{row.res.away}</span>
-          : <span className="ud-result pending">–:–</span>
-        }
-        <span className="ud-tname right">{row.visitante.n}</span>
-        <span className="ud-flag">{row.visitante.f}</span>
+      {/* Teams */}
+      <div className="ud-match-teams">
+        <div className="ud-team">
+          <span className="ud-flag">{row.local.f}</span>
+          <span className="ud-tname">{row.local.n}</span>
+        </div>
+        <span className="ud-vs">VS</span>
+        <div className="ud-team right">
+          <span className="ud-tname">{row.visitante.n}</span>
+          <span className="ud-flag">{row.visitante.f}</span>
+        </div>
       </div>
-      <div className="ud-pred">
-        {row.hasPred
-          ? <><span className="ud-pred-label">pred:</span> <span className="ud-pred-score">{row.pred.home}:{row.pred.away}</span></>
-          : <span className="ud-pred-label no-pred">sin pred.</span>
-        }
-      </div>
-      <div className={`ud-pts pts-badge-${row.pts === null ? 'pending' : row.pts}`}>
-        {row.pts !== null ? `+${row.pts}` : row.hasPred ? '⏳' : '–'}
+      {/* Scores */}
+      <div className="ud-scores">
+        <div className="ud-score-block">
+          <span className="ud-score-label">Predicción</span>
+          {row.hasPred
+            ? <span className="ud-score-val pred">{row.pred.home} : {row.pred.away}</span>
+            : <span className="ud-score-val empty">sin pred.</span>
+          }
+        </div>
+        <div className="ud-score-divider" />
+        <div className="ud-score-block">
+          <span className="ud-score-label">Resultado</span>
+          {row.res
+            ? <span className="ud-score-val result">{row.res.home} : {row.res.away}</span>
+            : <span className="ud-score-val empty">pendiente</span>
+          }
+        </div>
+        <div className={`ud-pts pts-badge-${row.pts === null ? 'pending' : row.pts}`}>
+          {row.pts !== null ? `+${row.pts}` : row.hasPred ? '⏳' : '–'}
+        </div>
       </div>
     </div>
   );
