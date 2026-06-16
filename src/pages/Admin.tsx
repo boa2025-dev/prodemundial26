@@ -1022,63 +1022,87 @@ function UserMatchDetail({ preds, savedResults, savedKnockout }: {
   savedResults: Record<string, { home: number; away: number }>;
   savedKnockout: Record<string, KoEntry>;
 }) {
-  // Group matches: only those with a result
-  const groupRows = MATCHES
-    .filter(m => savedResults[m.id])
-    .map(m => {
-      const res = savedResults[m.id];
-      const pred = preds[m.id];
-      const pts = calcPts(pred, res.home, res.away);
-      const hasPred = pred && pred.home != null && pred.away != null;
-      return { id: m.id, local: m.local, visitante: m.visitante, res, pred, pts, hasPred };
-    });
+  type MatchRow = { id: string; local: Team; visitante: Team; res: { home: number; away: number } | null; pred: any; pts: number | null; hasPred: boolean };
 
-  // KO matches with result
-  const koRows: Array<{ id: string; local: Team; visitante: Team; res: { home: number; away: number }; pred: any; pts: number; hasPred: boolean }> = [];
+  // All group matches grouped by grupo
+  const byGroup: Record<string, MatchRow[]> = {};
+  MATCHES.forEach(m => {
+    const res = savedResults[m.id] ?? null;
+    const pred = preds[m.id];
+    const hasPred = pred && pred.home != null && pred.away != null;
+    const pts = (res && hasPred) ? calcPts(pred, res.home, res.away) : null;
+    if (!byGroup[m.grupo]) byGroup[m.grupo] = [];
+    byGroup[m.grupo].push({ id: m.id, local: m.local, visitante: m.visitante, res, pred, pts, hasPred });
+  });
+
+  // All configured KO matches grouped by round
+  type KoSection = { label: string; rows: MatchRow[] };
+  const koSections: KoSection[] = [];
   KNOCKOUT_ROUNDS.forEach(round => {
+    const rows: MatchRow[] = [];
     for (let i = 1; i <= round.count; i++) {
       const id = `${round.id}-${i}`;
       const m = savedKnockout[id];
-      if (!m?.slot1?.n || !m?.slot2?.n || m.home == null || m.away == null) continue;
-      const res = { home: m.home!, away: m.away! };
+      if (!m?.slot1?.n || !m?.slot2?.n) continue;
+      const res = (m.home != null && m.away != null) ? { home: m.home!, away: m.away! } : null;
       const pred = preds[id];
-      const pts = calcPts(pred, res.home, res.away);
       const hasPred = pred && pred.home != null && pred.away != null;
-      koRows.push({ id, local: m.slot1 as Team, visitante: m.slot2 as Team, res, pred, pts, hasPred });
+      const pts = (res && hasPred) ? calcPts(pred, res.home, res.away) : null;
+      rows.push({ id, local: m.slot1 as Team, visitante: m.slot2 as Team, res, pred, pts, hasPred });
     }
+    if (rows.length) koSections.push({ label: round.name, rows });
   });
 
-  const allRows = [...groupRows, ...koRows];
-  if (!allRows.length) return (
-    <div className="ud-empty">Todavía no hay partidos con resultado.</div>
-  );
+  const totalPred = MATCHES.filter(m => { const p = preds[m.id]; return p && p.home != null && p.away != null; }).length;
+  const totalEarned = [
+    ...Object.values(byGroup).flat(),
+    ...koSections.flatMap(s => s.rows),
+  ].reduce((s, r) => s + (r.pts ?? 0), 0);
 
-  const totalEarned = allRows.reduce((s, r) => s + (r.hasPred ? r.pts : 0), 0);
+  const renderRow = (row: MatchRow) => (
+    <div key={row.id} className={`ud-row${row.res ? (row.pts === 3 ? ' hit-exact' : row.pts === 1 ? ' hit-result' : row.hasPred ? ' hit-miss' : '') : ''}`}>
+      <div className="ud-teams">
+        <span className="ud-flag">{row.local.f}</span>
+        <span className="ud-tname">{row.local.n}</span>
+        {row.res
+          ? <span className="ud-result">{row.res.home}:{row.res.away}</span>
+          : <span className="ud-result pending">–:–</span>
+        }
+        <span className="ud-tname right">{row.visitante.n}</span>
+        <span className="ud-flag">{row.visitante.f}</span>
+      </div>
+      <div className="ud-pred">
+        {row.hasPred
+          ? <><span className="ud-pred-label">pred:</span> <span className="ud-pred-score">{row.pred.home}:{row.pred.away}</span></>
+          : <span className="ud-pred-label no-pred">sin pred.</span>
+        }
+      </div>
+      <div className={`ud-pts pts-badge-${row.pts === null ? 'pending' : row.pts}`}>
+        {row.pts !== null ? `+${row.pts}` : row.hasPred ? '⏳' : '–'}
+      </div>
+    </div>
+  );
 
   return (
     <div className="ud-panel">
       <div className="ud-summary">
-        {allRows.length} partido{allRows.length !== 1 ? 's' : ''} con resultado ·
-        <strong> {totalEarned} pts ganados</strong>
+        <strong>{totalPred}</strong> / {MATCHES.length} predicciones completadas ·
+        <strong style={{ color: 'var(--gold-l)' }}> {totalEarned} pts</strong> ganados
       </div>
-      {allRows.map(row => (
-        <div key={row.id} className={`ud-row pts-${row.hasPred ? row.pts : 'none'}`}>
-          <div className="ud-teams">
-            <span className="ud-flag">{row.local.f}</span>
-            <span className="ud-tname">{row.local.n}</span>
-            <span className="ud-result">{row.res.home}:{row.res.away}</span>
-            <span className="ud-tname right">{row.visitante.n}</span>
-            <span className="ud-flag">{row.visitante.f}</span>
-          </div>
-          <div className="ud-pred">
-            {row.hasPred
-              ? <><span className="ud-pred-label">Tu pred:</span> <span className="ud-pred-score">{row.pred.home}:{row.pred.away}</span></>
-              : <span className="ud-pred-label">Sin predicción</span>
-            }
-          </div>
-          <div className={`ud-pts pts-badge-${row.hasPred ? row.pts : 'none'}`}>
-            {row.hasPred ? `+${row.pts}` : '–'}
-          </div>
+
+      {/* Group phase sections */}
+      {Object.entries(byGroup).map(([grupo, rows]) => (
+        <div key={grupo} className="ud-section">
+          <div className="ud-section-label">Grupo {grupo}</div>
+          {rows.map(renderRow)}
+        </div>
+      ))}
+
+      {/* Knockout sections */}
+      {koSections.map(sec => (
+        <div key={sec.label} className="ud-section">
+          <div className="ud-section-label">⚔️ {sec.label}</div>
+          {sec.rows.map(renderRow)}
         </div>
       ))}
     </div>

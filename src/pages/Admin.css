@@ -696,7 +696,27 @@
 .ud-pts.pts-badge-3 { color: var(--green); }
 .ud-pts.pts-badge-1 { color: var(--gold); }
 .ud-pts.pts-badge-0 { color: var(--red); }
-.ud-pts.pts-badge-none { color: var(--muted); }
+.ud-pts.pts-badge-none, .ud-pts.pts-badge-pending { color: var(--muted); }
+
+.ud-row.hit-exact { background: rgba(76,201,76,.04); border-radius: 6px; }
+.ud-row.hit-result { background: rgba(201,168,76,.04); border-radius: 6px; }
+.ud-row.hit-miss { background: rgba(214,69,69,.03); border-radius: 6px; }
+
+.ud-result.pending { color: var(--muted); }
+.ud-pred-label.no-pred { font-style: italic; }
+
+.ud-section { margin-bottom: .8rem; }
+.ud-section-label {
+  font-family: var(--fh);
+  font-size: .65rem;
+  font-weight: 800;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: .5rem 0 .3rem;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  margin-bottom: .3rem;
+}
 
 .ud-empty {
   padding: 1.5rem;
