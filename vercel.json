@@ -5,7 +5,8 @@
     "api/cron/notify.ts": { "maxDuration": 10 },
     "api/cron/test-email.ts": { "maxDuration": 10 },
     "api/cron/promo-tim-payne.ts": { "maxDuration": 10 },
-    "api/cron/promo-argentina.ts": { "maxDuration": 10 }
+    "api/cron/promo-argentina.ts": { "maxDuration": 10 },
+    "api/cron/fix-r32-bracket.ts": { "maxDuration": 10 }
   },
   "rewrites": [
     { "source": "/(.*)", "destination": "/" }
