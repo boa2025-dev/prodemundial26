@@ -143,7 +143,7 @@ export const ALL_TEAMS = GRUPOS_DEF.flatMap(g => g.equipos)
   .sort((a, b) => a.n.localeCompare(b.n, 'es'));
 
 export const KNOCKOUT_ROUNDS: KnockoutRound[] = [
-  { id: 'R32', name: 'Ronda de 32', short: '32avos', count: 16 },
+  { id: 'R32', name: 'Dieciseisavos de Final', short: '16avos', count: 16 },
   { id: 'R16', name: 'Octavos de Final', short: 'Octavos', count: 8 },
   { id: 'QF', name: 'Cuartos de Final', short: 'Cuartos', count: 4 },
   { id: 'SF', name: 'Semifinales', short: 'Semis', count: 2 },
