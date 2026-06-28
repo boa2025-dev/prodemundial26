@@ -424,6 +424,8 @@ nav { background: rgba(8,9,15,.95); backdrop-filter: blur(20px); border-bottom: 
 
 .db2-rank-pts-label { font-size: .58rem; color: var(--muted); letter-spacing: .14em; font-weight: 700; margin-top: .2rem; }
 
+.db2-rank-accuracy { font-size: .74rem; color: var(--gold-l); margin-top: .25rem; font-weight: 600; }
+
 /* Tabla de Puntos (rail) */
 .db2-lb { margin-bottom: 0; }
 
@@ -636,6 +638,51 @@ nav { background: rgba(8,9,15,.95); backdrop-filter: blur(20px); border-bottom: 
 
 /* ─── INICIO TAB ─── */
 .mob-inicio { padding: 0 16px; }
+
+/* My stats card */
+.mob-my-stats-card {
+  background: rgba(201,168,76,.08);
+  border: 1px solid rgba(201,168,76,.2);
+  border-radius: 18px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+}
+
+.mob-my-stats-row { display: flex; align-items: center; gap: 12px; }
+
+.mob-my-stats-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), #6b4a10);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--fh);
+  font-weight: 900;
+  font-size: 20px;
+  color: #000;
+  flex-shrink: 0;
+  box-shadow: 0 0 14px var(--glow);
+}
+
+.mob-my-stats-info { flex: 1; min-width: 0; }
+.mob-my-stats-name { font-family: var(--fh); font-size: 16px; font-weight: 900; }
+.mob-my-stats-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+.mob-my-stats-pts { text-align: right; flex-shrink: 0; }
+.mob-my-stats-pts > :first-child { font-family: var(--fh); font-size: 28px; font-weight: 900; color: var(--gold-l); line-height: 1; }
+
+.mob-my-accuracy {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gold-l);
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255,255,255,.06);
+}
+
+.mob-results-updated { font-size: 11px; color: var(--muted); margin-top: 4px; }
 
 /* Group card */
 .mob-group-card {

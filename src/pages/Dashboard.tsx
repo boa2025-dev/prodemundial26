@@ -66,6 +66,7 @@ export default function Dashboard() {
   const [knockoutBracket, setKnockoutBracket] = useState<Record<string, KoBracketEntry>>({});
   const [knockoutPhases, setKnockoutPhases] = useState<Record<string, boolean>>({});
   const [matchResults, setMatchResults] = useState<Record<string, { home: number; away: number }>>({});
+  const [resultsUpdatedAt, setResultsUpdatedAt] = useState<Date | null>(null);
   const [isDirty, setIsDirty] = useState(false);
   const [activePhaseId, setActivePhaseId] = useState('grupos');
   const [predInputs, setPredInputs] = useState<Record<string, { home: string; away: string }>>({});
@@ -134,6 +135,10 @@ export default function Dashboard() {
       setKnockoutBracket(bracketSnap.exists() ? bracketSnap.data() : {});
       setKnockoutPhases(phasesSnap.exists() ? phasesSnap.data() : {});
       setMatchResults(resultsSnap.exists() ? (resultsSnap.data().scores || {}) : {});
+      const groupUpdatedAt = resultsSnap.exists() ? resultsSnap.data().updatedAt?.toDate?.() ?? null : null;
+      const koUpdatedAt = bracketSnap.exists() ? bracketSnap.data().updatedAt?.toDate?.() ?? null : null;
+      const candidates = [groupUpdatedAt, koUpdatedAt].filter((d): d is Date => !!d);
+      setResultsUpdatedAt(candidates.length ? new Date(Math.max(...candidates.map(d => d.getTime()))) : null);
     } catch { setKnockoutBracket({}); setKnockoutPhases({}); setMatchResults({}); }
   }
 
@@ -470,10 +475,24 @@ export default function Dashboard() {
   const myScore = lbScores.find(s => s.uid === currentUser?.uid);
   const myRank = lbScores.findIndex(s => s.uid === currentUser?.uid) + 1;
 
+  // Accuracy % over every match (groups + knockout) that already has a real result
+  const allBuiltMatches = [...MATCHES, ...phases.filter(p => p.id !== 'grupos' && p.id !== 'bonus').flatMap(p => p.matches)];
+  const playedMatches = allBuiltMatches.filter(m => getMatchResult(m.id) !== null);
+  const hitMatches = playedMatches.filter(m => {
+    const pred = savedPreds[m.id];
+    if (!pred || pred.home == null || pred.away == null) return false;
+    return (getMatchPoints(m.id, String(pred.home), String(pred.away)) ?? 0) > 0;
+  });
+  const accuracyPct = playedMatches.length > 0 ? Math.round((hitMatches.length / playedMatches.length) * 100) : null;
+
   // Next upcoming match
   const now = Date.now();
   const nextMatch = MATCHES.filter(m => m.kickoff.getTime() > now).sort((a, b) => a.kickoff.getTime() - b.kickoff.getTime())[0];
   const nextMatchMinsToClose = nextMatch ? Math.floor((nextMatch.kickoff.getTime() - now) / 60000) : 0;
+
+  const lbNoteText = lbResolved === 0
+    ? 'El torneo aún no comenzó · Los puntos se actualizarán cuando haya resultados'
+    : `Basado en ${lbResolved} partido${lbResolved !== 1 ? 's' : ''} · Exacto = 3pts · Resultado = 1pt${resultsUpdatedAt ? ` · Actualizado ${formatDateTime(resultsUpdatedAt)} hs` : ''}`;
 
   // Leaderboard table JSX (mobile "tabla" tab)
   const lbTableJsx = lbLoading
@@ -494,11 +513,7 @@ export default function Dashboard() {
             ))}
           </tbody>
         </table>
-        <p className="lb-note">
-          {lbResolved === 0
-            ? 'El torneo aún no comenzó · Los puntos se actualizarán cuando haya resultados'
-            : `Basado en ${lbResolved} partido${lbResolved !== 1 ? 's' : ''} · Exacto = 3pts · Resultado = 1pt`}
-        </p>
+        <p className="lb-note">{lbNoteText}</p>
       </>
     );
 
@@ -543,17 +558,33 @@ export default function Dashboard() {
             ))}
           </div>
         )}
-        <p className="lb-note">
-          {lbResolved === 0
-            ? 'El torneo aún no comenzó · Los puntos se actualizarán cuando haya resultados'
-            : `Basado en ${lbResolved} partido${lbResolved !== 1 ? 's' : ''} · Exacto = 3pts · Resultado = 1pt`}
-        </p>
+        <p className="lb-note">{lbNoteText}</p>
       </>
     );
 
   // ── Mobile tab content renderers ──
   const MobileInicio = () => (
     <div className="mob-inicio">
+      {/* My stats card */}
+      {myScore && (
+        <div className="mob-my-stats-card">
+          <div className="mob-my-stats-row">
+            <div className="mob-my-stats-avatar">{myScore.name.charAt(0).toUpperCase()}</div>
+            <div className="mob-my-stats-info">
+              <div className="mob-my-stats-name">{myScore.name} <span className="you-tag">#{myRank} · vos</span></div>
+              <div className="mob-my-stats-meta">{myScore.exact} exactos · {myScore.outcome} resultados</div>
+            </div>
+            <div className="mob-my-stats-pts">{myScore.pts}<div className="mob-my-pts-label">PTS</div></div>
+          </div>
+          {accuracyPct !== null && (
+            <div className="mob-my-accuracy">{accuracyPct}% de aciertos · {playedMatches.length} jugados</div>
+          )}
+          {resultsUpdatedAt && (
+            <div className="mob-results-updated">Resultados actualizados: {formatDateTime(resultsUpdatedAt)} hs</div>
+          )}
+        </div>
+      )}
+
       {/* Group card */}
       <div className="mob-group-card" ref={menuRef}>
         <div className="mgc-avatar">{activeGroup?.name.charAt(0).toUpperCase() || '?'}</div>
@@ -999,6 +1030,9 @@ export default function Dashboard() {
                   {myScore.name} <span className="you-tag">#{myRank} · vos</span>
                 </div>
                 <div className="db2-rank-meta">{myScore.exact} exactos · {myScore.outcome} resultados</div>
+                {accuracyPct !== null && (
+                  <div className="db2-rank-accuracy">{accuracyPct}% de aciertos · {playedMatches.length} jugados</div>
+                )}
               </div>
               <div className="db2-rank-pts">
                 {myScore.pts}
