@@ -6,10 +6,25 @@ import { auth, db } from '../firebase';
 import { useAuth } from '../hooks/useAuth';
 import { MATCHES, GRUPOS_DEF, KNOCKOUT_ROUNDS, BRACKET_MAP, ALL_TEAMS } from '../data/matches';
 import type { Team } from '../data/matches';
-import { formatDate, formatDateTime } from '../lib/utils';
+import { formatDate, formatDateTime, TZ } from '../lib/utils';
 import './Admin.css';
 
 const ADMIN_EMAIL = 'bautistaoteroalen2008@gmail.com';
+
+// datetime-local inputs have no timezone of their own — we treat the value
+// the admin types as Argentina wall-clock time (fixed UTC-3, no DST) and
+// convert explicitly, instead of relying on the browser's own timezone.
+function dateToArtInputValue(d: Date): string {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false,
+  }).formatToParts(d);
+  const get = (type: string) => parts.find(p => p.type === type)?.value;
+  return `${get('year')}-${get('month')}-${get('day')}T${get('hour')}:${get('minute')}`;
+}
+
+function artInputValueToDate(value: string): Date {
+  return new Date(`${value}:00-03:00`);
+}
 
 interface GroupPreview {
   name: string;
@@ -106,7 +121,7 @@ export default function Admin() {
           let kickoffVal = '';
           if (m.kickoff) {
             const d = m.kickoff.toDate ? m.kickoff.toDate() : new Date(m.kickoff);
-            kickoffVal = d.toISOString().slice(0, 16);
+            kickoffVal = dateToArtInputValue(d);
           }
           ki[id] = {
             s1f: m.slot1?.f || '', s1n: m.slot1?.n || '',
@@ -275,7 +290,7 @@ export default function Admin() {
           ...existing,
           slot1: inp.s1n ? { n: inp.s1n, f: inp.s1f } : existing.slot1 || null,
           slot2: inp.s2n ? { n: inp.s2n, f: inp.s2f } : existing.slot2 || null,
-          kickoff: inp.kickoff ? new Date(inp.kickoff) : existing.kickoff || null,
+          kickoff: inp.kickoff ? artInputValueToDate(inp.kickoff) : existing.kickoff || null,
           sede: inp.sede || existing.sede || '',
           ...(inp.home !== '' && inp.away !== '' ? { home: parseInt(inp.home), away: parseInt(inp.away) } : { home: existing.home ?? null, away: existing.away ?? null }),
         };
