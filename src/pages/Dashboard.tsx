@@ -132,13 +132,27 @@ export default function Dashboard() {
         getDoc(doc(db, 'knockout', 'phases')),
         getDoc(doc(db, 'results', 'matches')),
       ]);
-      setKnockoutBracket(bracketSnap.exists() ? bracketSnap.data() : {});
-      setKnockoutPhases(phasesSnap.exists() ? phasesSnap.data() : {});
+      const bracket = bracketSnap.exists() ? bracketSnap.data()! : {};
+      const phases = phasesSnap.exists() ? phasesSnap.data()! : {};
+      setKnockoutBracket(bracket);
+      setKnockoutPhases(phases);
       setMatchResults(resultsSnap.exists() ? (resultsSnap.data().scores || {}) : {});
       const groupUpdatedAt = resultsSnap.exists() ? resultsSnap.data().updatedAt?.toDate?.() ?? null : null;
       const koUpdatedAt = bracketSnap.exists() ? bracketSnap.data().updatedAt?.toDate?.() ?? null : null;
       const candidates = [groupUpdatedAt, koUpdatedAt].filter((d): d is Date => !!d);
       setResultsUpdatedAt(candidates.length ? new Date(Math.max(...candidates.map(d => d.getTime()))) : null);
+
+      // Default the "Prode" tab to the most advanced open knockout round
+      // (e.g. Dieciseisavos) instead of group stage, once group stage ends.
+      const openRounds = KNOCKOUT_ROUNDS.filter(r => {
+        if (!phases[r.id]) return false;
+        for (let i = 1; i <= r.count; i++) {
+          const bm = bracket[`${r.id}-${i}`];
+          if (bm?.slot1?.n && bm?.slot2?.n) return true;
+        }
+        return false;
+      });
+      if (openRounds.length > 0) setActivePhaseId(openRounds[openRounds.length - 1].id);
     } catch { setKnockoutBracket({}); setKnockoutPhases({}); setMatchResults({}); }
   }
 
