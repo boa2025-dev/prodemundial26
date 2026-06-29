@@ -1,27 +1,30 @@
 :root {
+  /* Colour palette aligned to the official FIFA World Cup 26 brand manual
+     (Official Emblem Colours: Gold #907C4B, Silver #85888B, Bronze #805731) */
   --bg: #08090f;
   --bg2: #0c1220;
   --navy: #0c1220;
   --card: rgba(255, 255, 255, 0.04);
-  --gold: #c9a84c;
-  --gold-l: #f0c040;
-  --gl: #f0c040;
-  --glow: rgba(201, 168, 76, 0.35);
+  --gold: #907c4b;
+  --gold-l: #c7ae6b;
+  --gl: #c7ae6b;
+  --bronze: #805731;
+  --glow: rgba(144, 125, 75, 0.35);
   --red: #e63946;
   --white: #f0f4f8;
-  --muted: #7a8898;
-  --border: rgba(201, 168, 76, 0.2);
+  --muted: #85888b;
+  --border: rgba(144, 125, 75, 0.2);
   --bi: rgba(255, 255, 255, 0.1);
   --green: #4cc94c;
-  --fh: 'Montserrat', sans-serif;
-  --fb: 'Inter', sans-serif;
+  --fh: 'Noto Sans', sans-serif;
+  --fb: 'Noto Sans', sans-serif;
   --border-input: rgba(255, 255, 255, 0.1);
   --bg-dark: #08090f;
   --bg-navy: #0c1220;
   --bg-card: rgba(255, 255, 255, 0.04);
-  --gold-glow: rgba(201, 168, 76, 0.35);
-  --font-head: 'Montserrat', sans-serif;
-  --font-body: 'Inter', sans-serif;
+  --gold-glow: rgba(144, 125, 75, 0.35);
+  --font-head: 'Noto Sans', sans-serif;
+  --font-body: 'Noto Sans', sans-serif;
 }
 
 *,
@@ -76,7 +79,7 @@ ul {
 .spinner-lg {
   width: 36px;
   height: 36px;
-  border: 3px solid rgba(201, 168, 76, 0.2);
+  border: 3px solid rgba(144, 125, 75, 0.2);
   border-top-color: var(--gold);
   border-radius: 50%;
   animation: spin 1s linear infinite;
@@ -86,7 +89,7 @@ ul {
 .spin-sm {
   width: 14px;
   height: 14px;
-  border: 2px solid rgba(201, 168, 76, 0.2);
+  border: 2px solid rgba(144, 125, 75, 0.2);
   border-top-color: var(--gold);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
@@ -154,7 +157,7 @@ ul {
 }
 
 .match-row.has-prediction {
-  border-color: rgba(201, 168, 76, 0.18);
+  border-color: rgba(144, 125, 75, 0.18);
 }
 
 .match-row.has-result {
@@ -232,8 +235,8 @@ ul {
 
 .score-in:not(:disabled):focus {
   border-color: var(--gold);
-  background: rgba(201, 168, 76, 0.08);
-  box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.12);
+  background: rgba(144, 125, 75, 0.08);
+  box-shadow: 0 0 0 3px rgba(144, 125, 75, 0.12);
 }
 
 .score-in:not(:disabled):hover {
@@ -302,8 +305,8 @@ ul {
 }
 
 .points-badge.hit {
-  background: rgba(201, 168, 76, 0.12);
-  border-color: rgba(201, 168, 76, 0.35);
+  background: rgba(144, 125, 75, 0.12);
+  border-color: rgba(144, 125, 75, 0.35);
   color: var(--gold-l);
 }
 
@@ -444,7 +447,7 @@ ul {
 
 .form-input:focus {
   border-color: var(--gold);
-  box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.12);
+  box-shadow: 0 0 0 3px rgba(144, 125, 75, 0.12);
 }
 
 .code-display {
@@ -452,7 +455,7 @@ ul {
   align-items: center;
   justify-content: space-between;
   padding: 0.85rem 1rem;
-  background: rgba(201, 168, 76, 0.06);
+  background: rgba(144, 125, 75, 0.06);
   border: 1px solid var(--border);
   border-radius: 12px;
   margin-bottom: 1.1rem;
@@ -502,9 +505,9 @@ ul {
   letter-spacing: 0.05em;
   cursor: pointer;
   border: none;
-  background: linear-gradient(135deg, var(--gold), #a07830);
+  background: linear-gradient(135deg, var(--gold), #805731);
   color: #000;
-  box-shadow: 0 4px 24px rgba(201, 168, 76, 0.3);
+  box-shadow: 0 4px 24px rgba(144, 125, 75, 0.3);
   transition: transform 0.15s;
 }
 
@@ -574,15 +577,15 @@ ul {
   letter-spacing: 0.05em;
   cursor: pointer;
   border: none;
-  background: linear-gradient(135deg, var(--gold), #a07830);
+  background: linear-gradient(135deg, var(--gold), #805731);
   color: #000;
-  box-shadow: 0 4px 24px rgba(201, 168, 76, 0.35);
+  box-shadow: 0 4px 24px rgba(144, 125, 75, 0.35);
   transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
 }
 
 .btn-save:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(201, 168, 76, 0.5);
+  box-shadow: 0 8px 32px rgba(144, 125, 75, 0.5);
 }
 
 .btn-save:disabled {

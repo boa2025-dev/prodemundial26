@@ -16,7 +16,7 @@
   transform: translateX(-50%);
   width: 600px;
   height: 600px;
-  background: radial-gradient(circle, rgba(201, 168, 76, 0.07) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(144, 125, 75, 0.07) 0%, transparent 70%);
   pointer-events: none;
 }
 
@@ -71,7 +71,7 @@
 .page-sub { color: var(--muted); font-size: 1rem; line-height: 1.8; margin-bottom: 3rem; }
 
 .hero-banner {
-  background: linear-gradient(135deg, rgba(201, 168, 76, 0.12), rgba(201, 168, 76, 0.03));
+  background: linear-gradient(135deg, rgba(144, 125, 75, 0.12), rgba(144, 125, 75, 0.03));
   border: 1px solid var(--border);
   border-radius: 24px;
   padding: 2.5rem 2rem;
@@ -115,7 +115,7 @@
 .stat-label { font-size: 0.75rem; color: var(--muted); margin-top: 0.2rem; }
 
 .cta {
-  background: linear-gradient(135deg, rgba(201, 168, 76, 0.1), rgba(201, 168, 76, 0.04));
+  background: linear-gradient(135deg, rgba(144, 125, 75, 0.1), rgba(144, 125, 75, 0.04));
   border: 1px solid var(--border);
   border-radius: 20px;
   padding: 2rem;
@@ -135,14 +135,14 @@
   font-weight: 800;
   font-size: 0.88rem;
   letter-spacing: 0.05em;
-  background: linear-gradient(135deg, var(--gold), #a07830);
+  background: linear-gradient(135deg, var(--gold), #805731);
   color: #000;
   text-decoration: none;
   transition: transform 0.15s, box-shadow 0.15s;
-  box-shadow: 0 4px 20px rgba(201, 168, 76, 0.3);
+  box-shadow: 0 4px 20px rgba(144, 125, 75, 0.3);
 }
 
-.btn-gold:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(201, 168, 76, 0.5); }
+.btn-gold:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(144, 125, 75, 0.5); }
 
 footer {
   text-align: center;
@@ -173,7 +173,7 @@ footer a:hover { color: var(--white); }
   margin-bottom: 1rem;
 }
 
-.contact-form textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.12); }
+.contact-form textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(144, 125, 75, 0.12); }
 .contact-form textarea::placeholder { color: rgba(122, 136, 152, 0.5); }
 
 .privacy-block { background: rgba(255, 255, 255, 0.02); border: 1px solid var(--bi); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; }

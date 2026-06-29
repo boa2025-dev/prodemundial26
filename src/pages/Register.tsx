@@ -106,7 +106,7 @@ export default function Register() {
     : 100;
 
   const pwdStrengthLabel = ['', 'Muy débil', 'Débil', 'Buena', 'Fuerte'][Math.ceil(pwdStrength / 25)] || '';
-  const pwdStrengthColor = ['', '#e63946', '#f0a030', '#c9a84c', '#4cc94c'][Math.ceil(pwdStrength / 25)] || '';
+  const pwdStrengthColor = ['', '#e63946', '#f0a030', '#907c4b', '#4cc94c'][Math.ceil(pwdStrength / 25)] || '';
 
   return (
     <div className="login-page register-page">

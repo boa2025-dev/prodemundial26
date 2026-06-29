@@ -14,7 +14,7 @@
   inset: 0;
   z-index: 0;
   background:
-    radial-gradient(ellipse 70% 50% at 20% 20%, rgba(201, 168, 76, 0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 70% 50% at 20% 20%, rgba(144, 125, 75, 0.08) 0%, transparent 60%),
     radial-gradient(ellipse 60% 40% at 80% 80%, rgba(230, 57, 70, 0.06) 0%, transparent 60%),
     linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-navy) 100%);
 }
@@ -44,7 +44,7 @@
   position: relative;
   z-index: 10;
   padding: 1.2rem 0;
-  border-bottom: 1px solid rgba(201, 168, 76, 0.08);
+  border-bottom: 1px solid rgba(144, 125, 75, 0.08);
 }
 
 .auth-nav .nav-inner {
@@ -92,7 +92,7 @@
   padding: 2.8rem 2.4rem;
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5), 0 0 60px rgba(201, 168, 76, 0.05);
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5), 0 0 60px rgba(144, 125, 75, 0.05);
   animation: cardIn 0.6s ease both;
 }
 
@@ -104,7 +104,7 @@
 .card-badge {
   width: 58px;
   height: 58px;
-  background: linear-gradient(135deg, rgba(201, 168, 76, 0.15), rgba(201, 168, 76, 0.05));
+  background: linear-gradient(135deg, rgba(144, 125, 75, 0.15), rgba(144, 125, 75, 0.05));
   border: 1px solid var(--border);
   border-radius: 16px;
   display: flex;
@@ -112,7 +112,7 @@
   justify-content: center;
   font-size: 1.6rem;
   margin: 0 auto 1.5rem;
-  box-shadow: 0 0 30px rgba(201, 168, 76, 0.1);
+  box-shadow: 0 0 30px rgba(144, 125, 75, 0.1);
 }
 
 .card-title {
@@ -254,14 +254,14 @@
   padding: 0.95rem;
   border-radius: 12px;
   border: none;
-  background: linear-gradient(135deg, var(--gold) 0%, #a07830 100%);
+  background: linear-gradient(135deg, var(--gold) 0%, #805731 100%);
   color: #000;
   font-family: var(--font-head);
   font-weight: 800;
   font-size: 0.95rem;
   letter-spacing: 0.06em;
   cursor: pointer;
-  box-shadow: 0 4px 30px rgba(201, 168, 76, 0.35);
+  box-shadow: 0 4px 30px rgba(144, 125, 75, 0.35);
   transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
   position: relative;
   overflow: hidden;
@@ -281,7 +281,7 @@
 
 .btn-submit:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 40px rgba(201, 168, 76, 0.5);
+  box-shadow: 0 8px 40px rgba(144, 125, 75, 0.5);
 }
 
 .btn-submit:hover:not(:disabled)::after { left: 160%; }

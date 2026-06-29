@@ -56,15 +56,15 @@
 .toggle-switch input:checked + .toggle-track::after { transform: translateX(16px); }
 
 .ko-match { background: rgba(12,18,32,.8); border: 1px solid rgba(255,255,255,.07); border-radius: 18px; padding: 1.2rem 1.4rem; margin-bottom: .9rem; transition: border-color .2s; }
-.ko-match.configured { border-color: rgba(201,168,76,.2); }
+.ko-match.configured { border-color: rgba(144, 125, 75,.2); }
 .ko-match.has-result { border-color: rgba(76,201,76,.2); }
 .ko-match-num { font-family: var(--fh); font-size: .68rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: .9rem; }
 .ko-teams-row { display: flex; align-items: center; gap: .8rem; margin-bottom: .9rem; }
 .ko-team-inputs { display: flex; align-items: center; gap: .4rem; flex: 1; }
 .ko-flag-in { width: 44px; height: 40px; background: rgba(255,255,255,.04); border: 1px solid var(--bi); border-radius: 10px; color: var(--white); font-size: 1.2rem; text-align: center; outline: none; transition: border-color .2s; font-family: var(--fb); }
-.ko-flag-in:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,168,76,.12); }
+.ko-flag-in:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(144, 125, 75,.12); }
 .ko-name-in { flex: 1; height: 40px; background: rgba(255,255,255,.04); border: 1px solid var(--bi); border-radius: 10px; color: var(--white); font-family: var(--fh); font-weight: 700; font-size: .85rem; padding: 0 .75rem; outline: none; transition: border-color .2s; }
-.ko-name-in:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,168,76,.12); }
+.ko-name-in:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(144, 125, 75,.12); }
 .ko-name-in::placeholder { color: rgba(122,136,152,.4); font-weight: 400; }
 .ko-vs { color: var(--muted); font-family: var(--fh); font-weight: 800; font-size: .8rem; flex-shrink: 0; }
 .ko-bottom-row { display: flex; align-items: center; gap: .8rem; flex-wrap: wrap; }
@@ -78,7 +78,7 @@
 
 .auto-status { background: rgba(76,201,76,.08); border: 1px solid rgba(76,201,76,.2); border-radius: 12px; padding: .75rem 1rem; font-size: .82rem; color: var(--green); margin-bottom: 1.5rem; display: none; }
 .auto-status.show { display: block; }
-.auto-warn { background: rgba(201,168,76,.08); border: 1px solid rgba(201,168,76,.2); border-radius: 12px; padding: .75rem 1rem; font-size: .82rem; color: var(--gold); margin-bottom: 1.5rem; display: none; }
+.auto-warn { background: rgba(144, 125, 75,.08); border: 1px solid rgba(144, 125, 75,.2); border-radius: 12px; padding: .75rem 1rem; font-size: .82rem; color: var(--gold); margin-bottom: 1.5rem; display: none; }
 .auto-warn.show { display: block; }
 
 .admin-save { background: linear-gradient(135deg, var(--green), #2a9a2a) !important; box-shadow: 0 4px 24px rgba(76,201,76,.3) !important; }
@@ -95,7 +95,7 @@
 }
 
 .preview-group-card.open {
-  border-color: rgba(201, 168, 76, 0.25);
+  border-color: rgba(144, 125, 75, 0.25);
 }
 
 .pgc-header {
@@ -114,7 +114,7 @@
   width: 40px;
   height: 40px;
   border-radius: 12px;
-  background: linear-gradient(135deg, rgba(201, 168, 76, 0.2), rgba(201, 168, 76, 0.06));
+  background: linear-gradient(135deg, rgba(144, 125, 75, 0.2), rgba(144, 125, 75, 0.06));
   border: 1px solid var(--border);
   display: flex;
   align-items: center;
@@ -150,8 +150,8 @@
 .pgc-code {
   font-family: 'Courier New', monospace;
   letter-spacing: 0.06em;
-  background: rgba(201, 168, 76, 0.08);
-  border: 1px solid rgba(201, 168, 76, 0.15);
+  background: rgba(144, 125, 75, 0.08);
+  border: 1px solid rgba(144, 125, 75, 0.15);
   padding: 1px 6px;
   border-radius: 4px;
   color: var(--gold);
@@ -191,7 +191,7 @@
 /* ── Admin Bonus Section ── */
 .admin-bonus-card {
   background: rgba(12, 18, 32, 0.6);
-  border: 1px solid rgba(201, 168, 76, 0.18);
+  border: 1px solid rgba(144, 125, 75, 0.18);
   border-radius: 20px;
   padding: 1.8rem;
   max-width: 560px;
@@ -247,7 +247,7 @@
   transition: border-color 0.2s;
 }
 
-.admin-bonus-select:focus { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(201,168,76,.12); }
+.admin-bonus-select:focus { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(144, 125, 75,.12); }
 .admin-bonus-select option { background: #111824; }
 
 @media (max-width: 600px) {
@@ -428,7 +428,7 @@
   }
 
   .phase-tab.active {
-    background: rgba(201,168,76,.08);
+    background: rgba(144, 125, 75,.08);
     border-left-color: var(--gold);
   }
 
@@ -547,14 +547,14 @@
 .gp-avatar.active,
 .gp-podium-slot:hover .gp-avatar {
   transform: scale(1.08);
-  box-shadow: 0 0 16px rgba(201,168,76,.4);
+  box-shadow: 0 0 16px rgba(144, 125, 75,.4);
 }
 
 .place-1 .gp-avatar {
   width: 58px;
   height: 58px;
   font-size: 1.3rem;
-  background: linear-gradient(135deg, rgba(201,168,76,.35), rgba(201,168,76,.1));
+  background: linear-gradient(135deg, rgba(144, 125, 75,.35), rgba(144, 125, 75,.1));
   border: 1.5px solid var(--gold);
 }
 
@@ -578,7 +578,7 @@
   justify-content: center;
 }
 
-.bar-1 { height: 90px; background: linear-gradient(180deg, rgba(201,168,76,.35), rgba(201,168,76,.15)); border: 1px solid rgba(201,168,76,.4); }
+.bar-1 { height: 90px; background: linear-gradient(180deg, rgba(144, 125, 75,.35), rgba(144, 125, 75,.15)); border: 1px solid rgba(144, 125, 75,.4); }
 .bar-2 { height: 65px; background: rgba(176,184,200,.15); border: 1px solid rgba(176,184,200,.2); }
 .bar-3 { height: 50px; background: rgba(201,122,80,.15); border: 1px solid rgba(201,122,80,.2); }
 
@@ -600,7 +600,7 @@
 }
 
 .gp-row:hover { background: rgba(255,255,255,.03); }
-.gp-row.expanded { background: rgba(201,168,76,.06); border-color: rgba(201,168,76,.15); border-radius: 12px 12px 0 0; border-bottom: none; }
+.gp-row.expanded { background: rgba(144, 125, 75,.06); border-color: rgba(144, 125, 75,.15); border-radius: 12px 12px 0 0; border-bottom: none; }
 
 .gp-row-pos { font-family: var(--fh); font-weight: 900; width: 28px; flex-shrink: 0; text-align: center; font-size: .9rem; color: var(--muted); }
 .gp-row-pos.pos-first { color: var(--gold-l); }
@@ -631,7 +631,7 @@
 /* User match detail panel */
 .ud-panel {
   background: rgba(12,18,32,.6);
-  border: 1px solid rgba(201,168,76,.15);
+  border: 1px solid rgba(144, 125, 75,.15);
   border-top: none;
   border-radius: 0 0 12px 12px;
   padding: 1rem 1rem 1.2rem;
@@ -658,7 +658,7 @@
 }
 
 .ud-row.hit-exact { border-color: rgba(76,201,76,.2); background: rgba(76,201,76,.04); }
-.ud-row.hit-result { border-color: rgba(201,168,76,.2); background: rgba(201,168,76,.03); }
+.ud-row.hit-result { border-color: rgba(144, 125, 75,.2); background: rgba(144, 125, 75,.03); }
 .ud-row.hit-miss { border-color: rgba(214,69,69,.15); background: rgba(214,69,69,.02); }
 
 /* Teams row */

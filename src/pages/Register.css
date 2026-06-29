@@ -1,6 +1,6 @@
 .reg-bg {
   background:
-    radial-gradient(ellipse 60% 50% at 80% 10%, rgba(201, 168, 76, 0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 10%, rgba(144, 125, 75, 0.08) 0%, transparent 60%),
     radial-gradient(ellipse 50% 40% at 10% 90%, rgba(230, 57, 70, 0.06) 0%, transparent 60%),
     linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-navy) 100%) !important;
 }
@@ -17,7 +17,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: rgba(201, 168, 76, 0.25);
+  background: rgba(144, 125, 75, 0.25);
   transition: background 0.3s, width 0.3s;
 }
 

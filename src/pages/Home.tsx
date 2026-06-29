@@ -119,7 +119,7 @@ export default function Home() {
     const ctx = canvas.getContext('2d')!;
     let W = 0, H = 0;
     const mouse = { x: -9999, y: -9999 };
-    const GOLD = '201,168,76';
+    const GOLD = '144, 125, 75';
     const COUNT = 70;
 
     function resize() {
