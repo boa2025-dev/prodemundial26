@@ -196,8 +196,11 @@ export default function Admin() {
       const t1 = resolveSlot(map.s1, standings, best8thirds, updated);
       const t2 = resolveSlot(map.s2, standings, best8thirds, updated);
       if (t1 || t2) {
-        updated[matchId] = { kickoff: existing.kickoff || map.kickoff || null, sede: existing.sede || map.sede || '', ...existing, slot1: t1 || existing.slot1 || null, slot2: t2 || existing.slot2 || null };
-        if (t1 && t2) filled++;
+        // Once a slot is resolved (auto or manually fixed), keep it — don't
+        // let a later, possibly-incomplete standings recompute silently
+        // overwrite an already-decided matchup.
+        updated[matchId] = { kickoff: existing.kickoff || map.kickoff || null, sede: existing.sede || map.sede || '', ...existing, slot1: existing.slot1 || t1 || null, slot2: existing.slot2 || t2 || null };
+        if ((existing.slot1 || t1) && (existing.slot2 || t2)) filled++;
       } else if (!existing.kickoff && map.kickoff) {
         updated[matchId] = { ...existing, kickoff: map.kickoff, sede: map.sede || '' };
       }
