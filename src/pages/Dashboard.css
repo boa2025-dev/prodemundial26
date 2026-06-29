@@ -201,8 +201,8 @@ nav { background: rgba(8,9,15,.95); backdrop-filter: blur(20px); border-bottom: 
 .lb-table tr:hover td { background: rgba(255,255,255,.02); }
 .lb-pos { font-family: var(--fh); font-weight: 900; font-size: .9rem; color: var(--muted); width: 32px; }
 .lb-pos.first { color: var(--gold-l); }
-.lb-pos.second { color: #b0b8c8; }
-.lb-pos.third { color: #c97a50; }
+.lb-pos.second { color: #85888b; }
+.lb-pos.third { color: #805731; }
 .lb-name { font-family: var(--fh); font-weight: 700; font-size: .88rem; }
 .you-tag { display: inline-block; font-size: .58rem; font-weight: 700; letter-spacing: .08em; background: rgba(144, 125, 75,.15); border: 1px solid var(--border); color: var(--gold); padding: .06rem .38rem; border-radius: 50px; margin-left: .35rem; vertical-align: middle; }
 .lb-pts { font-family: var(--fh); font-weight: 900; font-size: .95rem; }
@@ -471,6 +471,16 @@ nav { background: rgba(8,9,15,.95); backdrop-filter: blur(20px); border-bottom: 
   border: 1.5px solid var(--gold);
 }
 
+.place-2 .lb-podium-avatar {
+  background: linear-gradient(135deg, rgba(133, 136, 139,.3), rgba(133, 136, 139,.08));
+  border: 1.5px solid var(--silver);
+}
+
+.place-3 .lb-podium-avatar {
+  background: linear-gradient(135deg, rgba(128, 87, 49,.3), rgba(128, 87, 49,.08));
+  border: 1.5px solid var(--bronze);
+}
+
 .lb-podium-name {
   font-family: var(--fh);
   font-size: .76rem;
@@ -493,11 +503,13 @@ nav { background: rgba(8,9,15,.95); backdrop-filter: blur(20px); border-bottom: 
 }
 
 .place-1 .lb-podium-bar { height: 70px; background: linear-gradient(180deg, rgba(144, 125, 75,.35), rgba(144, 125, 75,.15)); border: 1px solid rgba(144, 125, 75,.4); }
-.place-2 .lb-podium-bar { height: 50px; background: rgba(176,184,200,.15); border: 1px solid rgba(176,184,200,.2); }
-.place-3 .lb-podium-bar { height: 38px; background: rgba(201,122,80,.15); border: 1px solid rgba(201,122,80,.2); }
+.place-2 .lb-podium-bar { height: 50px; background: rgba(133, 136, 139,.15); border: 1px solid rgba(133, 136, 139,.2); }
+.place-3 .lb-podium-bar { height: 38px; background: rgba(128, 87, 49,.15); border: 1px solid rgba(128, 87, 49,.2); }
 
 .lb-podium-pts { font-family: var(--fh); font-weight: 900; font-size: .92rem; }
 .place-1 .lb-podium-pts { color: var(--gold-l); }
+.place-2 .lb-podium-pts { color: var(--silver-l); }
+.place-3 .lb-podium-pts { color: var(--bronze-l); }
 
 .lb-rows { display: flex; flex-direction: column; }
 
@@ -519,10 +531,21 @@ nav { background: rgba(8,9,15,.95); backdrop-filter: blur(20px); border-bottom: 
 
 /* Próximo partido (rail) */
 .db2-next-card {
+  position: relative;
+  overflow: hidden;
   background: rgba(12,18,32,.6);
   border: 1px solid var(--border);
   border-radius: 18px;
   padding: 1.2rem 1.4rem;
+}
+
+.db2-next-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--host-color, transparent);
+  opacity: .7;
 }
 
 .db2-next-card.urgent { border-color: rgba(214,69,69,.3); }
@@ -853,6 +876,16 @@ nav { background: rgba(8,9,15,.95); backdrop-filter: blur(20px); border-bottom: 
   border: 1.5px solid var(--gold);
 }
 
+.mob-podium-slot.second .mob-podium-avatar {
+  background: linear-gradient(135deg, rgba(133, 136, 139,.3), rgba(133, 136, 139,.08));
+  border: 1.5px solid var(--silver);
+}
+
+.mob-podium-slot.third .mob-podium-avatar {
+  background: linear-gradient(135deg, rgba(128, 87, 49,.3), rgba(128, 87, 49,.08));
+  border: 1.5px solid var(--bronze);
+}
+
 .mob-podium-name {
   font-family: var(--fh);
   font-size: 11px;
@@ -877,12 +910,14 @@ nav { background: rgba(8,9,15,.95); backdrop-filter: blur(20px); border-bottom: 
 }
 
 .first-bar  { height: 100px; background: linear-gradient(180deg, rgba(144, 125, 75,.35), rgba(144, 125, 75,.15)); border: 1px solid rgba(144, 125, 75,.4); }
-.second-bar { height: 72px;  background: rgba(176,184,200,.15); border: 1px solid rgba(176,184,200,.2); }
-.third-bar  { height: 54px;  background: rgba(201,122,80,.15); border: 1px solid rgba(201,122,80,.2); }
+.second-bar { height: 72px;  background: rgba(133, 136, 139,.15); border: 1px solid rgba(133, 136, 139,.2); }
+.third-bar  { height: 54px;  background: rgba(128, 87, 49,.15); border: 1px solid rgba(128, 87, 49,.2); }
 
 .mob-podium-rank { font-family: var(--fh); font-size: 11px; font-weight: 800; color: var(--muted); }
 .mob-podium-pts  { font-family: var(--fh); font-size: 14px; font-weight: 900; }
 .first-bar .mob-podium-pts { color: var(--gold-l); }
+.second-bar .mob-podium-pts { color: var(--silver-l); }
+.third-bar .mob-podium-pts { color: var(--bronze-l); }
 
 .mob-lb-row {
   display: flex;
@@ -929,6 +964,8 @@ nav { background: rgba(8,9,15,.95); backdrop-filter: blur(20px); border-bottom: 
 }
 
 .mob-nm-card {
+  position: relative;
+  overflow: hidden;
   display: flex;
   align-items: center;
   background: rgba(12,18,32,.8);
@@ -936,6 +973,15 @@ nav { background: rgba(8,9,15,.95); backdrop-filter: blur(20px); border-bottom: 
   border-radius: 16px;
   padding: 14px 16px;
   gap: 8px;
+}
+
+.mob-nm-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--host-color, transparent);
+  opacity: .7;
 }
 
 .mob-nm-team {

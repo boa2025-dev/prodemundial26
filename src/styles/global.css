@@ -9,6 +9,9 @@
   --gold-l: #c7ae6b;
   --gl: #c7ae6b;
   --bronze: #805731;
+  --bronze-l: #ad7c4f;
+  --silver: #85888b;
+  --silver-l: #acb3b9;
   --glow: rgba(144, 125, 75, 0.35);
   --red: #e63946;
   --white: #f0f4f8;
@@ -148,12 +151,31 @@ ul {
 
 /* ── Match rows (shared by Dashboard, Predictions, Admin) ── */
 .match-row {
+  position: relative;
+  overflow: hidden;
   background: rgba(12, 18, 32, 0.8);
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 16px;
   padding: 1rem 1.2rem;
   margin-bottom: 0.6rem;
   transition: border-color 0.2s;
+}
+
+/* Host country accent stripe (FIFA WC26 Host Country Emblem colours) */
+.match-row::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--host-color, transparent);
+  opacity: 0.7;
+}
+
+.host-flag {
+  font-size: 0.85em;
+  vertical-align: middle;
 }
 
 .match-row.has-prediction {

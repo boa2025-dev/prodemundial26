@@ -558,6 +558,16 @@
   border: 1.5px solid var(--gold);
 }
 
+.place-2 .gp-avatar {
+  background: linear-gradient(135deg, rgba(133, 136, 139,.35), rgba(133, 136, 139,.1));
+  border: 1.5px solid var(--silver);
+}
+
+.place-3 .gp-avatar {
+  background: linear-gradient(135deg, rgba(128, 87, 49,.35), rgba(128, 87, 49,.1));
+  border: 1.5px solid var(--bronze);
+}
+
 .gp-name {
   font-family: var(--fh);
   font-size: .82rem;
@@ -579,11 +589,13 @@
 }
 
 .bar-1 { height: 90px; background: linear-gradient(180deg, rgba(144, 125, 75,.35), rgba(144, 125, 75,.15)); border: 1px solid rgba(144, 125, 75,.4); }
-.bar-2 { height: 65px; background: rgba(176,184,200,.15); border: 1px solid rgba(176,184,200,.2); }
-.bar-3 { height: 50px; background: rgba(201,122,80,.15); border: 1px solid rgba(201,122,80,.2); }
+.bar-2 { height: 65px; background: rgba(133, 136, 139,.15); border: 1px solid rgba(133, 136, 139,.2); }
+.bar-3 { height: 50px; background: rgba(128, 87, 49,.15); border: 1px solid rgba(128, 87, 49,.2); }
 
 .gp-bar-pts { font-family: var(--fh); font-weight: 900; font-size: .88rem; }
 .bar-1 .gp-bar-pts { color: var(--gold-l); }
+.bar-2 .gp-bar-pts { color: var(--silver-l); }
+.bar-3 .gp-bar-pts { color: var(--bronze-l); }
 
 /* Ranked list */
 .gp-list { display: flex; flex-direction: column; gap: 0; }
@@ -604,8 +616,8 @@
 
 .gp-row-pos { font-family: var(--fh); font-weight: 900; width: 28px; flex-shrink: 0; text-align: center; font-size: .9rem; color: var(--muted); }
 .gp-row-pos.pos-first { color: var(--gold-l); }
-.gp-row-pos.pos-second { color: #b0b8c8; }
-.gp-row-pos.pos-third { color: #c97a50; }
+.gp-row-pos.pos-second { color: #85888b; }
+.gp-row-pos.pos-third { color: #805731; }
 
 .gp-row-avatar {
   width: 34px;

@@ -6,7 +6,7 @@ import { auth, db } from '../firebase';
 import { useAuth } from '../hooks/useAuth';
 import { MATCHES, GRUPOS_DEF, KNOCKOUT_ROUNDS, BRACKET_MAP, ALL_TEAMS } from '../data/matches';
 import type { Team } from '../data/matches';
-import { formatDate, formatDateTime, TZ } from '../lib/utils';
+import { formatDate, formatDateTime, TZ, getHostCountry, HOST_COUNTRY_META } from '../lib/utils';
 import './Admin.css';
 
 const ADMIN_EMAIL = 'bautistaoteroalen2008@gmail.com';
@@ -533,8 +533,13 @@ function GroupPhase({ savedResults, inputs, matchLocks, onInput, onToggleLock }:
               const autoLocked = now >= m.kickoff.getTime();
               const manualLocked = !!matchLocks[m.id];
               const isLocked = autoLocked || manualLocked;
+              const host = getHostCountry(m.sede);
               return (
-                <div key={m.id} className={`match-row${done ? ' has-result' : ''}${isLocked ? ' admin-locked' : ''}`}>
+                <div
+                  key={m.id}
+                  className={`match-row${done ? ' has-result' : ''}${isLocked ? ' admin-locked' : ''}`}
+                  style={{ '--host-color': HOST_COUNTRY_META[host].color } as React.CSSProperties}
+                >
                   <div className="match-teams">
                     <span className="group-badge">Grupo {m.grupo}</span>
                     <div className="team local"><span className="team-flag">{m.local.f}</span><span className="team-name">{m.local.n}</span></div>

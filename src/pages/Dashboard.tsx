@@ -9,7 +9,7 @@ import { auth, db } from '../firebase';
 import { useAuth } from '../hooks/useAuth';
 import { MATCHES, KNOCKOUT_ROUNDS, GRUPOS_DEF, ALL_TEAMS } from '../data/matches';
 import type { Match, Team } from '../data/matches';
-import { formatDateFull, formatTime, formatDateTime, genCode, TZ } from '../lib/utils';
+import { formatDateFull, formatTime, formatDateTime, genCode, TZ, getHostCountry, HOST_COUNTRY_META } from '../lib/utils';
 import BottomNav from '../components/BottomNav';
 import ScoreSheet from '../components/ScoreSheet';
 import './Dashboard.css';
@@ -715,7 +715,10 @@ export default function Dashboard() {
               </span>
             )}
           </div>
-          <div className="mob-nm-card">
+          <div
+            className="mob-nm-card"
+            style={{ '--host-color': HOST_COUNTRY_META[getHostCountry(nextMatch.sede)].color } as React.CSSProperties}
+          >
             <div className="mob-nm-team">
               <span className="mob-nm-flag">{nextMatch.local.f}</span>
               <span className="mob-nm-name">{nextMatch.local.n}</span>
@@ -725,7 +728,7 @@ export default function Dashboard() {
                 {formatTime(nextMatch.kickoff)} hs
               </div>
               <div className="mob-nm-vs">VS</div>
-              <div className="mob-nm-venue">{nextMatch.sede.split(',')[0]}</div>
+              <div className="mob-nm-venue"><span className="host-flag">{HOST_COUNTRY_META[getHostCountry(nextMatch.sede)].flag}</span> {nextMatch.sede.split(',')[0]}</div>
             </div>
             <div className="mob-nm-team">
               <span className="mob-nm-flag">{nextMatch.visitante.f}</span>
@@ -1067,7 +1070,10 @@ export default function Dashboard() {
           )}
 
           {nextMatch && (
-            <div className={`db2-next-card${nextMatchMinsToClose < 120 ? ' urgent' : ''}`}>
+            <div
+              className={`db2-next-card${nextMatchMinsToClose < 120 ? ' urgent' : ''}`}
+              style={{ '--host-color': HOST_COUNTRY_META[getHostCountry(nextMatch.sede)].color } as React.CSSProperties}
+            >
               <div className="db2-next-header">
                 <span>⏱ Próximo partido</span>
                 {nextMatchMinsToClose < 120 && (
@@ -1088,7 +1094,7 @@ export default function Dashboard() {
                   <span className="db2-next-name">{nextMatch.visitante.n}</span>
                 </div>
               </div>
-              <div className="db2-next-venue">{nextMatch.sede}</div>
+              <div className="db2-next-venue"><span className="host-flag">{HOST_COUNTRY_META[getHostCountry(nextMatch.sede)].flag}</span> {nextMatch.sede}</div>
             </div>
           )}
         </div>
@@ -1418,8 +1424,13 @@ function MatchRow({ match, now, homeVal, awayVal, onInput, manualLocks = {}, poi
   const locked = autoLocked || !!manualLocks[match.id];
   const isLive = autoLocked && now < match.kickoff.getTime() + 1.5 * 3600 * 1000;
   const hasPred = homeVal !== '' && awayVal !== '';
+  const host = getHostCountry(match.sede);
   return (
-    <div className={`match-row${hasPred ? ' has-prediction' : ''}${locked ? ' locked' : ''}`} data-id={match.id}>
+    <div
+      className={`match-row${hasPred ? ' has-prediction' : ''}${locked ? ' locked' : ''}`}
+      data-id={match.id}
+      style={{ '--host-color': HOST_COUNTRY_META[host].color } as React.CSSProperties}
+    >
       <div className="match-teams">
         <div className="team local">
           <span className="team-flag">{match.local.f}</span>
@@ -1444,7 +1455,7 @@ function MatchRow({ match, now, homeVal, awayVal, onInput, manualLocks = {}, poi
       </div>
       <div className="match-meta">
         <span>{formatTime(match.kickoff)} hs{locked && ' · '}{locked && <span className={`lock-badge${isLive ? ' live' : ''}`}>{isLive ? '🔴 En vivo' : '🔒 Cerrado'}</span>}</span>
-        <span className="match-venue">{match.sede}</span>
+        <span className="match-venue"><span className="host-flag">{HOST_COUNTRY_META[host].flag}</span> {match.sede}</span>
       </div>
     </div>
   );

@@ -49,6 +49,20 @@ export function formatDateTime(d: Date): string {
   );
 }
 
+// Host country for a venue string, used to accent match cards with the
+// official FIFA World Cup 26 Host Country Emblem colours (Mexico/Canada/USA).
+export function getHostCountry(sede: string): 'MX' | 'CA' | 'US' {
+  if (/zapopan|guadalupe|azteca|akron|bbva|méxico|guadalajara|monterrey/i.test(sede)) return 'MX';
+  if (/vancouver|toronto|bc place|bmo field/i.test(sede)) return 'CA';
+  return 'US';
+}
+
+export const HOST_COUNTRY_META: Record<'MX' | 'CA' | 'US', { flag: string; color: string }> = {
+  MX: { flag: '🇲🇽', color: '#006847' },
+  CA: { flag: '🇨🇦', color: '#CE1125' },
+  US: { flag: '🇺🇸', color: '#1A237E' },
+};
+
 export function mapFirebaseError(code: string): string {
   const map: Record<string, string> = {
     'auth/user-not-found': 'No existe una cuenta con ese email.',
