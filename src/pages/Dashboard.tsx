@@ -97,10 +97,17 @@ export default function Dashboard() {
   const autoSaveRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const saveLoading = useRef(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  // Mutable mirrors of predInputs/savedPreds so setTimeout callbacks always see latest values
+  const predInputsRef = useRef<Record<string, { home: string; away: string }>>({});
+  const savedPredsRef = useRef<Record<string, Pred>>({});
 
   // ── Mobile tab from URL ──
   const rawTab = searchParams.get('tab') || 'inicio';
   const mobileTab = (rawTab === 'prode' || rawTab === 'tabla') ? rawTab : 'inicio';
+
+  // Keep mutable refs in sync so setTimeout callbacks always see latest state
+  useEffect(() => { predInputsRef.current = predInputs; }, [predInputs]);
+  useEffect(() => { savedPredsRef.current = savedPreds; }, [savedPreds]);
 
   useEffect(() => { if (!currentUser) navigate('/login', { replace: true }); }, [currentUser, navigate]);
 
@@ -223,13 +230,16 @@ export default function Dashboard() {
   async function loadLeaderboard(group: Group) {
     setLbLoading(true);
     try {
-      const [resultsSnap, bonusResultsSnap] = await Promise.all([
+      const [resultsSnap, bonusResultsSnap, bracketSnap] = await Promise.all([
         getDoc(doc(db, 'results', 'matches')),
         getDoc(doc(db, 'results', 'bonusResults')),
+        getDoc(doc(db, 'knockout', 'bracket')),
       ]);
       const results: Record<string, { home: number; away: number }> = resultsSnap.exists() ? (resultsSnap.data().scores || {}) : {};
+      const bracketData: Record<string, any> = bracketSnap.exists() ? bracketSnap.data()! : {};
       const realBonus: BonusResults | null = bonusResultsSnap.exists() ? bonusResultsSnap.data() as BonusResults : null;
-      const resolvedCount = Object.keys(results).length;
+      const koResolved = Object.values(bracketData).filter((m: any) => m?.home != null && m?.away != null).length;
+      const resolvedCount = Object.keys(results).length + koResolved;
       const members = group.members || group.memberUids.map(uid => ({ uid, displayName: uid }));
 
       const allPreds = await Promise.all(
@@ -251,6 +261,13 @@ export default function Dashboard() {
           if (!pred || pred.home == null || pred.away == null) continue;
           if (pred.home === res.home && pred.away === res.away) { pts += 3; exact++; }
           else if (Math.sign(pred.home - pred.away) === Math.sign(res.home - res.away)) { pts += 1; outcome++; }
+        }
+        for (const [matchId, m] of Object.entries(bracketData)) {
+          if (m?.home == null || m?.away == null) continue;
+          const pred = preds[matchId];
+          if (!pred || pred.home == null || pred.away == null) continue;
+          if (pred.home === m.home && pred.away === m.away) { pts += 3; exact++; }
+          else if (Math.sign(pred.home - pred.away) === Math.sign(m.home - m.away)) { pts += 1; outcome++; }
         }
         if (realBonus && bonus) {
           if (realBonus.p1?.n && bonus.p1?.n === realBonus.p1.n) bonusPts += 5;
@@ -341,21 +358,24 @@ export default function Dashboard() {
   }
 
   function collectPreds(): Record<string, Pred> {
+    // Use refs to get latest values — avoids stale closure bug when called from setTimeout
+    const pi = predInputsRef.current;
+    const sp = savedPredsRef.current;
     const updates: Record<string, Pred> = {};
     MATCHES.forEach(m => {
-      const h = predInputs[m.id]?.home ?? (savedPreds[m.id]?.home != null ? String(savedPreds[m.id].home) : '');
-      const a = predInputs[m.id]?.away ?? (savedPreds[m.id]?.away != null ? String(savedPreds[m.id].away) : '');
+      const h = pi[m.id]?.home ?? (sp[m.id]?.home != null ? String(sp[m.id].home) : '');
+      const a = pi[m.id]?.away ?? (sp[m.id]?.away != null ? String(sp[m.id].away) : '');
       if (h !== '' && a !== '') updates[m.id] = { home: parseInt(h), away: parseInt(a) };
     });
     KNOCKOUT_ROUNDS.forEach(round => {
       for (let i = 1; i <= round.count; i++) {
         const id = `${round.id}-${i}`;
-        const h = predInputs[id]?.home ?? (savedPreds[id]?.home != null ? String(savedPreds[id].home) : '');
-        const a = predInputs[id]?.away ?? (savedPreds[id]?.away != null ? String(savedPreds[id].away) : '');
+        const h = pi[id]?.home ?? (sp[id]?.home != null ? String(sp[id].home) : '');
+        const a = pi[id]?.away ?? (sp[id]?.away != null ? String(sp[id].away) : '');
         if (h !== '' && a !== '') updates[id] = { home: parseInt(h), away: parseInt(a) };
       }
     });
-    return { ...savedPreds, ...updates };
+    return { ...sp, ...updates };
   }
 
   async function savePredictions() {
