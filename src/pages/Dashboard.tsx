@@ -299,6 +299,7 @@ export default function Dashboard() {
           matches.push({ id, grupo: round.id, jornada: i, local: bm.slot1, visitante: bm.slot2, kickoff, sede: bm.sede || '' });
         }
       }
+      matches.sort((a, b) => a.kickoff.getTime() - b.kickoff.getTime());
       phases.push({ id: round.id, label: `⚔️ ${round.name}`, matches, available: enabled && matches.length > 0, locked: !enabled });
     });
     phases.push({ id: 'bonus', label: '🏅 Podio Mundial', matches: [], available: true, locked: false });
