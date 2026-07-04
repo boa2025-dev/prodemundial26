@@ -9,7 +9,8 @@
     "api/cron/fix-r32-bracket.ts": { "maxDuration": 10 },
     "api/cron/promo-r32-open.ts": { "maxDuration": 10 },
     "api/cron/notify-r32-fix.ts": { "maxDuration": 10 },
-    "api/cron/fix-r16-bracket.ts": { "maxDuration": 10 }
+    "api/cron/fix-r16-bracket.ts": { "maxDuration": 10 },
+    "api/cron/promo-r16-open.ts": { "maxDuration": 10 }
   },
   "rewrites": [
     { "source": "/(.*)", "destination": "/" }
