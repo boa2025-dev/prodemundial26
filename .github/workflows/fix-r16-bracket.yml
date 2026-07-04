@@ -1,0 +1,25 @@
+name: Fix Round of 16 bracket teams & times
+
+on:
+  workflow_dispatch:
+    inputs:
+      dryRun:
+        description: 'Dry run (preview only, no Firestore writes)'
+        type: boolean
+        default: true
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call fix-r16-bracket endpoint
+        run: |
+          if [ "${{ inputs.dryRun }}" = "true" ]; then
+            curl --fail --silent --show-error -L \
+              -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+              "https://www.prodemundial26.online/api/cron/fix-r16-bracket?dryRun=1"
+          else
+            curl --fail --silent --show-error -L \
+              -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+              "https://www.prodemundial26.online/api/cron/fix-r16-bracket"
+          fi
