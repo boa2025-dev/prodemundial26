@@ -1,0 +1,25 @@
+name: Remind - complete QF predictions
+
+on:
+  workflow_dispatch:
+    inputs:
+      dryRun:
+        description: 'Dry run (preview only, no emails sent)'
+        type: boolean
+        default: true
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call remind-qf-predictions endpoint
+        run: |
+          if [ "${{ inputs.dryRun }}" = "true" ]; then
+            curl --fail --silent --show-error -L \
+              -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+              "https://www.prodemundial26.online/api/cron/remind-qf-predictions?dryRun=1"
+          else
+            curl --fail --silent --show-error -L \
+              -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+              "https://www.prodemundial26.online/api/cron/remind-qf-predictions"
+          fi

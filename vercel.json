@@ -10,7 +10,8 @@
     "api/cron/promo-r32-open.ts": { "maxDuration": 10 },
     "api/cron/notify-r32-fix.ts": { "maxDuration": 10 },
     "api/cron/fix-r16-bracket.ts": { "maxDuration": 10 },
-    "api/cron/promo-r16-open.ts": { "maxDuration": 10 }
+    "api/cron/promo-r16-open.ts": { "maxDuration": 10 },
+    "api/cron/remind-qf-predictions.ts": { "maxDuration": 30 }
   },
   "rewrites": [
     { "source": "/(.*)", "destination": "/" }
