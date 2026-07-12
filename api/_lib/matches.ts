@@ -135,6 +135,5 @@ export const KNOCKOUT_ROUNDS: KnockoutRound[] = [
   { id: 'R16', name: 'Octavos de Final', short: 'Octavos', count: 8 },
   { id: 'QF', name: 'Cuartos de Final', short: 'Cuartos', count: 4 },
   { id: 'SF', name: 'Semifinales', short: 'Semis', count: 2 },
-  { id: 'TP', name: 'Tercer Puesto', short: '3er Puesto', count: 1 },
-  { id: 'F', name: 'Final', short: 'Final', count: 1 },
+  { id: 'FINAL', name: 'Final y 3er Puesto', short: 'Final', count: 2 },
 ];

@@ -147,8 +147,7 @@ export const KNOCKOUT_ROUNDS: KnockoutRound[] = [
   { id: 'R16', name: 'Octavos de Final', short: 'Octavos', count: 8 },
   { id: 'QF', name: 'Cuartos de Final', short: 'Cuartos', count: 4 },
   { id: 'SF', name: 'Semifinales', short: 'Semis', count: 2 },
-  { id: 'TP', name: 'Tercer Puesto', short: '3er Puesto', count: 1 },
-  { id: 'F', name: 'Final', short: 'Final', count: 1 },
+  { id: 'FINAL', name: 'Final y 3er Puesto', short: 'Final', count: 2 },
 ];
 
 export const KNOCKOUT_MATCH_IDS: string[] = [];
@@ -187,6 +186,6 @@ export const BRACKET_MAP: Record<string, BracketEntry> = {
   'QF-4': { s1: 'WR16-7', s2: 'WR16-8', kickoff: new Date('2026-07-11T22:00Z'), sede: 'Arrowhead Stadium, Kansas City' },
   'SF-1': { s1: 'WQF-1', s2: 'WQF-2', kickoff: new Date('2026-07-14T22:00Z'), sede: 'AT&T Stadium, Dallas' },
   'SF-2': { s1: 'WQF-3', s2: 'WQF-4', kickoff: new Date('2026-07-15T22:00Z'), sede: 'MetLife Stadium, Nueva York' },
-  'TP-1': { s1: 'LSF-1', s2: 'LSF-2', kickoff: new Date('2026-07-18T22:00Z'), sede: 'Hard Rock Stadium, Miami' },
-  'F-1': { s1: 'WSF-1', s2: 'WSF-2', kickoff: new Date('2026-07-19T22:00Z'), sede: 'MetLife Stadium, Nueva York' },
+  'FINAL-1': { s1: 'LSF-1', s2: 'LSF-2', kickoff: new Date('2026-07-18T22:00Z'), sede: 'Hard Rock Stadium, Miami' },
+  'FINAL-2': { s1: 'WSF-1', s2: 'WSF-2', kickoff: new Date('2026-07-19T22:00Z'), sede: 'MetLife Stadium, Nueva York' },
 };

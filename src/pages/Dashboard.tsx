@@ -51,7 +51,7 @@ const PHASE_PILL_META: Record<string, { icon: string; label: string }> = {
   bonus: { icon: '🏅', label: 'Podio' },
 };
 KNOCKOUT_ROUNDS.forEach(r => {
-  PHASE_PILL_META[r.id] = { icon: r.id === 'F' || r.id === 'TP' ? '🏆' : '⚔️', label: r.short };
+  PHASE_PILL_META[r.id] = { icon: r.id === 'FINAL' ? '🏆' : '⚔️', label: r.short };
 });
 
 export default function Dashboard() {
@@ -300,7 +300,8 @@ export default function Dashboard() {
         }
       }
       matches.sort((a, b) => a.kickoff.getTime() - b.kickoff.getTime());
-      phases.push({ id: round.id, label: `⚔️ ${round.name}`, matches, available: enabled && matches.length > 0, locked: !enabled });
+      const icon = round.id === 'FINAL' ? '🏆' : '⚔️';
+      phases.push({ id: round.id, label: `${icon} ${round.name}`, matches, available: enabled && matches.length > 0, locked: !enabled });
     });
     phases.push({ id: 'bonus', label: '🏅 Podio Mundial', matches: [], available: true, locked: false });
     return phases;
