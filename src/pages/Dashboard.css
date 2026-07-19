@@ -1274,6 +1274,16 @@ nav { background: rgba(8,9,15,.95); backdrop-filter: blur(20px); border-bottom: 
 /* ─── TABLA TAB ─── */
 .mob-tabla { padding: 0 16px; }
 
+.lb-hidden-msg {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  color: var(--muted);
+  font-size: .9rem;
+  background: rgba(255,255,255,.03);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+
 /* My row pinned */
 .mob-my-row {
   display: flex;

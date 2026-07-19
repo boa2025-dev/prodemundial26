@@ -380,6 +380,8 @@
 .admin-stat-value { font-family: var(--fh); font-size: 1.3rem; font-weight: 900; color: var(--gold-l); }
 .admin-stat-value.on { color: var(--green); }
 .admin-stat-label { font-size: .7rem; color: var(--muted); margin-top: .3rem; white-space: nowrap; }
+.admin-stat-card-toggle { min-width: 160px; }
+.admin-stat-toggle-row { display: flex; align-items: center; gap: .7rem; }
 
 /* ── s-text variants (save button label) ── */
 .s-text-mobile { display: none; }

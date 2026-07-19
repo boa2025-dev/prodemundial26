@@ -74,6 +74,7 @@ export default function Dashboard() {
   const [lbScores, setLbScores] = useState<LbScore[]>([]);
   const [lbResolved, setLbResolved] = useState(0);
   const [lbLoading, setLbLoading] = useState(true);
+  const [showLeaderboard, setShowLeaderboard] = useState(true);
   // UI state
   const [menuOpen, setMenuOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState<'create' | 'join' | null>(null);
@@ -143,6 +144,7 @@ export default function Dashboard() {
       const phases = phasesSnap.exists() ? phasesSnap.data()! : {};
       setKnockoutBracket(bracket);
       setKnockoutPhases(phases);
+      setShowLeaderboard(phases.showLeaderboard !== false);
       setMatchResults(resultsSnap.exists() ? (resultsSnap.data().scores || {}) : {});
       const groupUpdatedAt = resultsSnap.exists() ? resultsSnap.data().updatedAt?.toDate?.() ?? null : null;
       const koUpdatedAt = bracketSnap.exists() ? bracketSnap.data().updatedAt?.toDate?.() ?? null : null;
@@ -602,7 +604,7 @@ export default function Dashboard() {
   const MobileInicio = () => (
     <div className="mob-inicio">
       {/* My stats card */}
-      {myScore && (
+      {myScore && showLeaderboard && (
         <div className="mob-my-stats-card">
           <div className="mob-my-stats-row">
             <div className="mob-my-stats-avatar">{myScore.name.charAt(0).toUpperCase()}</div>
@@ -661,7 +663,10 @@ export default function Dashboard() {
       </div>
 
       {/* Leaderboard card */}
-      <div className="mob-lb-card">
+      {!showLeaderboard && (
+        <div className="lb-hidden-msg" style={{ margin: '0 16px 12px' }}>🔒 Los puntos están ocultos temporalmente</div>
+      )}
+      <div className="mob-lb-card" style={!showLeaderboard ? { display: 'none' } : {}}>
         <div className="mob-card-header">
           <span className="mob-card-icon">🏆</span>
           <span className="mob-card-title">Tabla de Puntos</span>
@@ -936,7 +941,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {points != null && (
+        {points != null && showLeaderboard && (
           <div className={`points-badge mob${points > 0 ? ' hit' : ' miss'}`}>
             {points > 0 ? `✓ +${points} pts` : '0 pts'}
           </div>
@@ -947,39 +952,45 @@ export default function Dashboard() {
 
   const MobileTabla = () => (
     <div className="mob-tabla">
-      {/* My row pinned */}
-      {myScore && (
-        <div className="mob-my-row">
-          <div className="mob-my-avatar">{myScore.name.charAt(0).toUpperCase()}</div>
-          <div className="mob-my-info">
-            <div className="mob-my-name">{myScore.name} <span className="you-tag">vos</span></div>
-            <div className="mob-my-meta">{myScore.exact} exactos · {myScore.outcome} resultados</div>
-          </div>
-          <div className="mob-my-pts">{myScore.pts}<div className="mob-my-pts-label">PTS</div></div>
-        </div>
-      )}
-
-      {/* Full leaderboard */}
-      <div className="mob-lb-full">
-        <div className="mob-lb-header">
-          <span>#</span><span>JUGADOR</span><span>EXC</span><span>RES</span><span>PTS</span>
-        </div>
-        {lbLoading
-          ? <div style={{ padding: 20, color: 'var(--muted)', display: 'flex', gap: 8 }}><div className="spin-sm" />Calculando...</div>
-          : lbScores.map((s, i) => (
-            <div key={s.uid} className={`mob-lb-row-full${s.uid === currentUser?.uid ? ' me' : ''}`}>
-              <span className={`mob-rank-num${i < 3 ? ' top' : ''}`}>{medals[i] || i + 1}</span>
-              <div className="mob-player">
-                <div className="mob-player-avatar">{s.name.charAt(0).toUpperCase()}</div>
-                <span>{s.name.split(' ')[0]}</span>
+      {!showLeaderboard ? (
+        <div className="lb-hidden-msg" style={{ margin: '24px 0' }}>🔒 Los puntos están ocultos temporalmente</div>
+      ) : (
+        <>
+          {/* My row pinned */}
+          {myScore && (
+            <div className="mob-my-row">
+              <div className="mob-my-avatar">{myScore.name.charAt(0).toUpperCase()}</div>
+              <div className="mob-my-info">
+                <div className="mob-my-name">{myScore.name} <span className="you-tag">vos</span></div>
+                <div className="mob-my-meta">{myScore.exact} exactos · {myScore.outcome} resultados</div>
               </div>
-              <span className="mob-exact-num">{s.exact}</span>
-              <span style={{ color: 'var(--gold)', fontSize: 13 }}>{s.outcome}</span>
-              <span className={`mob-pts-num${i === 0 ? ' leader' : ''}`}>{s.pts}</span>
+              <div className="mob-my-pts">{myScore.pts}<div className="mob-my-pts-label">PTS</div></div>
             </div>
-          ))
-        }
-      </div>
+          )}
+
+          {/* Full leaderboard */}
+          <div className="mob-lb-full">
+            <div className="mob-lb-header">
+              <span>#</span><span>JUGADOR</span><span>EXC</span><span>RES</span><span>PTS</span>
+            </div>
+            {lbLoading
+              ? <div style={{ padding: 20, color: 'var(--muted)', display: 'flex', gap: 8 }}><div className="spin-sm" />Calculando...</div>
+              : lbScores.map((s, i) => (
+                <div key={s.uid} className={`mob-lb-row-full${s.uid === currentUser?.uid ? ' me' : ''}`}>
+                  <span className={`mob-rank-num${i < 3 ? ' top' : ''}`}>{medals[i] || i + 1}</span>
+                  <div className="mob-player">
+                    <div className="mob-player-avatar">{s.name.charAt(0).toUpperCase()}</div>
+                    <span>{s.name.split(' ')[0]}</span>
+                  </div>
+                  <span className="mob-exact-num">{s.exact}</span>
+                  <span style={{ color: 'var(--gold)', fontSize: 13 }}>{s.outcome}</span>
+                  <span className={`mob-pts-num${i === 0 ? ' leader' : ''}`}>{s.pts}</span>
+                </div>
+              ))
+            }
+          </div>
+        </>
+      )}
       <div style={{ height: 100 }} />
     </div>
   );
@@ -1061,7 +1072,7 @@ export default function Dashboard() {
       <div className="page db-desktop-only db2-grid">
         {/* Rail (top row) */}
         <div className="db2-rail">
-          {myScore && (
+          {myScore && showLeaderboard && (
             <div className="db2-rank-card">
               <div className="db2-rank-avatar">{myScore.name.charAt(0).toUpperCase()}</div>
               <div className="db2-rank-info">
@@ -1087,7 +1098,9 @@ export default function Dashboard() {
                 <span className="lb-panel-title">Tabla de Puntos</span>
               </div>
               <div className="lb-group-name" style={{ marginBottom: '.8rem' }}>{activeGroup.name}</div>
-              {lbPodiumJsx}
+              {showLeaderboard ? lbPodiumJsx : (
+                <div className="lb-hidden-msg">🔒 Los puntos están ocultos temporalmente</div>
+              )}
             </div>
           )}
 
@@ -1206,7 +1219,7 @@ export default function Dashboard() {
               getPredInput={getPredInput}
               showOnlyPending={showOnlyPending}
               manualLocks={manualLocks}
-              getMatchPoints={getMatchPoints}
+              getMatchPoints={showLeaderboard ? getMatchPoints : () => null}
             />
           )}
         </div>

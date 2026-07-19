@@ -345,6 +345,18 @@ export default function Admin() {
     }
   }
 
+  async function toggleShowLeaderboard(enabled: boolean) {
+    const updated = { ...savedPhases, showLeaderboard: enabled };
+    setSavedPhases(updated);
+    try {
+      await setDoc(doc(db, 'knockout', 'phases'), updated, { merge: false });
+      showToast(enabled ? '👁 Tabla visible' : '🔒 Tabla oculta', 'success');
+    } catch (err: any) {
+      setSavedPhases({ ...updated, showLeaderboard: !enabled });
+      showToast('Error al guardar: ' + err.message, 'error');
+    }
+  }
+
   if (accessDenied) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)' }}>
@@ -399,6 +411,8 @@ export default function Admin() {
           totalKo={totalKo}
           groupsCount={allGroups.length}
           bonusOpen={savedPhases.bonusOpen !== false}
+          showLeaderboard={savedPhases.showLeaderboard !== false}
+          onToggleLeaderboard={toggleShowLeaderboard}
         />
         {!loaded ? (
           <div className="loading-state"><div className="spinner-lg" /></div>
@@ -471,13 +485,15 @@ export default function Admin() {
 // ─────────────────────────────────────────
 // STAT CARDS
 // ─────────────────────────────────────────
-function AdminStats({ totalGroupDone, totalGroupMatches, doneBracket, totalKo, groupsCount, bonusOpen }: {
+function AdminStats({ totalGroupDone, totalGroupMatches, doneBracket, totalKo, groupsCount, bonusOpen, showLeaderboard, onToggleLeaderboard }: {
   totalGroupDone: number;
   totalGroupMatches: number;
   doneBracket: number;
   totalKo: number;
   groupsCount: number;
   bonusOpen: boolean;
+  showLeaderboard: boolean;
+  onToggleLeaderboard: (enabled: boolean) => void;
 }) {
   return (
     <div className="admin-stats">
@@ -496,6 +512,18 @@ function AdminStats({ totalGroupDone, totalGroupMatches, doneBracket, totalKo, g
       <div className="admin-stat-card">
         <div className={`admin-stat-value${bonusOpen ? ' on' : ''}`}>{bonusOpen ? 'Abierto' : 'Cerrado'}</div>
         <div className="admin-stat-label">Podio</div>
+      </div>
+      <div className="admin-stat-card admin-stat-card-toggle">
+        <div className="admin-stat-toggle-row">
+          <div>
+            <div className={`admin-stat-value${showLeaderboard ? ' on' : ''}`}>{showLeaderboard ? 'Visible' : 'Oculto'}</div>
+            <div className="admin-stat-label">Tabla de puntos</div>
+          </div>
+          <label className="toggle-switch" style={{ marginLeft: 'auto' }}>
+            <input type="checkbox" checked={showLeaderboard} onChange={e => onToggleLeaderboard(e.target.checked)} />
+            <span className="toggle-track" />
+          </label>
+        </div>
       </div>
     </div>
   );
