@@ -144,7 +144,7 @@ export default function Dashboard() {
       const phases = phasesSnap.exists() ? phasesSnap.data()! : {};
       setKnockoutBracket(bracket);
       setKnockoutPhases(phases);
-      setShowLeaderboard(phases.showLeaderboard !== false);
+      setShowLeaderboard(phases.showLeaderboard !== false || currentUser?.email === ADMIN_EMAIL);
       setMatchResults(resultsSnap.exists() ? (resultsSnap.data().scores || {}) : {});
       const groupUpdatedAt = resultsSnap.exists() ? resultsSnap.data().updatedAt?.toDate?.() ?? null : null;
       const koUpdatedAt = bracketSnap.exists() ? bracketSnap.data().updatedAt?.toDate?.() ?? null : null;
